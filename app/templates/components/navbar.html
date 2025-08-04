@@ -1,0 +1,132 @@
+<nav class="fixed top-0 left-0 w-full z-50 bg-gray-900 text-white shadow-lg">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center flex-wrap">
+  <!-- Logo -->
+  <div class="flex items-center space-x-2">
+    <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" class="h-10 w-auto object-contain " />
+    <a href="/" class="text-2xl font-bold tracking-wider">RG4L<span class="text-rose-600">BARBER</span></a>
+  </div>
+
+    <!-- Botón hamburguesa -->
+    <button id="menu-btn" class="md:hidden focus:outline-none z-[70] relative">
+      <div id="bar1" class="w-6 h-0.5 bg-white mb-1 transition-all duration-300 origin-center"></div>
+      <div id="bar2" class="w-6 h-0.5 bg-white mb-1 transition-all duration-300"></div>
+      <div id="bar3" class="w-6 h-0.5 bg-white transition-all duration-300 origin-center"></div>
+    </button>
+
+    <!-- Menú escritorio -->
+    <div class="hidden md:flex space-x-6 items-center mt-2 md:mt-0 w-full md:w-auto">
+      {% for link in ['inicio', 'servicios', 'galeria', 'equipo', 'contacto'] %}
+        <a href="#{{ link }}" class="relative group capitalize">
+          <span class="text-white group-hover:text-rose-500">{{ link }}</span>
+          <span class="absolute left-0 bottom-0 w-0 group-hover:w-full h-0.5 bg-rose-500 transition-all duration-300"></span>
+        </a>
+      {% endfor %}
+
+      {% if session['usuario_id'] %}
+        <!-- Dropdown -->
+        <div class="relative">
+          <div class="group">
+            <button class="flex items-center gap-2 text-white hover:text-rose-500">
+              <i class="fas fa-user-circle text-2xl"></i>
+            </button>
+            <div class="absolute right-0 mt-[18px] w-64 bg-gray-800 border border-gray-700 rounded shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
+              <a href="/perfil" class="flex items-center gap-3 px-4 py-3 border-b border-gray-700 hover:bg-gray-700">
+                <i class="fas fa-user-circle text-3xl text-gray-300"></i>
+                <div>
+                  <p class="font-semibold">{{ session['nombre'] }} {{ session['apellido'] }}</p>
+                  <p class="text-sm text-gray-400">{{ session['correo'] }}</p>
+                </div>
+              </a>
+              <div class="py-2 border-b border-gray-700 space-y-1">
+                {% if session['rol'] == 'admin' %}
+                  <a href="/dashboard" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-tools text-gray-400"></i> Panel Admin
+                  </a>
+                  <a href="/usuarios" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-users text-gray-400"></i> Usuarios
+                  </a>
+                  <a href="/configuracion" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-cogs text-gray-400"></i> Configuración
+                  </a>
+                {% else %}
+                  <a href="/dashboard/cliente" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-calendar-check text-gray-400"></i> Mis Citas
+                  </a>
+                  <a href="/historial" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-history text-gray-400"></i> Historial
+                  </a>
+                {% endif %}
+              </div>
+              <div class="py-2">
+                <a href="/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:bg-gray-700">
+                  <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </a>
+              </div>
+            </div>
+            <div class="absolute -bottom-2 right-0 h-3 w-64 pointer-events-none"></div>
+          </div>
+        </div>
+      {% else %}
+        <a href="/login" class="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-md text-white text-sm">Iniciar Sesión</a>
+        <a href="/register" class="bg-rose-600 hover:bg-rose-700 px-3 py-2 rounded-md text-white text-sm ml-2">Registrarse</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+  <!-- Menú móvil -->
+<div id="mobile-menu" class="fixed top-0 right-0 w-72 h-full bg-gray-900 transform translate-x-full transition-transform duration-300 ease-in-out z-50 md:hidden pt-8 px-6 font-[Poppins] flex flex-col">
+  {% if session['usuario_id'] %}
+    <div class="mt-2 mb-3 border-b border-gray-700 py-2">
+      <a href="/perfil" class="flex items-center gap-3 hover:bg-gray-800 rounded-md px-3 py-2">
+        <i class="fas fa-user-circle text-3xl text-gray-300"></i>
+        <div>
+          <p class="font-semibold text-white">{{ session['nombre'] }} {{ session['apellido'] }}</p>
+          <p class="text-sm text-gray-400">{{ session['correo'] }}</p>
+        </div>
+      </a>
+    </div>
+  {% else %}
+    <div class="mt-2 mb-3 space-y-2 border-b border-gray-700 py-4">
+      <a href="/login" class="block bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md text-white text-center">Iniciar Sesión</a>
+      <a href="/register" class="block bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-md text-white text-center">Registrarse</a>
+    </div>
+  {% endif %}
+
+  <div class="space-y-1 border-b border-gray-700 py-2">
+    {% for link in ['inicio', 'servicios', 'galeria', 'equipo', 'contacto'] %}
+      <a href="#{{ link }}" class="block text-white hover:bg-gray-800 rounded-md px-3 py-2 transition">{{ link|capitalize }}</a>
+    {% endfor %}
+  </div>
+
+  {% if session['usuario_id'] %}
+    <div class="space-y-1 border-b border-gray-700 py-2">
+      {% if session['rol'] == 'admin' %}
+        <a href="/dashboard" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+          <i class="fas fa-tools"></i> Panel Admin
+        </a>
+        <a href="/usuarios" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+          <i class="fas fa-users"></i> Usuarios
+        </a>
+        <a href="/configuracion" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+          <i class="fas fa-cogs"></i> Configuración
+        </a>
+      {% else %}
+        <a href="/dashboard/cliente" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+          <i class="fas fa-calendar-check"></i> Mis Citas
+        </a>
+        <a href="/historial" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+          <i class="fas fa-history"></i> Historial
+        </a>
+      {% endif %}
+    </div>
+    <div class="pt-2 border-t border-gray-700">
+      <a href="/logout" class="flex items-center gap-2 text-red-400 hover:text-red-300 px-3 py-2">
+        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+      </a>
+    </div>
+  {% endif %}
+</div>
+</nav>
