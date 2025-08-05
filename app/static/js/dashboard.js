@@ -1,63 +1,57 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const sidebar = document.getElementById('application-sidebar');
+  const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebar-toggle');
-  const toggleIconOpen = document.getElementById('toggle-icon-open');
-  const toggleIconClose = document.getElementById('toggle-icon-close');
-  const profileDropdown = document.getElementById('profile-dropdown');
+  const sidebarClose = document.getElementById('sidebar-close');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  const toggleIconOpen = document.getElementById('toggle-open');
+  const toggleIconClose = document.getElementById('toggle-close');
+  const profileBtn = document.getElementById('profile-btn');
   const profileMenu = document.getElementById('profile-menu');
 
-  // Sidebar Toggle
-  sidebarToggle.addEventListener('click', function () {
-    sidebar.classList.toggle('-translate-x-full');
-    toggleIconOpen.classList.toggle('hidden');
-    toggleIconClose.classList.toggle('hidden');
+  // Abrir sidebar (mobile)
+  function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarOverlay.classList.remove('hidden');
+    toggleIconOpen?.classList.add('hidden');
+    toggleIconClose?.classList.remove('hidden');
+  }
+
+  // Cerrar sidebar (mobile)
+  function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    sidebarOverlay.classList.add('hidden');
+    toggleIconOpen?.classList.remove('hidden');
+    toggleIconClose?.classList.add('hidden');
+  }
+
+  sidebarToggle?.addEventListener('click', openSidebar);
+  sidebarClose?.addEventListener('click', closeSidebar);
+  sidebarOverlay?.addEventListener('click', closeSidebar);
+
+  // Profile dropdown
+  profileBtn?.addEventListener('click', function (event) {
+    event.stopPropagation();
+    profileMenu?.classList.toggle('hidden');
   });
 
-  // Accordion
-  const accordions = document.querySelectorAll('.accordion-toggle');
-  accordions.forEach(button => {
+  // Cierra el menú de perfil al hacer clic fuera
+  document.addEventListener('click', function (event) {
+    if (!profileBtn.contains(event.target) && !profileMenu.contains(event.target)) {
+      profileMenu.classList.add('hidden');
+    }
+  });
+
+  // Sidebar accordion
+  document.querySelectorAll('.acc-toggle').forEach(button => {
     button.addEventListener('click', function () {
       const targetId = button.getAttribute('data-target');
       const content = document.getElementById(targetId);
-      const isOpen = button.getAttribute('aria-expanded') === 'true';
+      const openIcon = button.querySelector('.acc-open');
+      const closeIcon = button.querySelector('.acc-close');
 
-      // Toggle accordion state
-      button.setAttribute('aria-expanded', !isOpen);
-      content.classList.toggle('hidden');
-
-      // Toggle icons
-      const openIcon = button.querySelector('.accordion-active\\:block');
-      const closeIcon = button.querySelector('.accordion-active\\:hidden');
-      openIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('hidden');
-
-      // Set height for smooth transition
-      if (!isOpen) {
-        content.style.height = content.scrollHeight + 'px';
-        setTimeout(() => {
-          content.style.height = 'auto';
-        }, 300);
-      } else {
-        content.style.height = content.scrollHeight + 'px';
-        setTimeout(() => {
-          content.style.height = '0';
-        }, 10);
-      }
+      content?.classList.toggle('hidden');
+      openIcon?.classList.toggle('hidden');
+      closeIcon?.classList.toggle('hidden');
     });
   });
-
-  // Profile Dropdown
-  profileDropdown.addEventListener('click', function () {
-    profileMenu.classList.toggle('hidden');
-    profileMenu.classList.toggle('opacity-0');
-    profileMenu.classList.toggle('opacity-100');
-  });
-
-  // Close profile menu when clicking outside
-  document.addEventListener('click', function (event) {
-    if (!profileDropdown.contains(event.target) && !profileMenu.contains(event.target)) {
-      profileMenu.classList.add('hidden', 'opacity-0');
-      profileMenu.classList.remove('opacity-100');
-    }
-  });
-});
+}); 

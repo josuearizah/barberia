@@ -11,7 +11,7 @@
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">ESTILO Y TRADICIÓN PARA EL HOMBRE MODERNO</h1>
                 <p class="text-lg md:text-xl mb-8 text-gray-300">Más que un corte de pelo, una experiencia. Barberos profesionales a tu servicio.</p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="#reservar" class="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Reservar Cita</a>
+                    <a href="/reservar_cita" class="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Reservar Cita</a>
                     <a href="#servicios" class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Ver Servicios</a>
                 </div>
             </div>
@@ -377,170 +377,93 @@
         </div>
     </section>
 
-    <!-- Reservation Section -->
-    <section id="reservar" class="py-16 bg-rose-600 text-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">RESERVA TU CITA</h2>
-                <div class="w-24 h-1 bg-white mx-auto"></div>
-                <p class="mt-4 max-w-2xl mx-auto">Reserva tu cita en línea y evita esperas. Nuestro equipo estará listo para atenderte.</p>
+    <!-- Contacto y Mapa Section -->
+    <section id="contacto" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTRA UBICACIÓN E INFORMACIÓN</h2>
+        <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Encuentra nuestra barbería y visítanos. Estamos ubicados en un lugar de fácil acceso y listos para atenderte.
+        </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <!-- Información de Contacto -->
+        <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full">
+            <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
+
+            <div class="space-y-6">
+            <div class="flex items-start">
+                <div class="text-rose-600 mr-4 mt-1">
+                <i class="fas fa-map-marker-alt text-xl"></i>
+                </div>
+                <div>
+                <h4 class="font-bold text-lg">Dirección</h4>
+                <p class="text-gray-600">Carrera 10 #1_41, Barrio Centro</p>
+                </div>
             </div>
-            
-            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-8 text-gray-800">
-                <form id="reservation-form">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="name" class="block text-gray-700 font-medium mb-2">Nombre completo</label>
-                            <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                        </div>
-                        <div>
-                            <label for="phone" class="block text-gray-700 font-medium mb-2">Teléfono</label>
-                            <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                        </div>
-                        <div>
-                            <label for="date" class="block text-gray-700 font-medium mb-2">Fecha</label>
-                            <input type="date" id="date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                        </div>
-                        <div>
-                            <label for="time" class="block text-gray-700 font-medium mb-2">Hora</label>
-                            <select id="time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                                <option value="">Seleccionar hora</option>
-                                <option value="09:00">09:00</option>
-                                <option value="10:00">10:00</option>
-                                <option value="11:00">11:00</option>
-                                <option value="12:00">12:00</option>
-                                <option value="13:00">13:00</option>
-                                <option value="16:00">16:00</option>
-                                <option value="17:00">17:00</option>
-                                <option value="18:00">18:00</option>
-                                <option value="19:00">19:00</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="service" class="block text-gray-700 font-medium mb-2">Servicio</label>
-                            <select id="service" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                                <option value="">Seleccionar servicio</option>
-                                <option value="corte">Corte de Cabello</option>
-                                <option value="afeitado">Afeitado Tradicional</option>
-                                <option value="barba">Arreglo de Barba</option>
-                                <option value="color">Coloración</option>
-                                <option value="infantil">Corte Infantil</option>
-                                <option value="facial">Tratamiento Facial</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="barber" class="block text-gray-700 font-medium mb-2">Barbero</label>
-                            <select id="barber" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                                <option value="">Seleccionar barbero</option>
-                                <option value="carlos">Carlos Rodríguez</option>
-                                <option value="miguel">Miguel Ángel</option>
-                                <option value="alejandro">Alejandro Torres</option>
-                                <option value="daniel">Daniel Méndez</option>
-                                <option value="cualquiera">Cualquiera disponible</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <label for="notes" class="block text-gray-700 font-medium mb-2">Notas adicionales</label>
-                        <textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
-                    </div>
-                    
-                    <div class="mt-8">
-                        <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-md font-medium text-lg transition">Confirmar Reserva</button>
-                    </div>
-                </form>
+
+            <div class="flex items-start">
+                <div class="text-rose-600 mr-4 mt-1">
+                <i class="fas fa-phone-alt text-xl"></i>
+                </div>
+                <div>
+                <h4 class="font-bold text-lg">Teléfono</h4>
+                <p class="text-gray-600">313 851 2244</p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div class="text-rose-600 mr-4 mt-1">
+                <i class="fas fa-clock text-xl"></i>
+                </div>
+                <div>
+                <h4 class="font-bold text-lg">Horario</h4>
+                <p class="text-gray-600">
+                    Lunes a Viernes: 9:00 am - 1:00 pm <br>
+                    2:00 pm - 8:00 pm<br>
+                    Domingo: Cerrado
+                </p>
+                </div>
+            </div>
+            </div>
+
+            <div class="mt-8">
+            <h4 class="font-bold text-lg mb-4">Síguenos</h4>
+            <div class="flex space-x-4">
+                <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
+                <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
+                <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
+                <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
+                <i class="fab fa-youtube"></i>
+                </a>
+            </div>
             </div>
         </div>
+
+        <!-- Mapa -->
+        <div class="rounded-lg overflow-hidden shadow-md border border-gray-200 h-full">
+            <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco" 
+            width="100%" 
+            height="100%" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade"
+            class="w-full h-full min-h-[400px]">
+            </iframe>
+        </div>
+        </div>
+    </div>
     </section>
-
-<!-- Contacto y Mapa Section -->
-<section id="contacto" class="py-16 bg-white">
-  <div class="container mx-auto px-4">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTRA UBICACIÓN E INFORMACIÓN</h2>
-      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-      <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
-        Encuentra nuestra barbería y visítanos. Estamos ubicados en un lugar de fácil acceso y listos para atenderte.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-      <!-- Información de Contacto -->
-      <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full">
-        <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
-
-        <div class="space-y-6">
-          <div class="flex items-start">
-            <div class="text-rose-600 mr-4 mt-1">
-              <i class="fas fa-map-marker-alt text-xl"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-lg">Dirección</h4>
-              <p class="text-gray-600">Carrera 10 #1_41, Barrio Centro</p>
-            </div>
-          </div>
-
-          <div class="flex items-start">
-            <div class="text-rose-600 mr-4 mt-1">
-              <i class="fas fa-phone-alt text-xl"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-lg">Teléfono</h4>
-              <p class="text-gray-600">313 851 2244</p>
-            </div>
-          </div>
-
-          <div class="flex items-start">
-            <div class="text-rose-600 mr-4 mt-1">
-              <i class="fas fa-clock text-xl"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-lg">Horario</h4>
-              <p class="text-gray-600">
-                Lunes a Viernes: 9:00 am - 1:00 pm <br>
-                2:00 pm - 8:00 pm<br>
-                Domingo: Cerrado
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-8">
-          <h4 class="font-bold text-lg mb-4">Síguenos</h4>
-          <div class="flex space-x-4">
-            <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-              <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-              <i class="fab fa-twitter"></i>
-            </a>
-            <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-              <i class="fab fa-youtube"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mapa -->
-      <div class="rounded-lg overflow-hidden shadow-md border border-gray-200 h-full">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco" 
-          width="100%" 
-          height="100%" 
-          style="border:0;" 
-          allowfullscreen="" 
-          loading="lazy" 
-          referrerpolicy="no-referrer-when-downgrade"
-          class="w-full h-full min-h-[400px]">
-        </iframe>
-      </div>
-    </div>
-  </div>
-</section>
 
     <!-- Success Modal for Forms -->
     <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">

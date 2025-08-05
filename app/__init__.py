@@ -11,9 +11,11 @@ def create_app():
 
     db.init_app(app)
 
-    # Registrar blueprint sin prefijo (así las rutas serán /login, /register, etc.)
-    from app.routes import auth
-    app.register_blueprint(auth.bp)
+    # Registrar blueprints
+    from app.routes import auth, usuario, cita
+    app.register_blueprint(auth.bp)      # login, logout, dashboard
+    app.register_blueprint(usuario.bp)   # register
+    app.register_blueprint(cita.cita_bp) # reservar_cita
 
     # Ruta raíz → main.html
     @app.route('/')
