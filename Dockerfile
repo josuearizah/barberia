@@ -1,4 +1,4 @@
-# Usa una imagen base oficial de Python
+# Usa una imagen base de Python
 FROM python:3.11-slim
 
 # Establece el directorio de trabajo dentro del contenedor
@@ -7,15 +7,14 @@ WORKDIR /app
 # Copia todos los archivos del proyecto al contenedor
 COPY . .
 
-# Instala dependencias desde requirements.txt
+# Instala las dependencias del proyecto
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expone el puerto (Flask corre por defecto en el 5000)
-EXPOSE 5000
+# Expón el puerto en el que correrá la app Flask
+EXPOSE 8080
 
-# Define la variable de entorno para Flask
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
+# Establece el entorno en producción (opcional)
+ENV FLASK_ENV=production
 
-# Comando que ejecuta tu app Flask
-CMD ["flask", "run"]
+# Comando para ejecutar tu aplicación
+CMD ["python", "run.py"]
