@@ -38,7 +38,7 @@
         <div id="profile-menu" class="hidden absolute right-0 mt-3 w-48 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:border-gray-700 border border-gray-200">
           <div class="py-4 px-4 bg-gray-100 rounded-t-lg dark:bg-gray-700">
             <p class="text-sm text-gray-500 dark:text-gray-400">Conectado como</p>
-            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ session['email'] }}</p>
+            <p class="text-xs font-medium text-gray-800 dark:text-gray-200">{{ session['correo'] }}</p>
           </div>
           <div class="p-2 space-y-1">
             <a class="flex items-center gap-x-2 py-2 px-3 text-sm text-gray-800 hover:bg-gray-100 rounded-lg dark:text-gray-200 dark:hover:bg-gray-700" href="#">
@@ -48,7 +48,7 @@
               </svg>
               Perfil
             </a>
-            <a class="flex items-center gap-x-2 py-2 px-3 text-sm text-gray-800 hover:bg-gray-100 rounded-lg dark:text-gray-200 dark:hover:bg-gray-700" href="#">
+            <a class="flex items-center gap-x-2 py-2 px-3 text-sm text-gray-800 hover:bg-gray-100 rounded-lg dark:text-gray-200 dark:hover:bg-gray-700" href="{{ url_for('auth.logout') }}">
               <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
