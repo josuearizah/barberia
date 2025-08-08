@@ -54,4 +54,31 @@ document.addEventListener('DOMContentLoaded', function () {
       closeIcon?.classList.toggle('hidden');
     });
   });
-}); 
+});
+
+// Actualizar estado de cita
+function actualizarEstadoCita(select) {
+  const citaId = select.getAttribute('data-cita-id');
+  const estado = select.value;
+
+  fetch(`/actualizar_estado_cita/${citaId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `estado=${estado}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      alert('Error: ' + data.error);
+      select.value = select.dataset.originalValue || 'pendiente';
+    } else {
+      select.dataset.originalValue = estado;
+    }
+  })
+  .catch(error => {
+    alert('Error al actualizar el estado: ' + error);
+    select.value = select.dataset.originalValue || 'pendiente';
+  });
+}

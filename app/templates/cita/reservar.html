@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
-
 {% block title %}Reservar Cita{% endblock %}
 
 {% block content %}
-
-<!-- Reservation Section -->
 <section id="reservar" class="py-16 pt-28 bg-rose-600 text-white">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -12,25 +9,25 @@
             <div class="w-24 h-1 bg-white mx-auto"></div>
             <p class="mt-4 max-w-2xl mx-auto">Reserva tu cita en línea y evita esperas. Nuestro equipo estará listo para atenderte.</p>
         </div>
-        
+                
         <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-8 text-gray-800">
-            <form id="reservation-form">
+            <form id="reservation-form" method="POST" action="{{ url_for('cita.reservar_cita') }}">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="name" class="block text-gray-700 font-medium mb-2">Nombre completo</label>
-                        <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <input type="text" id="name" name="name" value="{{ session['nombre'] }} {{ session['apellido'] }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                     </div>
                     <div>
                         <label for="phone" class="block text-gray-700 font-medium mb-2">Teléfono</label>
-                        <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <input type="tel" id="phone" name="phone" value="{{ session['telefono'] }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                     </div>
                     <div>
                         <label for="date" class="block text-gray-700 font-medium mb-2">Fecha</label>
-                        <input type="date" id="date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <input type="date" id="date" name="date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                     </div>
                     <div>
                         <label for="time" class="block text-gray-700 font-medium mb-2">Hora</label>
-                        <select id="time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <select id="time" name="time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                             <option value="">Seleccionar hora</option>
                             <option value="09:00">09:00</option>
                             <option value="10:00">10:00</option>
@@ -45,7 +42,7 @@
                     </div>
                     <div>
                         <label for="service" class="block text-gray-700 font-medium mb-2">Servicio</label>
-                        <select id="service" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <select id="service" name="service" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                             <option value="">Seleccionar servicio</option>
                             <option value="corte">Corte de Cabello</option>
                             <option value="afeitado">Afeitado Tradicional</option>
@@ -57,28 +54,55 @@
                     </div>
                     <div>
                         <label for="barber" class="block text-gray-700 font-medium mb-2">Barbero</label>
-                        <select id="barber" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <select id="barber" name="barber" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
                             <option value="">Seleccionar barbero</option>
-                            <option value="carlos">Carlos Rodríguez</option>
-                            <option value="miguel">Miguel Ángel</option>
-                            <option value="alejandro">Alejandro Torres</option>
-                            <option value="daniel">Daniel Méndez</option>
-                            <option value="cualquiera">Cualquiera disponible</option>
+                            {% for barbero in barberos %}
+                                <option value="{{ barbero.id }}">{{ barbero.nombre }} {{ barbero.apellido }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
-                
+                                
                 <div class="mt-6">
                     <label for="notes" class="block text-gray-700 font-medium mb-2">Notas adicionales</label>
-                    <textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+                    <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" placeholder="Escribe cualquier solicitud especial..."></textarea>
                 </div>
-                
+                                
                 <div class="mt-8">
-                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-md font-medium text-lg transition">Confirmar Reserva</button>
+                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-md font-medium text-lg transition duration-300">Confirmar Reserva</button>
                 </div>
             </form>
         </div>
     </div>
 </section>
 
+<!-- Modal de éxito -->
+<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if exito is defined and exito %}block{% else %}hidden{% endif %}">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+            <i class="fas fa-check text-2xl text-green-600"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Cita enviada!</h3>
+        <p class="text-gray-600 mb-6">Tu cita ha sido registrada correctamente. Pronto recibirás confirmación.</p>
+        <button id="close-modal" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal de error -->
+<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if exito is defined and not exito %}block{% else %}hidden{% endif %}">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+            <i class="fas fa-times text-2xl text-red-600"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Error!</h3>
+        <p class="text-gray-600 mb-6">
+            {% if error_message is defined %}
+                {{ error_message }}
+            {% else %}
+                Ocurrió un error al registrar tu cita. Intenta nuevamente.
+            {% endif %}
+        </p>
+        <button id="close-error-modal" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Cerrar</button>
+    </div>
+</div>
 {% endblock %}

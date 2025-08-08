@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -11,16 +11,20 @@ def create_app():
 
     db.init_app(app)
 
+    # Crear tablas en la base de datos
+    with app.app_context():
+        db.create_all()
+
     # Registrar blueprints
     from app.routes import auth, usuario, cita
     app.register_blueprint(auth.bp)      # login, logout, dashboard
     app.register_blueprint(usuario.bp)   # register
     app.register_blueprint(cita.cita_bp) # reservar_cita
 
-    # Ruta raíz → main.html
     @app.route('/')
     def index():
-        return render_template('main.html')
+        usuario_autenticado = 'usuario_id' in session
+        return render_template('main.html', usuario_autenticado=usuario_autenticado)
 
     # Manejador de errores
     @app.errorhandler(Exception)
