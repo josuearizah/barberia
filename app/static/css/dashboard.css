@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  .flex.flex-col.min-h-screen.lg\:pl-64, .flex.flex-col.min-h-screen.lg\:pl-64 * {
+    font-family: 'Poppins', sans-serif !important;
+  }
+  /* Agregar o modificar en tu bloque <style> */
+#sidebar {
+  overflow-x: hidden; /* Evita el scroll horizontal */
+}
+
+#sidebar.collapsed {
+  width: 4rem !important; /* w-16 */
+}
+
+#sidebar.collapsed .sidebar-text {
+  display: none;
+}
+
+#sidebar.collapsed .p-3 {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+#sidebar.collapsed a {
+  justify-content: center;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  min-width: 0; /* Importante para evitar desbordamiento */
+  width: auto; /* Ajustar al contenido */
+}
+
+#sidebar.collapsed .px-6 {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+/* Corregir el logo en modo colapsado */
+#sidebar.collapsed .px-6.pt-4 {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  justify-content: center;
+}
+
+#sidebar.collapsed img {
+  margin-right: 0 !important;
+}
+
+#sidebar.collapsed,
+#sidebar.collapsed:hover,
+#sidebar.collapsed:focus-within {
+  width: 4rem !important; /* evita que se “abra” por hover/focus */
+}

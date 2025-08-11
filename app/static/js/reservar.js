@@ -16,4 +16,29 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('error-modal').classList.add('hidden');
         };
     }
+
+    // Restricciones para el calendario: solo lunes a viernes, mínimo hoy, máximo hoy + 2 meses
+    var dateInput = document.getElementById('date');
+    if (dateInput) {
+        // Establecer fecha mínima a hoy
+        var today = new Date();
+        var todayStr = today.toISOString().split('T')[0];
+        dateInput.min = todayStr;
+
+        // Establecer fecha máxima a hoy + 1 mes
+        var maxDate = new Date();
+        maxDate.setMonth(today.getMonth() + 1);
+        var maxDateStr = maxDate.toISOString().split('T')[0];
+        dateInput.max = maxDateStr;
+
+        // Validar que no sea sábado o domingo
+        dateInput.addEventListener('change', function() {
+            var selectedDate = new Date(this.value);
+            var day = selectedDate.getDay();
+            if (day === 5 || day === 6) {
+                alert('Solo se pueden reservar citas de lunes a viernes.');
+                this.value = '';
+            }
+        });
+    }
 });

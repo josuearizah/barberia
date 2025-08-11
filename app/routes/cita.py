@@ -43,7 +43,7 @@ def reservar_cita():
                 raise ValueError("El servicio seleccionado no es válido")
 
             cita = Cita(
-                fecha=fecha,
+                fecha_cita=fecha,
                 hora=request.form['time'],
                 notas=request.form.get('notes', ''),
                 usuario_id=session['usuario_id'],

@@ -5,10 +5,11 @@ class Cita(db.Model):
     __tablename__ = 'cita'
 
     id = db.Column(db.Integer, primary_key=True)
-    fecha = db.Column(db.Date, nullable=False)
+    fecha_cita = db.Column(db.Date, nullable=False)  # Renombrado: fecha seleccionada por el cliente para el servicio
     hora = db.Column(db.String(5), nullable=False)  # Cambiado a String para almacenar "HH:MM"
     estado = db.Column(db.String(20), nullable=False, default='pendiente')  # pendiente, confirmado, cancelado, completado
     notas = db.Column(db.Text, nullable=True)
+    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # Nuevo: fecha de creación automática de la reserva
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     barbero_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     servicio = db.Column(db.String(50), nullable=False)  # Servicio como texto
@@ -17,4 +18,4 @@ class Cita(db.Model):
     barbero = db.relationship('Usuario', foreign_keys=[barbero_id], backref=db.backref('citas_barbero', lazy=True))
 
     def __repr__(self):
-        return f'<Cita {self.fecha} {self.hora} - Usuario {self.usuario_id} - Barbero {self.barbero_id}>'
+        return f'<Cita {self.fecha_cita} {self.hora} - Usuario {self.usuario_id} - Barbero {self.barbero_id}>'

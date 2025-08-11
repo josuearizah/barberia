@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from app.models.usuario import Usuario
 from app.models.cita import Cita
 from app import db
@@ -34,8 +34,7 @@ def dashboard():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('index'))
-    return render_template('usuario/admin_dashboard.html')
-
+    return render_template('usuario/admin/admin_dashboard.html')
 
 # ========== LOGOUT ==========
 @bp.route('/logout')
@@ -51,31 +50,47 @@ def citas():
     
     # Obtener las citas asignadas al barbero (admin) actual
     citas = Cita.query.filter_by(barbero_id=session.get('usuario_id')).all()
-    return render_template('usuario/admin_dashboard.html', citas=citas)
+    return render_template('usuario/admin/admin_dashboard.html', citas=citas)
 
 @bp.route('/clientes')
 def clientes():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('index'))
-    return render_template('usuario/admin_dashboard.html')
+    return render_template('usuario/admin/admin_dashboard.html')
 
 @bp.route('/historial')
 def historial():
     # código similar
-    return render_template('usuario/admin_dashboard.html')
+    return render_template('usuario/admin/admin_dashboard.html')
 
 @bp.route('/ingresos')
 def ingresos():
     # código similar
-    return render_template('usuario/admin_dashboard.html')
+    return render_template('usuario/admin/admin_dashboard.html')
 
 @bp.route('/inventario')
 def inventario():
     # código similar
-    return render_template('usuario/admin_dashboard.html')
+    return render_template('usuario/admin/admin_dashboard.html')
 
 @bp.route('/configuracion')
 def configuracion():
     # código similar
-    return render_template('usuario/admin_dashboard.html')
+    return render_template('usuario/admin/admin_dashboard.html')
+
+@bp.route('/actualizar_estado_cita/<int:cita_id>', methods=['POST'])
+def actualizar_estado_cita(cita_id):
+    try:
+        cita = Cita.query.get_or_404(cita_id)
+        if cita.barbero_id != session.get('usuario_id'):
+            return jsonify({'error': 'No tienes permiso para modificar esta cita'}), 403
+        estado = request.form.get('estado')
+        if estado not in ['pendiente', 'confirmado', 'cancelado', 'completado']:
+            return jsonify({'error': 'Estado inválido'}), 400
+        cita.estado = estado
+        db.session.commit()
+        return jsonify({'success': True, 'estado': estado}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
