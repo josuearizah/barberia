@@ -5,7 +5,7 @@
     {% block content %}
 
     <!-- Hero Section -->
-    <section id="inicio" class="hero-pattern text-white pt-14">
+    <section id="inicio" class="hero-pattern text-white pt-16">
         <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
             <div class="text-center max-w-3xl">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">ESTILO Y TRADICIÓN PARA EL HOMBRE MODERNO</h1>
@@ -27,100 +27,38 @@
                 <p class="mt-4 text-gray-600 max-w-2xl mx-auto" data-aos="fade-up">Ofrecemos una amplia gama de servicios profesionales para que luzcas impecable en todo momento.</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Service 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="servicios-grid">
+                {% for servicio in servicios %}
                 <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
+                    <div class="h-56 bg-gray-800 flex items-center justify-center">
+                        {% if servicio.imagen_url %}
+                        <img src="{{ servicio.imagen_url }}" alt="{{ servicio.nombre }}" class="h-full w-full object-contain">
+                        {% else %}
                         <i class="fas fa-cut text-6xl text-rose-600"></i>
+                        {% endif %}
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Corte de Cabello</h3>
-                        <p class="text-gray-600 mb-4">Cortes modernos o clásicos adaptados a tu estilo y tipo de cabello.</p>
+                        <h3 class="text-xl font-bold mb-2">{{ servicio.nombre }}</h3>
+                        <p class="text-gray-600 mb-4">{{ servicio.descripcion or 'Sin descripción' }}</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$15.00</span>
-                            <span class="text-sm text-gray-500">30 min</span>
+                            <span class="text-xl font-bold text-rose-600">${{ servicio.precio }}</span>
+                            <span class="text-sm text-gray-500">
+                                {% if servicio.duracion %}
+                                    {{ servicio.duracion.hour * 60 + servicio.duracion.minute }} min
+                                {% else %}
+                                    Sin duración
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Service 2 -->
-                <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
-                        <i class="fas fa-razor text-6xl text-rose-600"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Afeitado Tradicional</h3>
-                        <p class="text-gray-600 mb-4">Afeitado con navaja al estilo clásico con toallas calientes y frías.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$20.00</span>
-                            <span class="text-sm text-gray-500">45 min</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service 3 -->
-                <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
-                        <i class="fas fa-user-tie text-6xl text-rose-600"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Arreglo de Barba</h3>
-                        <p class="text-gray-600 mb-4">Perfilado y mantenimiento de barba con productos premium.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$12.00</span>
-                            <span class="text-sm text-gray-500">20 min</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service 4 -->
-                <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
-                        <i class="fas fa-spray-can text-6xl text-rose-600"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Coloración</h3>
-                        <p class="text-gray-600 mb-4">Tintes y decoloraciones para un look renovado y personalizado.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$35.00</span>
-                            <span class="text-sm text-gray-500">60 min</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service 5 -->
-                <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
-                        <i class="fas fa-child text-6xl text-rose-600"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Corte Infantil</h3>
-                        <p class="text-gray-600 mb-4">Cortes especiales para los más pequeños en un ambiente amigable.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$10.00</span>
-                            <span class="text-sm text-gray-500">20 min</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service 6 -->
-                <div class="service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300" data-aos="fade-up">
-                    <div class="h-48 bg-gray-800 flex items-center justify-center">
-                        <i class="fas fa-spa text-6xl text-rose-600"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2">Tratamiento Facial</h3>
-                        <p class="text-gray-600 mb-4">Limpieza facial profunda con mascarilla y masaje relajante.</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-rose-600">$25.00</span>
-                            <span class="text-sm text-gray-500">40 min</span>
-                        </div>
-                    </div>
-                </div>
+                {% else %}
+                <div class="col-span-full text-center text-gray-600">No hay servicios disponibles.</div>
+                {% endfor %}
             </div>
             
             <div class="mt-12 text-center">
-                <a href="#reservar" class="inline-block bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Reservar Ahora</a>
+                <a href="#reservar" class="inline-block bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105" onclick="verificarYReservar()">Reservar Ahora</a>
             </div>
         </div>
     </section>

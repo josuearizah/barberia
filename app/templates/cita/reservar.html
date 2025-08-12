@@ -41,18 +41,24 @@
                             <option value="19:00">7:00 PM</option>
                         </select>
                     </div>
-                    <div>
-                        <label for="service" class="block text-gray-700 font-medium mb-2">Servicio</label>
-                        <select id="service" name="service" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-                            <option value="">Seleccionar servicio</option>
-                            <option value="corte">Corte de Cabello</option>
-                            <option value="afeitado">Afeitado Tradicional</option>
-                            <option value="barba">Arreglo de Barba</option>
-                            <option value="color">Coloración</option>
-                            <option value="infantil">Corte Infantil</option>
-                            <option value="facial">Tratamiento Facial</option>
+                    <div class="mb-4">
+                        <label for="service_id" class="block text-sm font-medium text-gray-700">Servicio</label>
+                        <select id="service_id" name="service_id" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-rose-500 focus:border-rose-500"
+                                {% if not servicios or servicios|length == 0 %}disabled{% else %}required{% endif %}>
+                            {% if servicios and servicios|length > 0 %}
+                            <option value="">Selecciona un servicio</option>
+                            {% for s in servicios %}
+                                <option value="{{ s.id }}">{{ s.nombre }}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="" selected>No hay servicios disponibles</option>
+                            {% endif %}
                         </select>
+                        {% if not servicios or servicios|length == 0 %}
+                            <p class="mt-2 text-sm text-gray-500">Aún no hay servicios. Intenta más tarde.</p>
+                        {% endif %}
                     </div>
+
                     <div>
                         <label for="barber" class="block text-gray-700 font-medium mb-2">Barbero</label>
                         <select id="barber" name="barber" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
@@ -68,9 +74,14 @@
                     <label for="notes" class="block text-gray-700 font-medium mb-2">Notas adicionales</label>
                     <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" placeholder="Escribe cualquier solicitud especial..."></textarea>
                 </div>
-                                
+                            
                 <div class="mt-8">
-                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-md font-medium text-lg transition duration-300">Confirmar Reserva</button>
+                <button
+                    type="submit"
+                    {% if not servicios or servicios|length == 0 %}disabled{% endif %}
+                    class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-md font-medium text-lg transition duration-300 {% if not servicios or servicios|length == 0 %}opacity-60 cursor-not-allowed{% endif %}">
+                    Confirmar Reserva
+                </button>
                 </div>
             </form>
         </div>
@@ -78,7 +89,7 @@
 </section>
 
 <!-- Modal de éxito -->
-<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if exito is defined and exito %}block{% else %}hidden{% endif %}">
+<div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 {% if exito is defined and exito %}block{% else %}hidden{% endif %}">
     <div class="bg-white rounded-lg p-8 max-w-md w-full text-center">
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
             <i class="fas fa-check text-2xl text-green-600"></i>
@@ -90,7 +101,7 @@
 </div>
 
 <!-- Modal de error -->
-<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 {% if exito is defined and not exito %}block{% else %}hidden{% endif %}">
+<div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 {% if exito is defined and not exito %}block{% else %}hidden{% endif %}">
     <div class="bg-white rounded-lg p-8 max-w-md w-full text-center">
         <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
             <i class="fas fa-times text-2xl text-red-600"></i>

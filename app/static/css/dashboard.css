@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-  .flex.flex-col.min-h-screen.lg\:pl-64, .flex.flex-col.min-h-screen.lg\:pl-64 * {
+  /* Aplica la fuente a cualquier .flex.flex-col.min-h-screen, sin importar el padding */
+.flex.flex-col.min-h-screen, .flex.flex-col.min-h-screen * {
     font-family: 'Poppins', sans-serif !important;
-  }
-  /* Agregar o modificar en tu bloque <style> */
+}
+  
 #sidebar {
   overflow-x: hidden; /* Evita el scroll horizontal */
 }

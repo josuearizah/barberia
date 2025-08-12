@@ -52,12 +52,23 @@ def citas():
     citas = Cita.query.filter_by(barbero_id=session.get('usuario_id')).all()
     return render_template('usuario/admin/admin_dashboard.html', citas=citas)
 
+from app.models.servicio import Servicio
+
+@bp.route('/servicios')
+def servicios():
+    if session.get('rol') != 'admin':
+        flash('Acceso no autorizado.', 'error')
+        return redirect(url_for('index'))
+    servicios = Servicio.query.all()
+    return render_template('usuario/admin/admin_dashboard.html', servicios=servicios)
+
 @bp.route('/clientes')
 def clientes():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('index'))
     return render_template('usuario/admin/admin_dashboard.html')
+
 
 @bp.route('/historial')
 def historial():
