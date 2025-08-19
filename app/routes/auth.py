@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from app.models.usuario import Usuario
 from app.models.cita import Cita
+from app.models.estilo import Estilo
+from app.models.servicio import Servicio
 from app import db
 
 bp = Blueprint('auth', __name__)
@@ -20,75 +22,104 @@ def login():
             session['apellido'] = usuario.apellido
             session['correo'] = usuario.correo 
             session['telefono'] = usuario.telefono
-            session['rol'] = usuario.rol  # asegúrate que este campo existe
+            session['rol'] = usuario.rol
             flash('Inicio de sesión exitoso', 'success')
-            return redirect(url_for('index'))  # redirige al home u otra página
+            return redirect(url_for('auth.index'))
         else:
             flash('Credenciales inválidas', 'error')
 
     return render_template('login.html')
 
+@bp.route('/')
+def index():
+    usuario_autenticado = 'usuario_id' in session
+    servicios = Servicio.query.all()
+    return render_template('main.html', usuario_autenticado=usuario_autenticado, servicios=servicios)
+
 @bp.route('/dashboard')
 def dashboard():
-    # Opcional: verifica si el usuario es admin
-    if session.get('rol') != 'admin':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('index'))
-    return render_template('usuario/admin/admin_dashboard.html')
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    if session.get('rol') == 'admin':
+        servicios = Servicio.query.all()
+        return render_template('usuario/admin/admin_dashboard.html', servicios=servicios)
+    return render_template('usuario/cliente/cliente_dashboard.html')
 
 # ========== LOGOUT ==========
 @bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('auth.index'))
 
 @bp.route('/citas')
 def citas():
-    if session.get('rol') != 'admin':
-        flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('index'))
-    
-    # Obtener las citas asignadas al barbero (admin) actual
-    citas = Cita.query.filter_by(barbero_id=session.get('usuario_id')).all()
-    return render_template('usuario/admin/admin_dashboard.html', citas=citas)
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
 
-from app.models.servicio import Servicio
+    from app.models.cita import Cita
+    rol = session.get('rol')
+    usuario_id = session.get('usuario_id')
+
+    if rol == 'admin':
+        citas = Cita.query.filter_by(barbero_id=usuario_id).all()
+        return render_template('usuario/admin/admin_dashboard.html', citas=citas)
+    else:
+        citas = Cita.query.filter_by(usuario_id=usuario_id).all()
+        return render_template('usuario/cliente/cliente_dashboard.html', citas=citas)
 
 @bp.route('/servicios')
 def servicios():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('auth.index'))
     servicios = Servicio.query.all()
     return render_template('usuario/admin/admin_dashboard.html', servicios=servicios)
+
+@bp.route('/estilos')
+def estilos():
+    if session.get('rol') != 'admin':
+        flash('Acceso no autorizado.', 'error')
+        return redirect(url_for('auth.index'))
+    estilos = Estilo.query.all()
+    return render_template('usuario/admin/admin_dashboard.html', estilos=estilos)
 
 @bp.route('/clientes')
 def clientes():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('auth.index'))
     return render_template('usuario/admin/admin_dashboard.html')
-
 
 @bp.route('/historial')
 def historial():
-    # código similar
-    return render_template('usuario/admin/admin_dashboard.html')
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    return render_template('usuario/cliente/cliente_dashboard.html')
 
 @bp.route('/ingresos')
 def ingresos():
-    # código similar
-    return render_template('usuario/admin/admin_dashboard.html')
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    return render_template('usuario/cliente/cliente_dashboard.html')
 
 @bp.route('/inventario')
 def inventario():
-    # código similar
     return render_template('usuario/admin/admin_dashboard.html')
 
 @bp.route('/configuracion')
 def configuracion():
-    # código similar
-    return render_template('usuario/admin/admin_dashboard.html')
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    return render_template('usuario/cliente/cliente_dashboard.html')
 
 @bp.route('/actualizar_estado_cita/<int:cita_id>', methods=['POST'])
 def actualizar_estado_cita(cita_id):

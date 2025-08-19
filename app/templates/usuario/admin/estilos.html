@@ -1,0 +1,135 @@
+<div class="mb-6">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold text-gray-200">Estilos</h2>
+    <button id="btn-abrir-modal-estilo" class="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-md font-medium transition">
+      <span class="text-lg leading-none">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </span> <span>Añadir Estilo</span>
+    </button>
+  </div>
+
+  <div class="bg-gray-900 shadow-md rounded-lg overflow-x-auto border border-gray-600">
+    <table class="min-w-full divide-y divide-gray-700">
+      <thead class="bg-gray-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Imagen</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Categoría</th>
+          <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Activo</th>
+          <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-estilos-body" class="bg-gray-800 divide-y divide-gray-700"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: Añadir Estilo -->
+<div id="modal-estilo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full text-gray-900 relative">
+    <button id="cerrar-modal-estilo" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <h3 class="text-xl font-bold mb-4">Añadir Estilo</h3>
+    <form id="form-estilo-nuevo" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Nombre</label>
+        <input type="text" name="nombre" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Categoría</label>
+        <select name="categoria" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+          <option value="">Seleccionar</option>
+          <option value="corte">Corte</option>
+          <option value="barba">Barba</option>
+          <option value="lineas">Líneas</option>
+          <option value="disenos">Diseños</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Imagen</label>
+        <input type="file" name="imagen" accept="image/*" class="w-full text-gray-700">
+      </div>
+      <div class="mb-4 flex items-center gap-2">
+        <input type="checkbox" name="activo" id="add-activo" class="h-4 w-4" checked>
+        <label for="add-activo" class="text-sm text-gray-700">Activo</label>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" class="btn-cerrar-add px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Editar Estilo -->
+<div id="modal-editar-estilo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full text-gray-900 relative">
+    <button class="cerrar-modal-editar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <h3 class="text-xl font-bold mb-4">Editar Estilo</h3>
+    <form id="form-estilo-editar" enctype="multipart/form-data">
+      <input type="hidden" name="id" id="edit-id">
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Nombre</label>
+        <input type="text" name="nombre" id="edit-nombre" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Categoría</label>
+        <select name="categoria" id="edit-categoria" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+          <option value="corte">Corte</option>
+          <option value="barba">Barba</option>
+          <option value="lineas">Líneas</option>
+          <option value="disenos">Diseños</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Imagen (opcional)</label>
+        <input type="file" name="imagen" accept="image/*" class="w-full text-gray-700">
+        <p class="text-xs text-gray-500 mt-1">Déjalo vacío para mantener la actual.</p>
+        <div class="mt-2" id="preview-imagen-actual" hidden>
+          <p class="text-xs text-gray-600 mb-1">Actual:</p>
+          <img id="img-actual" src="" class="h-16 w-16 object-contain rounded border">
+        </div>
+      </div>
+      <div class="mb-4 flex items-center gap-2">
+        <input type="checkbox" name="activo" id="edit-activo" class="h-4 w-4">
+        <label for="edit-activo" class="text-sm text-gray-700">Activo</label>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" class="cerrar-modal-editar px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Eliminar Estilo -->
+<div id="modal-eliminar-estilo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
+  <div class="bg-white rounded-lg p-6 max-w-sm w-full text-gray-900 relative">
+    <button class="cerrar-modal-eliminar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <h3 class="text-lg font-bold mb-3">Eliminar Estilo</h3>
+    <p class="text-sm text-gray-600 mb-4">¿Seguro que deseas eliminar <span id="eliminar-nombre" class="font-semibold"></span>? Esta acción no se puede deshacer.</p>
+    <form id="form-estilo-eliminar">
+      <input type="hidden" name="id" id="eliminar-id">
+      <div class="flex justify-end gap-3">
+        <button type="button" class="cerrar-modal-eliminar px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition">Eliminar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/estilos.js') }}"></script>

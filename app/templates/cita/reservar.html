@@ -42,7 +42,7 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="service_id" class="block text-sm font-medium text-gray-700">Servicio</label>
+                        <label for="service_id" class="block font-medium text-gray-700">Servicio</label>
                         <select id="service_id" name="service_id" class="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-rose-500 focus:border-rose-500"
                                 {% if not servicios or servicios|length == 0 %}disabled{% else %}required{% endif %}>
                             {% if servicios and servicios|length > 0 %}

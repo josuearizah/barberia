@@ -1,0 +1,154 @@
+function abrir(id) { document.getElementById(id)?.classList.remove('hidden'); }
+function cerrar(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+async function cargarCitas() {
+    try {
+        const response = await fetch('/api/citas');
+        const citas = await response.json();
+        const tbody = document.getElementById('citas-table-body');
+        tbody.innerHTML = '';
+        if (!response.ok) {
+            tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al cargar citas: ${citas.error}</td></tr>`;
+            return;
+        }
+        if (citas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td></tr>';
+            return;
+        }
+        citas.forEach((cita, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${index + 1}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.barbero_nombre} ${cita.barbero_apellido}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="${cita.fecha_creacion}">${new Date(cita.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="${cita.fecha_cita}">${new Date(cita.fecha_cita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.hora_12h}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.servicio_nombre || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-200">${cita.notas || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
+                            data-cita-id="${cita.id}" 
+                            data-client-cita-id="${index + 1}"
+                            data-barbero-id="${cita.barbero_id}"
+                            data-fecha-cita="${cita.fecha_cita}"
+                            data-hora="${cita.hora}"
+                            data-servicio-id="${cita.servicio_id || ''}"
+                            data-notas="${cita.notas || ''}"
+                            title="Editar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487l2.651 2.651a2.25 2.25 0 010 3.182L9.41 19.425l-4.682 1.02 1.02-4.682 10.103-10.105a2.25 2.25 0 013.182 0z"/>
+                        </svg>
+                    </button>
+                    <button class="eliminar-cita text-red-400 hover:text-blue-300" 
+                            data-cita-id="${cita.id}" 
+                            data-client-cita-id="${index + 1}"
+                            title="Eliminar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Re-asignar eventos para botones de editar y eliminar
+        document.querySelectorAll('.editar-cita').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('edit-id').value = btn.dataset.citaId;
+                document.getElementById('edit-barbero').value = btn.dataset.barberoId || '';
+                document.getElementById('edit-fecha_cita').value = btn.dataset.fechaCita || '';
+                document.getElementById('edit-hora').value = btn.dataset.hora || '';
+                document.getElementById('edit-servicio').value = btn.dataset.servicioId || '';
+                document.getElementById('edit-notas').value = btn.dataset.notas || '';
+                abrir('modal-editar-cita');
+            });
+        });
+        document.querySelectorAll('.eliminar-cita').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('eliminar-id').value = btn.dataset.citaId;
+                document.getElementById('eliminar-client-id-display').textContent = btn.dataset.clientCitaId;
+                abrir('modal-eliminar-cita');
+            });
+        });
+    } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al conectar con el servidor: ${error.message}</td></tr>`;
+    }
+}
+
+// Poblar dropdowns de barberos y servicios
+async function cargarDropdowns() {
+    try {
+        const [barberosRes, serviciosRes] = await Promise.all([
+            fetch('/api/barberos'),
+            fetch('/api/servicios')  // Esta ruta ahora será la de servicio.py únicamente
+        ]);
+        const barberos = await barberosRes.json();
+        const servicios = await serviciosRes.json();
+        const barberoSelect = document.getElementById('edit-barbero');
+        const servicioSelect = document.getElementById('edit-servicio');
+        barberoSelect.innerHTML = '<option value="">Seleccionar</option>' + 
+            barberos.map(b => `<option value="${b.id}">${b.nombre} ${b.apellido}</option>`).join('');
+        servicioSelect.innerHTML = '<option value="">Seleccionar</option>' + 
+            servicios.map(s => `<option value="${s.id}">${s.nombre}</option>`).join('');
+    } catch (error) {
+        console.error('Error al cargar dropdowns:', error);
+    }
+}
+
+// Editar cita
+const modalEditar = document.getElementById('modal-editar-cita');
+document.querySelectorAll('.cerrar-modal-editar').forEach(b => b.addEventListener('click', () => cerrar('modal-editar-cita')));
+modalEditar?.addEventListener('click', e => { if (e.target.id === 'modal-editar-cita') cerrar('modal-editar-cita'); });
+
+document.getElementById('form-cita-editar')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+        const response = await fetch(`/api/citas/${formData.get('id')}`, {
+            method: 'PUT',
+            body: formData
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert('¡Cita actualizada correctamente!');
+            cerrar('modal-editar-cita');
+            cargarCitas();
+        } else {
+            alert('Error al actualizar la cita: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error al conectar con el servidor: ' + error.message);
+    }
+});
+
+// Eliminar cita
+document.querySelectorAll('.cerrar-modal-eliminar').forEach(b => b.addEventListener('click', () => cerrar('modal-eliminar-cita')));
+document.getElementById('modal-eliminar-cita')?.addEventListener('click', e => { if (e.target.id === 'modal-eliminar-cita') cerrar('modal-eliminar-cita'); });
+
+document.getElementById('form-cita-eliminar')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const id = document.getElementById('eliminar-id').value;
+    try {
+        const response = await fetch(`/api/citas/${id}`, {
+            method: 'DELETE'
+        });
+        const result = await response.json();
+        if (response.ok) {
+            alert('¡Cita eliminada correctamente!');
+            cerrar('modal-eliminar-cita');
+            cargarCitas();
+        } else {
+            alert('Error al eliminar la cita: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error al conectar con el servidor: ' + error.message);
+    }
+});
+
+// Cargar citas y dropdowns al iniciar la página
+document.addEventListener('DOMContentLoaded', () => {
+    cargarCitas();
+    cargarDropdowns();
+});

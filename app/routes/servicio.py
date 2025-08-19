@@ -6,7 +6,6 @@ from datetime import time
 
 servicios_bp = Blueprint('servicios', __name__)
 
-# Listar servicios (accesible para todos)
 @servicios_bp.route('/api/servicios', methods=['GET'])
 def listar_servicios():
     servicios = Servicio.query.all()
@@ -15,10 +14,10 @@ def listar_servicios():
         'nombre': s.nombre,
         'descripcion': s.descripcion,
         'precio': float(s.precio),
-        'duracion': s.duracion.hour * 60 + s.duracion.minute if s.duracion else 0,
+        'duracion': s.duracion.strftime('%H:%M'),
         'imagen_url': s.imagen_url
-    } for s in servicios])
-
+    } for s in servicios]), 200
+        
 # Crear servicio (solo admins)
 @servicios_bp.route('/api/servicios', methods=['POST'])
 def crear_servicio():

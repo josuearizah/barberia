@@ -25,16 +25,13 @@ def create_app():
         db.create_all()
 
     # Registrar blueprints
-    from app.routes import auth, usuario, cita, servicio  # Añade servicios
+    from app.routes import auth, usuario, cita, servicio, estilo  # Añade servicios
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
     app.register_blueprint(servicio.servicios_bp)  # Registra el blueprint
+    app.register_blueprint(estilo.estilos_bp)  # Registra el blueprint de estilos
 
-    @app.route('/')
-    def index():
-        usuario_autenticado = 'usuario_id' in session
-        return render_template('main.html', usuario_autenticado=usuario_autenticado)
 
     @app.errorhandler(Exception)
     def handle_error(e):
