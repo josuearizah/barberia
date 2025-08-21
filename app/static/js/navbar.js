@@ -17,6 +17,49 @@ if (isLoggedIn) {
   mobileAuthButtons.innerHTML = `<a href="/reservar" class="block bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-md text-white font-medium text-center transition">Reservar</a>`;
 }
 
+// Función para actualizar los avatares del navbar
+function updateNavbarAvatar(imageUrl = null, name = null) {
+  const navbarAvatars = document.querySelectorAll(".navbar-avatar");
+  navbarAvatars.forEach((avatar) => {
+    if (imageUrl) {
+      avatar.style.backgroundImage = `url(${imageUrl})`;
+      avatar.style.backgroundSize = "cover";
+      avatar.style.backgroundPosition = "center";
+      avatar.textContent = "";
+    } else {
+      avatar.style.backgroundImage = "";
+      avatar.style.backgroundSize = "";
+      avatar.style.backgroundPosition = "";
+      if (name) {
+        const nameParts = name.split(" ");
+        avatar.textContent = (nameParts[0]?.[0] || "").toUpperCase() + (nameParts[1]?.[0] || "").toUpperCase();
+      }
+    }
+  });
+}
+
+// Cargar datos del usuario para actualizar el avatar
+function loadUserData() {
+  fetch("/perfil/datos")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success && data.profile) {
+        updateNavbarAvatar(data.profile.profileImage, `${data.profile.name}`);
+      }
+    })
+    .catch((error) => {
+      console.error("Error al cargar datos del usuario:", error);
+    });
+}
+
+// Inicializar el avatar al cargar la página
+loadUserData();
+
+// Listener para actualizar el avatar cuando se cambia en perfil.js
+document.addEventListener("profileImageUpdated", (event) => {
+  updateNavbarAvatar(event.detail.imageUrl, event.detail.name);
+});
+
 menuBtn.addEventListener("click", () => {
   menuOpen = !menuOpen;
   mobileMenu.classList.toggle("translate-x-full");

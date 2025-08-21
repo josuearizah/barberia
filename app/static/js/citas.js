@@ -82,7 +82,7 @@ async function cargarDropdowns() {
     try {
         const [barberosRes, serviciosRes] = await Promise.all([
             fetch('/api/barberos'),
-            fetch('/api/servicios')  // Esta ruta ahora será la de servicio.py únicamente
+            fetch('/api/servicios')
         ]);
         const barberos = await barberosRes.json();
         const servicios = await serviciosRes.json();
@@ -147,8 +147,36 @@ document.getElementById('form-cita-eliminar')?.addEventListener('submit', async 
     }
 });
 
-// Cargar citas y dropdowns al iniciar la página
+// Restricciones para el calendario: solo lunes a viernes, mínimo hoy, máximo hoy + 1 mes
+function setupDateRestrictions() {
+    const dateInput = document.getElementById('edit-fecha_cita');
+    if (dateInput) {
+        // Establecer fecha mínima a hoy
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        dateInput.min = todayStr;
+
+        // Establecer fecha máxima a hoy + 1 mes
+        const maxDate = new Date();
+        maxDate.setMonth(today.getMonth() + 1);
+        const maxDateStr = maxDate.toISOString().split('T')[0];
+        dateInput.max = maxDateStr;
+
+        // Validar que no sea sábado o domingo
+        dateInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const day = selectedDate.getDay();
+            if (day === 5 || day === 6) {
+                alert('Solo se pueden reservar citas de lunes a viernes.');
+                this.value = '';
+            }
+        });
+    }
+}
+
+// Cargar citas, dropdowns y restricciones al iniciar la página
 document.addEventListener('DOMContentLoaded', () => {
     cargarCitas();
     cargarDropdowns();
+    setupDateRestrictions();
 });

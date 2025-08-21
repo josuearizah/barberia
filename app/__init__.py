@@ -25,13 +25,21 @@ def create_app():
         db.create_all()
 
     # Registrar blueprints
-    from app.routes import auth, usuario, cita, servicio, estilo  # Añade servicios
+    from app.routes import auth, usuario, cita, servicio, estilo, perfil  # Añade servicios
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
     app.register_blueprint(servicio.servicios_bp)  # Registra el blueprint
     app.register_blueprint(estilo.estilos_bp)  # Registra el blueprint de estilos
-
+    app.register_blueprint(perfil.perfil_bp)  # Registra el blueprint de perfil
+    
+    @app.context_processor
+    def inject_perfil_actual():
+        from app.models.perfil import Perfil  # import interno evita ciclos
+        perfil_actual = None
+        if 'usuario_id' in session:
+            perfil_actual = Perfil.query.filter_by(usuario_id=session['usuario_id']).first()
+        return dict(perfil_actual=perfil_actual)
 
     @app.errorhandler(Exception)
     def handle_error(e):
