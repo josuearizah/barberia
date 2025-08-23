@@ -1,4 +1,3 @@
-
 <!-- Tabla de Citas -->
 <div class="mb-6">
 <h2 class="text-2xl font-bold text-gray-200 mb-4 text-center">Gestión de Citas</h2>
@@ -9,6 +8,7 @@
         <tr>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Cliente</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('fecha_creacion')">Fecha Creación
             <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path id="sort-fecha_creacion-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
@@ -36,12 +36,27 @@
         {% for cita in citas %}
         <tr>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.usuario.nombre }} {{ cita.usuario.apellido }}</td>
+
+            <!-- Cliente: si hay nombre_cliente (no vacío), mostrar texto; sino, link al perfil -->
+            {% set display_name = cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) %}
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                {% if cita.nombre_cliente and cita.nombre_cliente|trim != '' %}
+                    {{ display_name }}
+                {% else %}
+                    <a href="/perfil/{{ cita.usuario.id }}" class="text-gray-200 underline hover:text-gray-400">{{ display_name }}</a>
+                {% endif %}
+            </td>
+
+            <!-- Teléfono: prioriza el de la cita, luego el del usuario -->
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                {{ cita.telefono_cliente or cita.usuario.telefono or '-' }}
+            </td>
+
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.hora_12h() }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-            {{ cita.servicio.nombre if cita.servicio else '-' }}
+              {{ cita.servicio.nombre if cita.servicio else '-' }}
             </td>
             <td class="px-6 py-4 text-sm text-gray-200">{{ cita.notas or '-' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -58,11 +73,10 @@
                         class="bg-green-300 text-green-800">Completado</option>
                 </select>
             </td>
-            
         </tr>
         {% else %}
         <tr>
-            <td colspan="8" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
+            <td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
         </tr>
         {% endfor %}
     </tbody>

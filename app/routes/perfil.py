@@ -19,7 +19,55 @@ def perfil():
         perfil = Perfil(usuario_id=usuario.id)
         db.session.add(perfil)
         db.session.commit()
-    return render_template('usuario/perfil.html', usuario=usuario, perfil=perfil)
+    redes = []
+    if perfil and perfil.redes_sociales:
+        try:
+            raw = json.loads(perfil.redes_sociales)
+            for idx, r in enumerate(raw):
+                redes.append({
+                    'id': idx,
+                    'platform': r.get('red_social', ''),
+                    'username': r.get('enlace', '')
+                })
+        except:
+            pass
+    social_platforms = {
+        'instagram': {'name': 'Instagram', 'icon': 'fab fa-instagram', 'color': 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600'},
+        'facebook': {'name': 'Facebook', 'icon': 'fab fa-facebook', 'color': 'bg-blue-600'},
+        'x': {'name': 'X', 'icon': 'fab fa-x-twitter', 'color': 'bg-black text-white'},
+        'linkedin': {'name': 'LinkedIn', 'icon': 'fab fa-linkedin', 'color': 'bg-blue-700'},
+        'youtube': {'name': 'YouTube', 'icon': 'fab fa-youtube', 'color': 'bg-red-600'},
+        'tiktok': {'name': 'TikTok', 'icon': 'fab fa-tiktok', 'color': 'bg-black'},
+        'whatsapp': {'name': 'WhatsApp', 'icon': 'fab fa-whatsapp', 'color': 'bg-green-500'},
+    }
+    return render_template('usuario/perfil.html', usuario=usuario, perfil=perfil, redes=redes, social_platforms=social_platforms)
+
+@perfil_bp.route('/perfil/<int:usuario_id>')
+def perfil_publico(usuario_id):
+    usuario = Usuario.query.get_or_404(usuario_id)
+    perfil = Perfil.query.filter_by(usuario_id=usuario.id).first()
+    redes = []
+    if perfil and perfil.redes_sociales:
+        try:
+            raw = json.loads(perfil.redes_sociales)
+            for idx, r in enumerate(raw):
+                redes.append({
+                    'id': idx,
+                    'platform': r.get('red_social', ''),
+                    'username': r.get('enlace', '')
+                })
+        except:
+            pass
+    social_platforms = {
+        'instagram': {'name': 'Instagram', 'icon': 'fab fa-instagram', 'color': 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600'},
+        'facebook': {'name': 'Facebook', 'icon': 'fab fa-facebook', 'color': 'bg-blue-600'},
+        'x': {'name': 'X', 'icon': 'fa-brands fa-x-twitter', 'color': 'bg-black'},
+        'linkedin': {'name': 'LinkedIn', 'icon': 'fab fa-linkedin', 'color': 'bg-blue-700'},
+        'youtube': {'name': 'YouTube', 'icon': 'fab fa-youtube', 'color': 'bg-red-600'},
+        'tiktok': {'name': 'TikTok', 'icon': 'fab fa-tiktok', 'color': 'bg-black'},
+        'whatsapp': {'name': 'WhatsApp', 'icon': 'fab fa-whatsapp', 'color': 'bg-green-500'},
+    }
+    return render_template('usuario/perfil.html', usuario=usuario, perfil=perfil, redes=redes, social_platforms=social_platforms)
 
 @perfil_bp.route('/perfil/datos')
 def obtener_datos():

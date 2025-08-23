@@ -4,6 +4,7 @@ from app.models.cita import Cita
 from app.models.servicio import Servicio
 from app import db
 from datetime import datetime
+import re
 
 cita_bp = Blueprint('cita', __name__)
 
@@ -27,6 +28,7 @@ def reservar_cita():
                     raise ValueError(f"El campo {field} es requerido")
 
             fecha = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
+
             barbero_id = int(request.form['barber'])
             barbero = Usuario.query.filter_by(id=barbero_id, rol='admin').first()
             if not barbero:
@@ -37,13 +39,30 @@ def reservar_cita():
             if not servicio:
                 raise ValueError("El servicio seleccionado no existe")
 
+            # Datos opcionales para reservas de invitados
+            usuario_actual = Usuario.query.get(session['usuario_id'])
+            full_name_db = f"{(usuario_actual.nombre or '').strip()} {(usuario_actual.apellido or '').strip()}".strip().lower()
+
+            nombre_cliente = (request.form.get('name') or request.form.get('nombre') or '').strip()
+            telefono_cliente = (request.form.get('phone') or request.form.get('telefono') or '').strip()
+
+            def norm_phone(p): return re.sub(r'\D', '', p or '')
+            same_name = bool(nombre_cliente) and nombre_cliente.lower() == full_name_db
+            same_phone = bool(telefono_cliente and usuario_actual.telefono) and norm_phone(telefono_cliente) == norm_phone(usuario_actual.telefono)
+
+            if same_name or same_phone:
+                nombre_cliente = None
+                telefono_cliente = None
+
             cita = Cita(
                 fecha_cita=fecha,
                 hora=request.form['time'],
                 notas=request.form.get('notes', ''),
                 usuario_id=session['usuario_id'],
                 barbero_id=barbero_id,
-                servicio_id=servicio_id
+                servicio_id=servicio_id,
+                nombre_cliente=nombre_cliente or None,
+                telefono_cliente=telefono_cliente or None
             )
             db.session.add(cita)
             db.session.commit()
@@ -66,8 +85,11 @@ def obtener_citas():
         return jsonify([{
             'id': cita.id,
             'barbero_id': cita.barbero_id,
-            'barbero_nombre': cita.barbero.nombre,
-            'barbero_apellido': cita.barbero.apellido,
+            'barbero_nombre': cita.barbero.nombre if cita.barbero else None,
+            'barbero_apellido': cita.barbero.apellido if cita.barbero else None,
+            'usuario_nombre': cita.usuario.nombre if cita.usuario else '',
+            'usuario_apellido': cita.usuario.apellido if cita.usuario else '',
+            'nombre_cliente': cita.nombre_cliente if cita.nombre_cliente else None,
             'fecha_creacion': cita.fecha_creacion.strftime('%Y-%m-%d'),
             'fecha_cita': cita.fecha_cita.strftime('%Y-%m-%d'),
             'hora': cita.hora,

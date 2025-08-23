@@ -8,18 +8,22 @@ async function cargarCitas() {
         const tbody = document.getElementById('citas-table-body');
         tbody.innerHTML = '';
         if (!response.ok) {
-            tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al cargar citas: ${citas.error}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">Error al cargar citas: ${citas.error}</td></tr>`;
             return;
         }
         if (citas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td></tr>';
             return;
         }
-        citas.forEach((cita, index) => {
+        citas.forEach((cita) => {
+            const nombre = cita.nombre_cliente || (cita.usuario_nombre && cita.usuario_apellido ? `${cita.usuario_nombre} ${cita.usuario_apellido}` : '-');
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${index + 1}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.barbero_nombre} ${cita.barbero_apellido}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${nombre}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                    ${cita.barbero_id && cita.barbero_nombre && cita.barbero_apellido ? `<a href="/perfil/${cita.barbero_id}" class="text-gray-200 hover:text-gray-400 underline">${cita.barbero_nombre} ${cita.barbero_apellido}</a>` : '-'}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="${cita.fecha_creacion}">${new Date(cita.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="${cita.fecha_cita}">${new Date(cita.fecha_cita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.hora_12h}</td>
@@ -29,8 +33,8 @@ async function cargarCitas() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
                             data-cita-id="${cita.id}" 
-                            data-client-cita-id="${index + 1}"
-                            data-barbero-id="${cita.barbero_id}"
+                            data-client-cita-id="${cita.id}"
+                            data-barbero-id="${cita.barbero_id || ''}"
                             data-fecha-cita="${cita.fecha_cita}"
                             data-hora="${cita.hora}"
                             data-servicio-id="${cita.servicio_id || ''}"
@@ -42,7 +46,7 @@ async function cargarCitas() {
                     </button>
                     <button class="eliminar-cita text-red-400 hover:text-blue-300" 
                             data-cita-id="${cita.id}" 
-                            data-client-cita-id="${index + 1}"
+                            data-client-cita-id="${cita.id}"
                             title="Eliminar">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
@@ -73,7 +77,7 @@ async function cargarCitas() {
             });
         });
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al conectar con el servidor: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">Error al conectar con el servidor: ${error.message}</td></tr>`;
     }
 }
 

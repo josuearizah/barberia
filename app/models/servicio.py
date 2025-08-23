@@ -11,7 +11,7 @@ class Servicio(db.Model):
     imagen_url = db.Column(db.String(255), nullable=True)  # URL de la imagen en la nube
 
     # Relaciones
-    citas = db.relationship('Cita', backref='servicio', lazy=True)
+    citas = db.relationship('Cita', back_populates='servicio', lazy=True)
 
     def __repr__(self):
         return f'<Servicio {self.nombre}>'

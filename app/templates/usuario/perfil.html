@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Mi Perfil - Barbería{% endblock %}
+{% block title %}
+{% if session['usuario_id'] == usuario.id %}
+    Mi Perfil - Barbería
+{% else %}
+    Perfil de {{ usuario.nombre }} {{ usuario.apellido }} - Barbería
+{% endif %}
+{% endblock %}
 
 {% block head %}
-<script src="{{ url_for('static', filename='js/perfil.js') }}" defer></script>
+{% if session['usuario_id'] == usuario.id %}
+    <script src="{{ url_for('static', filename='js/perfil.js') }}" defer></script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -16,29 +24,36 @@
                 <!-- Foto de perfil -->
                 <div class="relative">
                     <div id="profile-avatar" class="w-32 h-32 bg-black rounded-full flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
-                        {{ session['nombre'][0] }}{{ session['apellido'][0] }}
+                        {% if perfil and perfil.imagen %}
+                            <img src="{{ perfil.imagen }}" alt="Foto de perfil" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ usuario.nombre[0] }}{{ usuario.apellido[0] }}
+                        {% endif %}
                     </div>
+                    {% if session['usuario_id'] == usuario.id %}
                     <button id="change-photo-btn" class="absolute bottom-0 right-0 bg-rose-600 hover:bg-rose-700 text-white p-2 rounded-full shadow-lg transition-colors">
                         <i class="fas fa-camera text-sm"></i>
                     </button>
+                    {% endif %}
                 </div>
                 
                 <!-- Información básica -->
                 <div class="flex-1 text-center md:text-left">
                     <h1 id="profile-name" class="text-3xl font-bold text-gray-800 mb-2">
-                        {{ session['nombre'] }} {{ session['apellido'] }}
+                        {{ usuario.nombre }} {{ usuario.apellido }}
                     </h1>
-                    <p id="profile-email" class="text-gray-600 mb-2">{{ session['correo'] }}</p>
-                    <!-- Campo de teléfono visible -->
+                    <p id="profile-email" class="text-gray-600 mb-2">{{ usuario.correo }}</p>
                     <p id="profile-phone" class="text-gray-600 mb-4">
-                        <i class="fas fa-phone mr-2"></i><span id="phone-text">{{ session['telefono'] or 'No especificado' }}</span>
+                        <i class="fas fa-phone mr-2"></i><span id="phone-text">{{ usuario.telefono or 'No especificado' }}</span>
                     </p>
                     <p id="profile-description" class="text-gray-700 mb-4">
-                        Descripción del perfil aquí...
+                        {{ perfil.descripcion if perfil and perfil.descripcion else 'Descripción del perfil aquí...' }}
                     </p>
+                    {% if session['usuario_id'] == usuario.id %}
                     <button id="edit-profile-btn" class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors">
                         <i class="fas fa-edit mr-2"></i>Editar Perfil
                     </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -47,17 +62,52 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Redes Sociales</h2>
+                {% if session['usuario_id'] == usuario.id %}
                 <button id="add-social-btn" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg transition-colors">
                     <i class="fas fa-plus mr-2"></i>Añadir Red Social
                 </button>
+                {% endif %}
             </div>
             
             <div id="social-networks" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Las redes sociales se cargarán aquí dinámicamente -->
+                {% if redes %}
+                    {% for red in redes %}
+                    <div class="bg-gray-50 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 {{ social_platforms[red.platform].color }} rounded-lg flex items-center justify-center text-white">
+                                <i class="{{ social_platforms[red.platform].icon }} text-3xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">{{ social_platforms[red.platform].name }}</h3>
+                                <p class="text-sm text-gray-600">{{ red.username }}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="openSocialLink('{{ red.platform }}', '{{ red.username | safe }}')" class="text-blue-600 hover:text-blue-800 p-2">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            {% if session['usuario_id'] == usuario.id %}
+                            <button onclick="removeSocialNetwork('{{ red.id | safe }}')" class="text-red-600 hover:text-red-800 p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-span-full text-center py-8 text-gray-500">
+                        <i class="fas fa-share-alt text-4xl mb-4"></i>
+                        <p>No hay redes sociales agregadas</p>
+                        {% if session['usuario_id'] == usuario.id %}
+                        <p class="text-sm">Haz clic en "Añadir Red Social" para comenzar</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Sección de cambiar contraseña -->
+        {% if session['usuario_id'] == usuario.id %}
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Seguridad</h2>
             <div class="border-b border-gray-200 pb-4 mb-4">
@@ -80,9 +130,12 @@
                 </button>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
+<!-- Modales (solo para el usuario logueado) -->
+{% if session['usuario_id'] == usuario.id %}
 <!-- Modal para editar perfil -->
 <div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg max-w-md w-full p-6">
@@ -95,19 +148,19 @@
         <form id="edit-profile-form">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
-                <input type="text" id="edit-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" value="{{ session['nombre'] }}">
+                <input type="text" id="edit-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" value="{{ usuario.nombre }}">
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Apellido</label>
-                <input type="text" id="edit-lastname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" value="{{ session['apellido'] }}">
+                <input type="text" id="edit-lastname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" value="{{ usuario.apellido }}">
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
-                <input type="tel" id="edit-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" placeholder="+1234567890" value="{{ session['telefono'] or '' }}">
+                <input type="tel" id="edit-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" placeholder="+1234567890" value="{{ usuario.telefono or '' }}">
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
-                <textarea id="edit-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" placeholder="Cuéntanos sobre ti..."></textarea>
+                <textarea id="edit-description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-rose-500" placeholder="Cuéntanos sobre ti...">{{ perfil.descripcion if perfil else '' }}</textarea>
             </div>
             <div class="flex gap-3">
                 <button type="button" id="cancel-edit" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg transition-colors">
@@ -175,7 +228,7 @@
                 <i class="fas fa-upload mr-2"></i>Subir Imagen
             </button>
             <!-- Botón para eliminar foto cuando hay una personalizada -->
-            <div id="remove-photo-section" class="hidden">
+            <div id="remove-photo-section" class="{% if not perfil or not perfil.imagen %}hidden{% endif %}">
                 <button id="remove-photo-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg mb-4 transition-colors">
                     <i class="fas fa-trash mr-2"></i>Eliminar Foto
                 </button>
@@ -187,5 +240,6 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}

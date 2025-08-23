@@ -6,6 +6,7 @@
             <thead class="bg-gray-700">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Nombre</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Barbero</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('fecha_creacion')">Fecha Creación
                         <svg class="inline size-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -34,8 +35,21 @@
             <tbody class="bg-gray-800 divide-y divide-gray-700" id="citas-table-body">
                 {% for cita in citas %}
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ loop.index }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.barbero.nombre }} {{ cita.barbero.apellido }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
+                    <!-- Nombre: muestra nombre_cliente o nombre/apellido del usuario, sin enlace -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                      {{ cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) }}
+                    </td>
+                    <!-- Barbero: muestra nombre del barbero con enlace al perfil -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                      {% if cita.barbero %}
+                        <a href="/perfil/{{ cita.barbero.id }}" class="text-gray-200 hover:text-gray-400 underline">
+                          {{ cita.barbero.nombre }} {{ cita.barbero.apellido }}
+                        </a>
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.hora_12h() }}</td>
@@ -47,7 +61,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                         <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
                                 data-cita-id="{{ cita.id }}" 
-                                data-client-cita-id="{{ loop.index }}"
+                                data-client-cita-id="{{ cita.id }}"
                                 data-barbero-id="{{ cita.barbero_id }}"
                                 data-fecha-cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}"
                                 data-hora="{{ cita.hora }}"
@@ -60,7 +74,7 @@
                         </button>
                         <button class="eliminar-cita text-red-400 hover:text-blue-300" 
                                 data-cita-id="{{ cita.id }}" 
-                                data-client-cita-id="{{ loop.index }}"
+                                data-client-cita-id="{{ cita.id }}"
                                 title="Eliminar">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
@@ -70,7 +84,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
+                    <td colspan="10" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
                 </tr>
                 {% endfor %}
             </tbody>
