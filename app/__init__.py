@@ -29,7 +29,7 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'josue091206@gmail.com')  # Usa variables de entorno si es posible
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'hohu nfab lxzg lvvg')  # O escribe directamente la contraseña de aplicación
-    app.config['MAIL_DEFAULT_SENDER'] = ('Barbería Clásica', os.environ.get('MAIL_USERNAME', 'josue091206@gmail.com'))
+    app.config['MAIL_DEFAULT_SENDER'] = ('RG4LBarber', os.environ.get('MAIL_USERNAME', 'josue091206@gmail.com'))
     
     # Verificar si las credenciales de correo están configuradas
     if not app.config['MAIL_USERNAME'] or not app.config['MAIL_PASSWORD']:

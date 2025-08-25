@@ -1,395 +1,618 @@
-    {% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}RG4LBarber{% endblock %} {% block
+content %}
 
-    {% block title %}Barbería Clásica{% endblock %}
+<!-- Hero Section -->
+<section id="inicio" class="hero-pattern text-white pt-16">
+  <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
+    <div class="text-center max-w-3xl">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6">
+        ESTILO Y TRADICIÓN PARA EL HOMBRE MODERNO
+      </h1>
+      <p class="text-lg md:text-xl mb-8 text-gray-300">
+        Más que un corte de pelo, una experiencia. Barberos profesionales a tu
+        servicio.
+      </p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a
+          href="#"
+          onclick="verificarYReservar(); return false;"
+          class="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105"
+          >Reservar Cita</a
+        >
+        <a
+          href="#servicios"
+          class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105"
+          >Ver Servicios</a
+        >
+      </div>
+    </div>
+  </div>
+</section>
 
-    {% block content %}
+<!-- Services Section -->
+<section id="servicios" class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTROS SERVICIOS</h2>
+      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+        Ofrecemos una amplia gama de servicios profesionales para que luzcas
+        impecable en todo momento.
+      </p>
+    </div>
 
-    <!-- Hero Section -->
-    <section id="inicio" class="hero-pattern text-white pt-16">
-        <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
-            <div class="text-center max-w-3xl">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6">ESTILO Y TRADICIÓN PARA EL HOMBRE MODERNO</h1>
-                <p class="text-lg md:text-xl mb-8 text-gray-300">Más que un corte de pelo, una experiencia. Barberos profesionales a tu servicio.</p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="#" onclick="verificarYReservar(); return false;" class="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Reservar Cita</a>
-                    <a href="#servicios" class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Ver Servicios</a>
-                </div>
-            </div>
+    <!-- Contenedor dinámico para servicios cargados con JavaScript -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      id="servicios-grid"
+    >
+      <div class="col-span-full text-center text-gray-400">
+        <svg class="animate-spin h-10 w-10 mx-auto mb-3" viewBox="0 0 24 24">
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Cargando servicios...
+      </div>
+    </div>
+
+    <div class="mt-12 text-center">
+      <a
+        href="#"
+        onclick="verificarYReservar(); return false;"
+        class="inline-block bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105"
+        >Reservar Ahora</a
+      >
+    </div>
+  </div>
+</section>
+
+<!-- Gallery Section -->
+<section id="galeria" class="py-16 bg-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">GALERÍA DE ESTILOS</h2>
+      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+        Descubre nuestros mejores trabajos y encuentra inspiración para tu
+        próximo look.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Gallery images using SVG placeholders -->
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M30,40 Q50,20 70,40 T100,40 V100 H0 V40 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="70" cy="30" r="10" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,50 Q25,30 50,50 T100,50 V100 H0 V50 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="25" cy="30" r="8" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,60 Q40,40 60,60 T100,60 V100 H0 V60 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="80" cy="30" r="12" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,70 Q30,50 70,70 T100,70 V100 H0 V70 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="50" cy="30" r="15" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,65 Q20,45 50,65 T100,65 V100 H0 V65 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="30" cy="40" r="10" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,55 Q35,35 65,55 T100,55 V100 H0 V55 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="60" cy="25" r="8" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,45 Q45,25 75,45 T100,45 V100 H0 V45 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="40" cy="25" r="12" fill="#6b7280"></circle>
+        </svg>
+      </div>
+      <div class="gallery-img overflow-hidden rounded-lg shadow-md">
+        <svg
+          class="w-full h-64 bg-gray-300"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <rect width="100" height="100" fill="#374151"></rect>
+          <path
+            d="M0,60 Q25,40 55,60 T100,60 V100 H0 V60 Z"
+            fill="#1f2937"
+          ></path>
+          <circle cx="75" cy="35" r="10" fill="#6b7280"></circle>
+        </svg>
+      </div>
+    </div>
+
+    <div class="mt-12 text-center">
+      <a
+        href="#"
+        class="inline-block bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105"
+        >Ver Más Estilos</a
+      >
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section id="equipo" class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTRO EQUIPO</h2>
+      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+        Profesionales con años de experiencia listos para ofrecerte el mejor
+        servicio.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Team Member 1 -->
+      <div
+        class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl"
+        data-aos="zoom-in"
+      >
+        <div class="h-64 bg-gray-200 relative">
+          <svg
+            class="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <rect width="100" height="100" fill="#374151"></rect>
+            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
+            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
+          </svg>
+          <div
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+          >
+            <h3 class="text-white text-xl font-bold">Carlos Rodríguez</h3>
+            <p class="text-gray-300">Maestro Barbero</p>
+          </div>
         </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="servicios" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTROS SERVICIOS</h2>
-                <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">Ofrecemos una amplia gama de servicios profesionales para que luzcas impecable en todo momento.</p>
-            </div>
-            
-            <!-- Contenedor dinámico para servicios cargados con JavaScript -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="servicios-grid">
-                <div class="col-span-full text-center text-gray-400">
-                    <svg class="animate-spin h-10 w-10 mx-auto mb-3" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Cargando servicios...
-                </div>
-            </div>
-            
-            <div class="mt-12 text-center">
-                <a href="#" onclick="verificarYReservar(); return false;" class="inline-block bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Reservar Ahora</a>
-            </div>
+        <div class="p-4">
+          <p class="text-gray-600">
+            Especialista en cortes clásicos y diseños personalizados con más de
+            10 años de experiencia.
+          </p>
+          <div class="mt-4 flex space-x-3">
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-instagram"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-facebook"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-twitter"></i
+            ></a>
+          </div>
         </div>
-    </section>
+      </div>
 
-    <!-- Gallery Section -->
-    <section id="galeria" class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">GALERÍA DE ESTILOS</h2>
-                <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">Descubre nuestros mejores trabajos y encuentra inspiración para tu próximo look.</p>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Gallery images using SVG placeholders -->
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M30,40 Q50,20 70,40 T100,40 V100 H0 V40 Z" fill="#1f2937"></path>
-                        <circle cx="70" cy="30" r="10" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,50 Q25,30 50,50 T100,50 V100 H0 V50 Z" fill="#1f2937"></path>
-                        <circle cx="25" cy="30" r="8" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,60 Q40,40 60,60 T100,60 V100 H0 V60 Z" fill="#1f2937"></path>
-                        <circle cx="80" cy="30" r="12" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,70 Q30,50 70,70 T100,70 V100 H0 V70 Z" fill="#1f2937"></path>
-                        <circle cx="50" cy="30" r="15" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,65 Q20,45 50,65 T100,65 V100 H0 V65 Z" fill="#1f2937"></path>
-                        <circle cx="30" cy="40" r="10" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,55 Q35,35 65,55 T100,55 V100 H0 V55 Z" fill="#1f2937"></path>
-                        <circle cx="60" cy="25" r="8" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,45 Q45,25 75,45 T100,45 V100 H0 V45 Z" fill="#1f2937"></path>
-                        <circle cx="40" cy="25" r="12" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-                <div class="gallery-img overflow-hidden rounded-lg shadow-md">
-                    <svg class="w-full h-64 bg-gray-300" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <rect width="100" height="100" fill="#374151"></rect>
-                        <path d="M0,60 Q25,40 55,60 T100,60 V100 H0 V60 Z" fill="#1f2937"></path>
-                        <circle cx="75" cy="35" r="10" fill="#6b7280"></circle>
-                    </svg>
-                </div>
-            </div>
-            
-            <div class="mt-12 text-center">
-                <a href="#" class="inline-block bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105">Ver Más Estilos</a>
-            </div>
+      <!-- Team Member 2 -->
+      <div
+        class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl"
+        data-aos="zoom-in"
+      >
+        <div class="h-64 bg-gray-200 relative">
+          <svg
+            class="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <rect width="100" height="100" fill="#374151"></rect>
+            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
+            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
+          </svg>
+          <div
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+          >
+            <h3 class="text-white text-xl font-bold">Miguel Ángel</h3>
+            <p class="text-gray-300">Estilista Senior</p>
+          </div>
         </div>
-    </section>
-
-    <!-- Team Section -->
-    <section id="equipo" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTRO EQUIPO</h2>
-                <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">Profesionales con años de experiencia listos para ofrecerte el mejor servicio.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Team Member 1 -->
-                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl" data-aos="zoom-in">
-                    <div class="h-64 bg-gray-200 relative">
-                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <rect width="100" height="100" fill="#374151"></rect>
-                            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
-                            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
-                        </svg>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <h3 class="text-white text-xl font-bold">Carlos Rodríguez</h3>
-                            <p class="text-gray-300">Maestro Barbero</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-gray-600">Especialista en cortes clásicos y diseños personalizados con más de 10 años de experiencia.</p>
-                        <div class="mt-4 flex space-x-3">
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Team Member 2 -->
-                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl" data-aos="zoom-in">
-                    <div class="h-64 bg-gray-200 relative">
-                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <rect width="100" height="100" fill="#374151"></rect>
-                            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
-                            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
-                        </svg>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <h3 class="text-white text-xl font-bold">Miguel Ángel</h3>
-                            <p class="text-gray-300">Estilista Senior</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-gray-600">Experto en tendencias modernas y coloración. Formado en las mejores academias de Europa.</p>
-                        <div class="mt-4 flex space-x-3">
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Team Member 3 -->
-                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl" data-aos="zoom-in">
-                    <div class="h-64 bg-gray-200 relative">
-                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <rect width="100" height="100" fill="#374151"></rect>
-                            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
-                            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
-                        </svg>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <h3 class="text-white text-xl font-bold">Alejandro Torres</h3>
-                            <p class="text-gray-300">Barbero Especialista</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-gray-600">Maestro en el arte del afeitado tradicional y tratamientos faciales para caballeros.</p>
-                        <div class="mt-4 flex space-x-3">
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Team Member 4 -->
-                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl" data-aos="zoom-in">
-                    <div class="h-64 bg-gray-200 relative">
-                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <rect width="100" height="100" fill="#374151"></rect>
-                            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
-                            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
-                        </svg>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <h3 class="text-white text-xl font-bold">Daniel Méndez</h3>
-                            <p class="text-gray-300">Barbero Junior</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-gray-600">Joven talento especializado en diseños urbanos y cortes modernos para la nueva generación.</p>
-                        <div class="mt-4 flex space-x-3">
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-gray-600 hover:text-rose-600"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="p-4">
+          <p class="text-gray-600">
+            Experto en tendencias modernas y coloración. Formado en las mejores
+            academias de Europa.
+          </p>
+          <div class="mt-4 flex space-x-3">
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-instagram"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-facebook"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-twitter"></i
+            ></a>
+          </div>
         </div>
-    </section>
+      </div>
 
-    <!-- Testimonials Section -->
-    <section class="py-16 bg-gray-900 text-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">LO QUE DICEN NUESTROS CLIENTES</h2>
-                <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg" data-aos="flip-left">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-xl font-bold">JL</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Juan López</h4>
-                            <div class="flex text-yellow-400">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"El mejor lugar para un corte de pelo en la ciudad. Carlos siempre entiende exactamente lo que quiero y el ambiente es muy acogedor."</p>
-                </div>
-                
-                <!-- Testimonial 2 -->
-                <div class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg" data-aos="zoom-in">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-xl font-bold">RM</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Roberto Martínez</h4>
-                            <div class="flex text-yellow-400">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"El afeitado tradicional es una experiencia que todo hombre debería probar. Profesionales de primera y productos de calidad."</p>
-                </div>
-                
-                <!-- Testimonial 3 -->
-                <div class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg" data-aos="flip-right">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4">
-                            <span class="text-xl font-bold">FG</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Fernando García</h4>
-                            <div class="flex text-yellow-400">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-300">"Llevo a mi hijo de 8 años y siempre sale contento. El personal es muy amable y paciente con los niños. Totalmente recomendable."</p>
-                </div>
-            </div>
+      <!-- Team Member 3 -->
+      <div
+        class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl"
+        data-aos="zoom-in"
+      >
+        <div class="h-64 bg-gray-200 relative">
+          <svg
+            class="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <rect width="100" height="100" fill="#374151"></rect>
+            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
+            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
+          </svg>
+          <div
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+          >
+            <h3 class="text-white text-xl font-bold">Alejandro Torres</h3>
+            <p class="text-gray-300">Barbero Especialista</p>
+          </div>
         </div>
-    </section>
+        <div class="p-4">
+          <p class="text-gray-600">
+            Maestro en el arte del afeitado tradicional y tratamientos faciales
+            para caballeros.
+          </p>
+          <div class="mt-4 flex space-x-3">
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-instagram"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-facebook"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-twitter"></i
+            ></a>
+          </div>
+        </div>
+      </div>
 
-    <!-- Contacto y Mapa Section -->
-    <section id="contacto" class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold mb-4">NUESTRA UBICACIÓN E INFORMACIÓN</h2>
-        <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
-        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
-            Encuentra nuestra barbería y visítanos. Estamos ubicados en un lugar de fácil acceso y listos para atenderte.
+      <!-- Team Member 4 -->
+      <div
+        class="bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 hover:shadow-xl"
+        data-aos="zoom-in"
+      >
+        <div class="h-64 bg-gray-200 relative">
+          <svg
+            class="w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <rect width="100" height="100" fill="#374151"></rect>
+            <circle cx="50" cy="35" r="25" fill="#6b7280"></circle>
+            <rect x="25" y="65" width="50" height="35" fill="#4b5563"></rect>
+          </svg>
+          <div
+            class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+          >
+            <h3 class="text-white text-xl font-bold">Daniel Méndez</h3>
+            <p class="text-gray-300">Barbero Junior</p>
+          </div>
+        </div>
+        <div class="p-4">
+          <p class="text-gray-600">
+            Joven talento especializado en diseños urbanos y cortes modernos
+            para la nueva generación.
+          </p>
+          <div class="mt-4 flex space-x-3">
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-instagram"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-facebook"></i
+            ></a>
+            <a href="#" class="text-gray-600 hover:text-rose-600"
+              ><i class="fab fa-twitter"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-16 bg-gray-900 text-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        LO QUE DICEN NUESTROS CLIENTES
+      </h2>
+      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Testimonial 1 -->
+      <div
+        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
+        data-aos="flip-left"
+      >
+        <div class="flex items-center mb-4">
+          <div
+            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
+          >
+            <span class="text-xl font-bold">JL</span>
+          </div>
+          <div>
+            <h4 class="font-bold">Juan López</h4>
+            <div class="flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+        <p class="text-gray-300">
+          "El mejor lugar para un corte de pelo en la ciudad. Carlos siempre
+          entiende exactamente lo que quiero y el ambiente es muy acogedor."
         </p>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div
+        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
+        data-aos="zoom-in"
+      >
+        <div class="flex items-center mb-4">
+          <div
+            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
+          >
+            <span class="text-xl font-bold">RM</span>
+          </div>
+          <div>
+            <h4 class="font-bold">Roberto Martínez</h4>
+            <div class="flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+          </div>
         </div>
+        <p class="text-gray-300">
+          "El afeitado tradicional es una experiencia que todo hombre debería
+          probar. Profesionales de primera y productos de calidad."
+        </p>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <!-- Información de Contacto -->
-        <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full">
-            <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
-
-            <div class="space-y-6">
-            <div class="flex items-start">
-                <div class="text-rose-600 mr-4 mt-1">
-                <i class="fas fa-map-marker-alt text-xl"></i>
-                </div>
-                <div>
-                <h4 class="font-bold text-lg">Dirección</h4>
-                <p class="text-gray-600">Carrera 10 #1_41, Barrio Centro</p>
-                </div>
+      <!-- Testimonial 3 -->
+      <div
+        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
+        data-aos="flip-right"
+      >
+        <div class="flex items-center mb-4">
+          <div
+            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
+          >
+            <span class="text-xl font-bold">FG</span>
+          </div>
+          <div>
+            <h4 class="font-bold">Fernando García</h4>
+            <div class="flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
             </div>
-
-            <div class="flex items-start">
-                <div class="text-rose-600 mr-4 mt-1">
-                <i class="fas fa-phone-alt text-xl"></i>
-                </div>
-                <div>
-                <h4 class="font-bold text-lg">Teléfono</h4>
-                <p class="text-gray-600">313 851 2244</p>
-                </div>
-            </div>
-
-            <div class="flex items-start">
-                <div class="text-rose-600 mr-4 mt-1">
-                <i class="fas fa-clock text-xl"></i>
-                </div>
-                <div>
-                <h4 class="font-bold text-lg">Horario</h4>
-                <p class="text-gray-600">
-                    Lunes a Viernes: 9:00 am - 1:00 pm <br>
-                    2:00 pm - 8:00 pm<br>
-                    Domingo: Cerrado
-                </p>
-                </div>
-            </div>
-            </div>
-
-            <div class="mt-8">
-            <h4 class="font-bold text-lg mb-4">Síguenos</h4>
-            <div class="flex space-x-4">
-                <a href="#" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-                <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://www.instagram.com/rg4l_barber_.19?igsh=YzljYTk1ODg3Zg==" target="_blank" class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition">
-                <i class="fab fa-instagram"></i>
-                </a>
-            </div>
-            </div>
+          </div>
         </div>
-
-        <!-- Mapa -->
-        <div class="rounded-lg overflow-hidden shadow-md border border-gray-200 h-full">
-            <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco" 
-            width="100%" 
-            height="100%" 
-            style="border:0;" 
-            allowfullscreen="" 
-            loading="lazy" 
-            referrerpolicy="no-referrer-when-downgrade"
-            class="w-full h-full min-h-[400px]">
-            </iframe>
-        </div>
-        </div>
+        <p class="text-gray-300">
+          "Llevo a mi hijo de 8 años y siempre sale contento. El personal es muy
+          amable y paciente con los niños. Totalmente recomendable."
+        </p>
+      </div>
     </div>
-    </section>
+  </div>
+</section>
 
-    <!-- Success Modal for Forms -->
-    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full">
-            <div class="text-center">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-                    <i class="fas fa-check text-2xl text-green-600"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Enviado con éxito!</h3>
-                <p class="text-gray-600 mb-6" id="modal-message">Tu mensaje ha sido enviado correctamente. Nos pondremos en contacto contigo pronto.</p>
-                <button id="close-modal" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Cerrar</button>
-            </div>
-        </div>
+<!-- Contacto y Mapa Section -->
+<section id="contacto" class="py-16 bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        NUESTRA UBICACIÓN E INFORMACIÓN
+      </h2>
+      <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
+      <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
+        Encuentra nuestra barbería y visítanos. Estamos ubicados en un lugar de
+        fácil acceso y listos para atenderte.
+      </p>
     </div>
 
-    {% endblock %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <!-- Información de Contacto -->
+      <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full">
+        <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
+
+        <div class="space-y-6">
+          <div class="flex items-start">
+            <div class="text-rose-600 mr-4 mt-1">
+              <i class="fas fa-map-marker-alt text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">Dirección</h4>
+              <p class="text-gray-600">Carrera 10 #1_41, Barrio Centro</p>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <div class="text-rose-600 mr-4 mt-1">
+              <i class="fas fa-phone-alt text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">Teléfono</h4>
+              <p class="text-gray-600">313 851 2244</p>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <div class="text-rose-600 mr-4 mt-1">
+              <i class="fas fa-clock text-xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">Horario</h4>
+              <p class="text-gray-600">
+                Lunes a Viernes: 9:00 am - 1:00 pm <br />
+                2:00 pm - 8:00 pm<br />
+                Domingo: Cerrado
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <h4 class="font-bold text-lg mb-4">Síguenos</h4>
+          <div class="flex space-x-4">
+            <a
+              href="#"
+              class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition"
+            >
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a
+              href="https://www.instagram.com/rg4l_barber_.19?igsh=YzljYTk1ODg3Zg=="
+              target="_blank"
+              class="w-10 h-10 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-rose-600 transition"
+            >
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mapa -->
+      <div
+        class="rounded-lg overflow-hidden shadow-md border border-gray-200 h-full"
+      >
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco"
+          width="100%"
+          height="100%"
+          style="border: 0"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="w-full h-full min-h-[400px]"
+        >
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Success Modal for Forms -->
+<div
+  id="success-modal"
+  class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 hidden"
+>
+  <div class="bg-white rounded-lg p-8 max-w-md w-full">
+    <div class="text-center">
+      <div
+        class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6"
+      >
+        <i class="fas fa-check text-2xl text-green-600"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Enviado con éxito!</h3>
+      <p class="text-gray-600 mb-6" id="modal-message">
+        Tu mensaje ha sido enviado correctamente. Nos pondremos en contacto
+        contigo pronto.
+      </p>
+      <button
+        id="close-modal"
+        class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

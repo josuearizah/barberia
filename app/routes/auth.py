@@ -170,7 +170,7 @@ def solicitar_reset():
     try:
         # Crear mensaje de correo
         msg = Message(
-            subject='Código de verificación - Barbería Clásica',
+            subject='Código de verificación - RG4LBarber',
             recipients=[email]
         )
         
@@ -186,21 +186,50 @@ def solicitar_reset():
         Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.
         
         Saludos,
-        El equipo de Barbería Clásica
+        El equipo de RG4LBarber
         """
         
         # Versión HTML del mensaje
         msg.html = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #E5304A; text-align: center;">Barbería Clásica</h2>
-            <p>Hola <strong>{usuario.nombre}</strong>,</p>
-            <p>Has solicitado restablecer tu contraseña.</p>
-            <p>Tu código de verificación es: <strong style="font-size: 24px; color: #E5304A;">{codigo}</strong></p>
-            <p style="font-size: 0.9em; color: #777;">Este código expirará en 15 minutos.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 0.8em; color: #777;">Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.</p>
-            <p style="text-align: center; font-size: 0.8em; color: #777;">El equipo de Barbería Clásica</p>
-        </div>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+            <title>Restablecimiento de Contraseña</title>
+        </head>
+        <body style="font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #eaeaea; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <!-- Logo en la parte superior -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://res.cloudinary.com/dsi2yfaew/image/upload/v1756158124/logo2_hy3sol.png" alt="RG4LBarber Logo" style="max-width: 75px; height: auto;">
+                </div>
+                
+                <h2 style="font-family: 'Oswald', sans-serif; color: #E5304A; text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 20px;">RESTABLECIMIENTO DE CONTRASEÑA</h2>
+                
+                <p style="margin-bottom: 15px; color: #333; line-height: 1.6;font-size: 14px;">Hola <strong>{usuario.nombre}</strong>,</p>
+                
+                <p style="margin-bottom: 15px; color: #333; line-height: 1.6; font-size: 14px;">Has solicitado restablecer tu contraseña.</p>
+                
+                <div style="background-color: #f9f9f9; border-left: 4px solid #E5304A; padding: 15px; margin: 20px 0; text-align: center;">
+                    <p style="font-family: 'Oswald', sans-serif; margin: 0; font-size: 14px; color: #666;">TU CÓDIGO DE VERIFICACIÓN ES:</p>
+                    <p style="font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; color: #E5304A; letter-spacing: 5px; margin: 10px 0;">{codigo}</p>
+                </div>
+                
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Este código expirará en <strong>15 minutos</strong>.</p>
+                
+                <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+                
+                <p style="font-size: 13px; color: #777; margin-bottom: 5px;">Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.</p>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #333; margin-bottom: 5px;">RG4LBARBER</p>
+                    <p style="font-size: 12px; color: #999;">Estilo y precisión en cada corte</p>
+                </div>
+            </div>
+        </body>
+        </html>
         """
         
         # Información de depuración antes del envío
@@ -283,22 +312,66 @@ def reenviar_codigo():
     try:
         # Crear mensaje de correo
         msg = Message(
-            subject='Código de verificación (Reenviado) - Barbería Clásica',
+            subject='Código de verificación (Reenviado) - RG4LBarber',
             recipients=[email]
         )
         
+        # Contenido del mensaje en texto plano
+        msg.body = f"""
+        Hola {usuario.nombre},
+        
+        Has solicitado reenviar tu código de verificación para restablecer tu contraseña.
+        Tu nuevo código es: {codigo}
+        
+        Este código expirará en 15 minutos.
+        
+        Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.
+        
+        Saludos,
+        El equipo de RG4LBarber
+        """
+        
         # Contenido del mensaje
         msg.html = f"""
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #E5304A; text-align: center;">Barbería Clásica</h2>
-            <p>Hola <strong>{usuario.nombre}</strong>,</p>
-            <p>Has solicitado reenviar tu código de verificación para restablecer tu contraseña.</p>
-            <p>Tu nuevo código es: <strong style="font-size: 24px; color: #E5304A;">{codigo}</strong></p>
-            <p style="font-size: 0.9em; color: #777;">Este código expirará en 15 minutos.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 0.8em; color: #777;">Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.</p>
-            <p style="text-align: center; font-size: 0.8em; color: #777;">El equipo de Barbería Clásica</p>
-        </div>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+            <title>Reenvío de Código</title>
+        </head>
+        <body style="font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; border: 1px solid #eaeaea; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <!-- Logo en la parte superior -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://res.cloudinary.com/dsi2yfaew/image/upload/v1756158124/logo2_hy3sol.png" alt="RG4LBarber Logo" style="max-width: 75px; height: auto;">
+                </div>
+                
+                <h2 style="font-family: 'Oswald', sans-serif; color: #E5304A; text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 20px;">CÓDIGO REENVIADO</h2>
+                
+                <p style="margin-bottom: 15px; color: #333; line-height: 1.6;">Hola <strong>{usuario.nombre}</strong>,</p>
+                
+                <p style="margin-bottom: 15px; color: #333; line-height: 1.6;">Has solicitado reenviar tu código de verificación para restablecer tu contraseña.</p>
+                
+                <div style="background-color: #f9f9f9; border-left: 4px solid #E5304A; padding: 15px; margin: 20px 0; text-align: center;">
+                    <p style="font-family: 'Oswald', sans-serif; margin: 0; font-size: 14px; color: #666;">TU NUEVO CÓDIGO DE VERIFICACIÓN ES:</p>
+                    <p style="font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; color: #E5304A; letter-spacing: 5px; margin: 10px 0;">{codigo}</p>
+                </div>
+                
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Este código expirará en <strong>15 minutos</strong>.</p>
+                
+                <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;">
+                
+                <p style="font-size: 13px; color: #777; margin-bottom: 5px;">Si no solicitaste restablecer tu contraseña, por favor ignora este mensaje.</p>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <p style="font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; color: #333; margin-bottom: 5px;">RG4LBARBER</p>
+                    <p style="font-size: 12px; color: #999;">Estilo y precisión en cada corte</p>
+                </div>
+            </div>
+        </body>
+        </html>
         """
         
         # Enviar el correo
