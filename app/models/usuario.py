@@ -12,6 +12,11 @@ class Usuario(db.Model, UserMixin):
     correo = db.Column(db.String(100), unique=True, nullable=False)
     contrasena = db.Column(db.String(120), nullable=False)
     rol = db.Column(db.String(20), nullable=False, default='cliente')  # 'admin' o 'cliente'
+    # Añade estos campos a la clase Usuario (dentro de la definición de la clase)
+    reset_codigo = db.Column(db.String(6), nullable=True)
+    reset_expiracion = db.Column(db.DateTime, nullable=True)
+    reset_token = db.Column(db.String(32), nullable=True)
+    reset_token_expiracion = db.Column(db.DateTime, nullable=True)
 
     # Métodos para login
     def set_password(self, password):

@@ -54,10 +54,9 @@
       <div>
         <div class="flex justify-between items-center gap-4">
           <label for="contrasena" class="block text-sm font-normal text-gray-300">Contraseña</label>
-          <a href="#" class="text-sm text-rose-600 hover:text-rose-500 hover:underline transition">¿Olvidaste tu contraseña?</a>
+          <a href="{{ url_for('auth.reset_password') }}" class="text-sm text-rose-600 hover:text-rose-500 hover:underline transition">¿Olvidaste tu contraseña?</a>
         </div>
-        <input type="password" id="contrasena" name="contrasena" required
-               class="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500 focus:bg-transparent">
+        <input type="password" id="contrasena" name="contrasena" required class="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500 focus:bg-transparent">
       </div>
 
       <button type="submit" class="w-full bg-rose-600 text-white py-2 px-4 rounded-md hover:bg-rose-700 transition font-medium">

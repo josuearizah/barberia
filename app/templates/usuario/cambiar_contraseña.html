@@ -1,0 +1,162 @@
+{% extends "base2.html" %}
+
+{% block title %}Restablecer Contraseña - Barbería Clásica{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-900">
+    <div class="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg text-white">
+        <div class="flex justify-center">
+            <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" class="h-16 w-auto object-contain p-0" />
+        </div>
+        <h2 class="mt-6 text-center text-2xl font-bold">Restablecer Contraseña</h2>
+        
+        {% with mensajes = get_flashed_messages(with_categories=true) %}
+            {% if mensajes %}
+                <div id="alerts-container">
+                    {% for categoria, mensaje in mensajes %}
+                        <div class="relative mb-4 px-4 py-3 rounded border flex items-start justify-between gap-4
+                                {{ 'border-green-500 text-green-400 bg-green-500/10' if categoria == 'success' else 'border-red-500 text-red-400 bg-red-500/10' }}">
+                            <div class="font-medium">{{ mensaje }}</div>
+                            <button type="button" class="text-xl leading-none text-inherit focus:outline-none"
+                                    onclick="this.parentElement.remove();">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Paso 1: Ingresar correo electrónico -->
+        <div id="paso-1" class="space-y-6">
+            <p class="text-sm text-gray-300 text-center">
+                Ingresa tu correo electrónico y te enviaremos un código de verificación 
+                para restablecer tu contraseña.
+            </p>
+            <form id="form-correo" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email" class="sr-only">Correo electrónico</label>
+                        <input id="email" name="email" type="email" required 
+                            class="w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white 
+                            focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent"
+                            placeholder="Correo electrónico">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
+                        shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500">
+                        Enviar código de verificación
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Paso 2: Verificar código -->
+        <div id="paso-2" class="space-y-6 hidden">
+            <p class="text-sm text-gray-300 text-center">
+                Hemos enviado un código de verificación a tu correo electrónico.
+                Por favor, ingresa el código de 6 dígitos a continuación.
+            </p>
+            <form id="form-verificacion" class="mt-8 space-y-6">
+                <div class="flex justify-center space-x-2">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                    <input type="text" maxlength="1" class="verification-input w-12 h-12 text-center text-xl rounded-md border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                </div>
+                <div class="flex justify-between text-sm">
+                    <button type="button" id="btn-regresar-paso1" class="text-gray-300 hover:text-white">
+                        &larr; Regresar
+                    </button>
+                    <button type="button" id="btn-reenviar" class="text-rose-500 hover:text-rose-400">
+                        Reenviar código
+                    </button>
+                </div>
+                <div>
+                    <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
+                        shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500">
+                        Verificar código
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Paso 3: Nueva contraseña -->
+        <div id="paso-3" class="space-y-6 hidden">
+            <p class="text-sm text-gray-300 text-center">
+                Crea una nueva contraseña segura para tu cuenta.
+            </p>
+            <form id="form-nueva-contrasena" class="mt-8 space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-300">
+                            Nueva contraseña
+                        </label>
+                        <input id="new-password" name="new-password" type="password" required 
+                            class="w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white 
+                            focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                        <div class="text-xs mt-1">
+                            <div id="pwd-min-length" class="text-gray-400">• Mínimo 8 caracteres</div>
+                            <div id="pwd-uppercase" class="text-gray-400">• Al menos una letra mayúscula</div>
+                            <div id="pwd-number" class="text-gray-400">• Al menos un número</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-300">
+                            Confirmar contraseña
+                        </label>
+                        <input id="confirm-password" name="confirm-password" type="password" required 
+                            class="w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white 
+                            focus:outline-none focus:ring focus:ring-rose-500 focus:bg-transparent">
+                        <div id="pwd-match" class="text-xs mt-1 text-gray-400">• Las contraseñas deben coincidir</div>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" id="btn-cambiar-contrasena"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
+                        shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500">
+                        Cambiar contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Paso 4: Confirmación -->
+        <div id="paso-4" class="space-y-6 hidden">
+            <div class="flex justify-center">
+                <svg class="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-center">¡Contraseña cambiada con éxito!</h3>
+            <p class="text-sm text-gray-300 text-center">
+                Tu contraseña ha sido actualizada correctamente. Ya puedes iniciar sesión con tu nueva contraseña.
+            </p>
+            <div>
+                <a href="{{ url_for('auth.login') }}" 
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md 
+                    shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500">
+                    Iniciar sesión
+                </a>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-sm">
+            <a href="{{ url_for('auth.login') }}" class="text-rose-500 hover:text-rose-400 hover:underline">
+                Volver a inicio de sesión
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/password.js') }}" defer></script>
+{% endblock %}
