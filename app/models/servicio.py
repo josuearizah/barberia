@@ -12,6 +12,7 @@ class Servicio(db.Model):
 
     # Relaciones
     citas = db.relationship('Cita', back_populates='servicio', lazy=True)
+    descuento = db.relationship('Descuento', back_populates='servicio', uselist=False, lazy=True)
 
     def __repr__(self):
         return f'<Servicio {self.nombre}>'

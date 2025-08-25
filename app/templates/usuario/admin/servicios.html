@@ -22,6 +22,7 @@
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Descripción</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Precio</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Duración (min)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Descuento</th>
                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
@@ -53,7 +54,7 @@
             </div>
             <div class="mb-3">
                 <label class="block text-sm font-medium mb-1">Precio (USD)</label>
-                <input type="number" name="precio" step="0.01" min="0" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+                <input type="number" name="precio" id="nuevo-precio" step="0.01" min="0" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
             </div>
             <div class="mb-3">
                 <label class="block text-sm font-medium mb-1">Duración (minutos)</label>
@@ -63,6 +64,16 @@
                 <label class="block text-sm font-medium mb-1">Imagen</label>
                 <input type="file" name="imagen" accept="image/*" class="w-full text-gray-700">
             </div>
+            <button type="button" id="abrir-modal-descuento-nuevo" class="mb-3 text-rose-600 hover:text-rose-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Añadir Descuento
+            </button>
+            <input type="hidden" name="descuento_tipo" id="nuevo-descuento-tipo">
+            <input type="hidden" name="descuento_valor" id="nuevo-descuento-valor">
+            <input type="hidden" name="descuento_fecha_inicio" id="nuevo-descuento-fecha-inicio">
+            <input type="hidden" name="descuento_fecha_fin" id="nuevo-descuento-fecha-fin">
             <div class="flex justify-end gap-3">
                 <button type="button" class="btn-cerrar-add px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
                 <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Guardar</button>
@@ -109,6 +120,16 @@
                     <img id="img-actual" src="" class="h-16 w-16 object-contain rounded border">
                 </div>
             </div>
+            <button type="button" id="abrir-modal-descuento-editar" class="mb-3 text-rose-600 hover:text-rose-700 font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Añadir/Editar Descuento
+            </button>
+            <input type="hidden" name="descuento_tipo" id="edit-descuento-tipo">
+            <input type="hidden" name="descuento_valor" id="edit-descuento-valor">
+            <input type="hidden" name="descuento_fecha_inicio" id="edit-descuento-fecha-inicio">
+            <input type="hidden" name="descuento_fecha_fin" id="edit-descuento-fecha-fin">
             <div class="flex justify-end gap-3">
                 <button type="button" class="cerrar-modal-editar px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
                 <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Actualizar</button>
@@ -134,8 +155,56 @@
                 <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition">Eliminar</button>
             </div>
         </form>
-    </div> 
-    
+    </div>
+</div>
+
+<!-- Modal: Gestionar Descuento -->
+<div id="modal-descuento" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full text-gray-900 relative">
+        <button id="cerrar-modal-descuento" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        <h3 class="text-xl font-bold mb-4">Gestionar Descuento</h3>
+        <form id="form-descuento">
+            <input type="hidden" name="context" id="descuento-context">
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Tipo de Descuento</label>
+                <select id="descuento-tipo-select" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-rose-500 focus:border-rose-500">
+                    <option value="porcentaje">Porcentaje (%)</option>
+                    <option value="cantidad">Cantidad Fija (USD)</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Porcentaje (%)</label>
+                <input type="number" id="descuento-porcentaje" step="0.01" min="0" max="100" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-rose-500 focus:border-rose-500">
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Cantidad Fija (USD)</label>
+                <input type="number" id="descuento-cantidad" step="0.01" min="0" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-rose-500 focus:border-rose-500">
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Precio Final (USD)</label>
+                <input type="number" id="descuento-precio-final" step="0.01" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-100" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Fecha Inicio</label>
+                <input type="date" id="descuento-fecha-inicio" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-rose-500 focus:border-rose-500" required>
+            </div>
+            <div class="mb-3">
+                <label class="block text-sm font-medium mb-1">Fecha Fin (opcional)</label>
+                <input type="date" id="descuento-fecha-fin" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-rose-500 focus:border-rose-500">
+            </div>
+            <div class="flex justify-between gap-3">
+                <button type="button" id="eliminar-descuento" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition" hidden>Eliminar Descuento</button>
+                <div class="flex gap-3">
+                    <button type="button" id="cerrar-modal-descuento-btn" class="px-4 py-2 rounded-md border text-gray-600 hover:bg-gray-100">Cancelar</button>
+                    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Guardar Descuento</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/servicios.js') }}"></script>
