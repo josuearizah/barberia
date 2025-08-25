@@ -1,0 +1,87 @@
+<div class="h-full flex flex-col">
+  <h2 class="text-2xl font-black text-gray-200 mb-4 text-center">Gestión de Clientes</h2>
+
+  <div class="mb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-center text-base text-gray-300">
+    <!-- Buscador -->
+    <div class="relative min-w-0 sm:col-span-2 lg:col-span-1">
+      <input
+        type="text"
+        id="search-input"
+        class="w-full h-10 px-4 pl-10 border border-gray-600 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-rose-500"
+        placeholder="Buscar cliente..."
+      >
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+
+    <!-- Contador de clientes -->
+    <div class="flex justify-center sm:justify-start lg:justify-center">
+      <p class="font-medium">
+        Clientes Registrados: <span id="total-clientes" class="text-white">0</span>
+      </p>
+    </div>
+
+    <!-- Orden -->
+    <div class="flex items-center gap-2 justify-start sm:justify-end">
+      <label class="whitespace-nowrap">Ordenar por:</label>
+      <button id="order-toggle" class="inline-flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white w-full sm:w-auto">
+        <svg id="order-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+        </svg>
+        <span class="truncate">Más viejo primero</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Made table container flex-1 with controlled overflow for horizontal scroll only when needed -->
+  <div class="flex-1 bg-gray-900 shadow-md rounded-lg border border-gray-600 overflow-hidden">
+    <div class="overflow-x-auto h-full">
+      <table id="clientes-table" class="min-w-full divide-y divide-gray-700">
+        <thead class="bg-gray-700 sticky top-0">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre Completo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Correo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Rol</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="clientes-table-body" class="bg-gray-800 divide-y divide-gray-700">
+          <!-- Usuarios se cargarán dinámicamente con JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Improved modals with higher z-index to prevent scroll issues -->
+<!-- Modal para confirmar cambio de rol -->
+<div id="modal-cambio-rol" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[60] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg max-w-md w-full p-6">
+    <h3 class="text-xl font-bold mb-4">Cambiar Rol</h3>
+    <p id="modal-rol-mensaje" class="text-gray-700 mb-4"></p>
+    <div class="flex gap-3">
+      <button id="cancel-rol" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg transition-colors">Cancelar</button>
+      <button id="confirm-rol" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-2 px-4 rounded-lg transition-colors">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para confirmar eliminación -->
+<div id="modal-eliminar" class="fixed inset-0 bg-black bg-opacity-50 hidden z-[60] flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg max-w-md w-full p-6">
+    <h3 class="text-xl font-bold mb-4">Eliminar Usuario</h3>
+    <p id="modal-eliminar-mensaje" class="text-gray-700 mb-4"></p>
+    <div class="flex gap-3">
+      <button id="cancel-eliminar" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg transition-colors">Cancelar</button>
+      <button id="confirm-eliminar" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/clientes.js') }}"></script>

@@ -34,7 +34,7 @@ def perfil():
     social_platforms = {
         'instagram': {'name': 'Instagram', 'icon': 'fab fa-instagram', 'color': 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600'},
         'facebook': {'name': 'Facebook', 'icon': 'fab fa-facebook', 'color': 'bg-blue-600'},
-        'x': {'name': 'X', 'icon': 'fab fa-x-twitter', 'color': 'bg-black text-white'},
+        'x': {'name': 'X', 'icon': 'fa-brands fa-x-twitter', 'color': 'bg-black text-white'},
         'linkedin': {'name': 'LinkedIn', 'icon': 'fab fa-linkedin', 'color': 'bg-blue-700'},
         'youtube': {'name': 'YouTube', 'icon': 'fab fa-youtube', 'color': 'bg-red-600'},
         'tiktok': {'name': 'TikTok', 'icon': 'fab fa-tiktok', 'color': 'bg-black'},
@@ -61,7 +61,7 @@ def perfil_publico(usuario_id):
     social_platforms = {
         'instagram': {'name': 'Instagram', 'icon': 'fab fa-instagram', 'color': 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600'},
         'facebook': {'name': 'Facebook', 'icon': 'fab fa-facebook', 'color': 'bg-blue-600'},
-        'x': {'name': 'X', 'icon': 'fa-brands fa-x-twitter', 'color': 'bg-black'},
+        'x': {'name': 'X', 'icon': 'fa-brands fa-x-twitter', 'color': 'bg-black text-white'},
         'linkedin': {'name': 'LinkedIn', 'icon': 'fab fa-linkedin', 'color': 'bg-blue-700'},
         'youtube': {'name': 'YouTube', 'icon': 'fab fa-youtube', 'color': 'bg-red-600'},
         'tiktok': {'name': 'TikTok', 'icon': 'fab fa-tiktok', 'color': 'bg-black'},

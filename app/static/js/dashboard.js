@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const collapseBtn = document.getElementById('sidebar-collapse');
   const collapseIcon = document.getElementById('collapse-icon');
   const expandIcon = document.getElementById('expand-icon');
-  const mainContent = document.querySelector('.flex.flex-col.min-h-screen.lg\\:pl-64');
-
+  const mainContent = document.querySelector('.flex.flex-col');
   // Abrir sidebar (mobile)
   function openSidebar() {
     sidebar.classList.remove('-translate-x-full');

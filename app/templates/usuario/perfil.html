@@ -73,16 +73,16 @@
                 {% if redes %}
                     {% for red in redes %}
                     <div class="bg-gray-50 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 {{ social_platforms[red.platform].color }} rounded-lg flex items-center justify-center text-white">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-12 h-12 {{ social_platforms[red.platform].color }} rounded-lg flex items-center justify-center text-white shrink-0">
                                 <i class="{{ social_platforms[red.platform].icon }} text-3xl"></i>
                             </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-800">{{ social_platforms[red.platform].name }}</h3>
-                                <p class="text-sm text-gray-600">{{ red.username }}</p>
+                            <div class="min-w-0">
+                                <h3 class="font-semibold text-gray-800 truncate">{{ social_platforms[red.platform].name }}</h3>
+                                <p class="text-sm text-gray-600 break-all whitespace-normal leading-snug">{{ red.username }}</p>
                             </div>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 shrink-0">
                             <button onclick="openSocialLink('{{ red.platform }}', '{{ red.username | safe }}')" class="text-blue-600 hover:text-blue-800 p-2">
                                 <i class="fas fa-external-link-alt"></i>
                             </button>

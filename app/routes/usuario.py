@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app import db
 from app.models.usuario import Usuario
 
@@ -46,3 +46,36 @@ def register():
     return render_template('usuario/register.html')
 
 
+@bp.route('/api/usuarios', methods=['GET'])
+def obtener_usuarios():
+    if session.get('rol') != 'admin':
+        return jsonify({'error': 'No autorizado'}), 403
+    usuarios = Usuario.query.all()
+    return jsonify([{
+        'id': u.id,
+        'nombre': u.nombre,
+        'apellido': u.apellido,
+        'telefono': u.telefono,
+        'correo': u.correo,
+        'rol': u.rol
+    } for u in usuarios]), 200
+
+@bp.route('/api/usuarios/<int:id>', methods=['PUT'])
+def actualizar_usuario(id):
+    if session.get('rol') != 'admin':
+        return jsonify({'error': 'No autorizado'}), 403
+    usuario = Usuario.query.get_or_404(id)
+    data = request.json
+    if 'rol' in data:
+        usuario.rol = data['rol']
+    db.session.commit()
+    return jsonify({'success': True}), 200
+
+@bp.route('/api/usuarios/<int:id>', methods=['DELETE'])
+def eliminar_usuario(id):
+    if session.get('rol') != 'admin':
+        return jsonify({'error': 'No autorizado'}), 403
+    usuario = Usuario.query.get_or_404(id)
+    db.session.delete(usuario)
+    db.session.commit()
+    return jsonify({'success': True}), 200

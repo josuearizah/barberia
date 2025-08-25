@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     x: {
       name: "X",
-      icon: "fab fa-x-twitter",
+      icon: "fa-brands fa-x-twitter",
       color: "bg-black text-white",
       baseUrl: "https://x.com/",
     },
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedSocial.innerHTML = `
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 ${platform.color} rounded flex items-center justify-center text-white">
-                <i class="${platform.icon} text-sm"></i>
+                <i class="${platform.icon} text-lg"></i>
               </div>
               <span>${platform.name}</span>
             </div>
@@ -307,15 +307,35 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         userSocialNetworks.push(socialNetwork);
-        renderSocialNetworks();
 
         if (socialPlatformInput) socialPlatformInput.value = "";
         if (selectedSocial) selectedSocial.textContent = "Seleccionar red social";
         if (document.getElementById("social-username")) document.getElementById("social-username").value = "";
 
-        autoSave();
-        showNotification("Red social agregada correctamente", "success");
-        closeModal(addSocialModal);
+        fetch("/perfil/guardar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profile: userProfile,
+            socialNetworks: userSocialNetworks,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              renderSocialNetworks();
+              showNotification("Red social agregada correctamente", "success");
+              closeModal(addSocialModal);
+            } else {
+              showNotification("Error al añadir la red social", "error");
+            }
+          })
+          .catch((error) => {
+            console.error("Error al añadir:", error);
+            showNotification("Error al añadir la red social", "error");
+          });
       } else {
         showNotification("Por favor completa todos los campos", "error");
       }
@@ -366,8 +386,49 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSocialNetworks() {
-    // Recargar datos del servidor para actualizar la UI
-    loadUserData();
+    const socialNetworksContainer = document.getElementById("social-networks");
+    if (socialNetworksContainer) {
+      socialNetworksContainer.innerHTML = "";
+
+      if (userSocialNetworks.length === 0) {
+        socialNetworksContainer.innerHTML = `
+          <div class="col-span-full text-center py-8 text-gray-500">
+            <i class="fas fa-share-alt text-4xl mb-4"></i>
+            <p>No hay redes sociales agregadas</p>
+            <p class="text-sm">Haz clic en "Añadir Red Social" para comenzar</p>
+          </div>
+        `;
+        return;
+      }
+
+      userSocialNetworks.forEach((network) => {
+        const platform = socialPlatforms[network.platform];
+        if (platform) {
+          const socialCard = document.createElement("div");
+          socialCard.className = "bg-gray-50 rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow";
+          socialCard.innerHTML = `
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="w-10 h-10 ${platform.color} rounded-lg flex items-center justify-center text-white shrink-0">
+                <i class="${platform.icon} text-2xl"></i>
+              </div>
+              <div class="min-w-0">
+                <h3 class="font-semibold text-gray-800 truncate">${platform.name}</h3>
+                <p class="text-sm text-gray-600 break-all whitespace-normal leading-snug">${network.username}</p>
+              </div>
+            </div>
+            <div class="flex gap-2 shrink-0">
+              <button onclick="openSocialLink('${network.platform}', '${network.username}')" class="text-blue-600 hover:text-blue-800 p-2">
+                <i class="fas fa-external-link-alt"></i>
+              </button>
+              <button onclick="removeSocialNetwork('${network.id}')" class="text-red-600 hover:text-red-800 p-2">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          `;
+          socialNetworksContainer.appendChild(socialCard);
+        }
+      });
+    }
   }
 
   window.openSocialLink = (platform, username) => {
@@ -389,7 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.removeSocialNetwork = (id) => {
     if (confirm("¿Estás seguro de que quieres eliminar esta red social?")) {
-      const networkId = parseInt(id, 10); // Convertir ID a número
+      const networkId = parseInt(id, 10);
       userSocialNetworks = userSocialNetworks.filter((network) => network.id !== networkId);
       fetch("/perfil/guardar", {
         method: "POST",
@@ -404,7 +465,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            renderSocialNetworks(); // Recarga los datos del servidor
+            renderSocialNetworks();
             showNotification("Red social eliminada", "success");
           } else {
             showNotification("Error al eliminar la red social", "error");
@@ -447,7 +508,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success) {
           userProfile = { ...userProfile, ...data.profile };
           userSocialNetworks = data.socialNetworks || [];
-
           if (data.profile.phone || data.profile.phone === "") {
             if (document.getElementById("phone-text")) {
               document.getElementById("phone-text").textContent = data.profile.phone || "No especificado";
@@ -473,6 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (removePhotoSection) removePhotoSection.classList.add("hidden");
             updateNavbarAvatar();
           }
+          renderSocialNetworks();
         }
       })
       .catch((error) => {
