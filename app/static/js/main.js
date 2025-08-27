@@ -113,5 +113,85 @@ async function cargarServicios() {
     }
 }
 
-// Cargar servicios al iniciar la página
-document.addEventListener('DOMContentLoaded', cargarServicios);
+// Función para cargar los estilos en la galería
+async function cargarEstilosGaleria() {
+    try {
+        const response = await fetch('/api/estilos');
+        const estilos = await response.json();
+        const grid = document.getElementById('estilos-grid');
+        
+        if (!grid) return; // Salir si no estamos en la página con la galería
+        
+        grid.innerHTML = '';
+        
+        if (!response.ok) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-600 py-8">Error al cargar estilos: ' + estilos.error + '</div>';
+            return;
+        }
+        
+        // Filtrar solo estilos activos
+        const estilosActivos = estilos.filter(e => e.activo !== false);
+        
+        // Determinar cuántos estilos mostrar (máximo 8)
+        const estilosMostrados = estilosActivos.slice(0, 8);
+        
+        // Llenar con placeholders si hay menos de 8 estilos
+        const totalItems = Math.max(estilosMostrados.length, 8);
+        
+        for (let i = 0; i < totalItems; i++) {
+            const div = document.createElement('div');
+            div.className = 'gallery-img overflow-hidden rounded-lg shadow-md bg-gray-800';
+            
+            // Si hay un estilo disponible para esta posición, mostrarlo
+            if (i < estilosMostrados.length) {
+                const estilo = estilosMostrados[i];
+                
+                div.innerHTML = `
+                    <div class="relative h-64">
+                        <div class="flex items-center justify-center h-full w-full">
+                            <img 
+                                src="${estilo.imagen_url}" 
+                                alt="${estilo.nombre || 'Estilo de corte'}" 
+                                class="max-h-full max-w-full object-contain"
+                                loading="lazy"
+                                onerror="this.onerror=null; this.src='https://via.placeholder.com/300x300/374151/6B7280?text=RG4LBarber';"
+                            >
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                            <h3 class="text-white text-lg font-bold">${estilo.nombre || 'Estilo'}</h3>
+                            <p class="text-gray-300 text-sm capitalize">${estilo.categoria || 'Corte'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Placeholder para completar la cuadrícula cuando hay menos de 8 estilos
+                div.innerHTML = `
+                    <div class="relative h-64">
+                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                            <rect width="100" height="100" fill="#374151"></rect>
+                            <circle cx="50" cy="35" r="20" fill="#6b7280"></circle>
+                            <rect x="30" y="60" width="40" height="30" fill="#4b5563"></rect>
+                        </svg>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                            <h3 class="text-white text-lg font-bold">Próximamente</h3>
+                            <p class="text-gray-300 text-sm">Nuevo estilo</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            grid.appendChild(div);
+        }
+    } catch (error) {
+        const grid = document.getElementById('estilos-grid');
+        if (grid) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-600 py-8">Error al conectar con el servidor: ' + error.message + '</div>';
+        }
+    }
+}
+
+// Modificar el evento DOMContentLoaded para cargar tanto servicios como estilos
+document.addEventListener('DOMContentLoaded', function() {
+    cargarServicios();
+    cargarEstilosGaleria();
+});
