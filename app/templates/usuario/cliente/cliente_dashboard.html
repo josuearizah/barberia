@@ -35,7 +35,13 @@
         <!-- Profile Dropdown -->
         <div class="relative">
           <button id="profile-btn" type="button" class="size-8 flex justify-center items-center rounded-full">
-            <img class="size-8 rounded-full" src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=320&h=320&q=80" alt="Avatar">
+            {% if perfil_actual and perfil_actual.imagen %}
+              <img class="size-8 rounded-full object-cover" src="{{ perfil_actual.imagen }}" alt="Foto de perfil">
+            {% else %}
+              <div class="size-8 bg-black rounded-full flex items-center justify-center text-white text-sm font-bold">
+                {{ session['nombre'][0] }}{{ session['apellido'][0] }}
+              </div>
+            {% endif %}
           </button>
           <div id="profile-menu" class="hidden absolute right-0 mt-3 w-48 bg-white shadow-lg rounded-lg dark:bg-gray-800 dark:border-gray-700 border border-gray-200">
             <div class="py-4 px-4 bg-gray-100 rounded-t-lg dark:bg-gray-700">

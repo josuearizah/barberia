@@ -6,56 +6,50 @@ async function cargarCitas() {
         const response = await fetch('/api/citas');
         const citas = await response.json();
         const tbody = document.getElementById('citas-table-body');
+        const totalCitas = document.getElementById('total-citas');
         tbody.innerHTML = '';
         if (!response.ok) {
-            tbody.innerHTML = `<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">Error al cargar citas: ${citas.error}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al cargar citas: ${citas.error}</td></tr>`;
+            totalCitas.textContent = '0';
             return;
         }
         if (citas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td></tr>';
+            totalCitas.textContent = '0';
             return;
         }
         citas.forEach((cita) => {
             const nombre = cita.nombre_cliente || (cita.usuario_nombre && cita.usuario_apellido ? `${cita.usuario_nombre} ${cita.usuario_apellido}` : '-');
             const tr = document.createElement('tr');
+            tr.className = cita.estado === 'completado' ? 'bg-gray-950 opacity-70' : '';
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.id}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${nombre}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                    ${cita.barbero_id && cita.barbero_nombre && cita.barbero_apellido ? `<a href="/perfil/${cita.barbero_id}" class="text-gray-200 hover:text-gray-400 underline">${cita.barbero_nombre} ${cita.barbero_apellido}</a>` : '-'}
+                    ${cita.nombre_cliente && cita.nombre_cliente.trim() ? nombre : `<a href="/perfil/${cita.usuario_id}" class="text-gray-200 hover:text-gray-400 underline">${nombre}</a>`}
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.telefono_cliente || cita.usuario_telefono || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="${cita.fecha_creacion}">${new Date(cita.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="${cita.fecha_cita}">${new Date(cita.fecha_cita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.hora_12h}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-hora="${cita.hora}">${cita.hora_12h}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.servicio_nombre || '-'}</td>
                 <td class="px-6 py-4 text-sm text-gray-200">${cita.notas || '-'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                    <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
-                            data-cita-id="${cita.id}" 
-                            data-client-cita-id="${cita.id}"
-                            data-barbero-id="${cita.barbero_id || ''}"
-                            data-fecha-cita="${cita.fecha_cita}"
-                            data-hora="${cita.hora}"
-                            data-servicio-id="${cita.servicio_id || ''}"
-                            data-notas="${cita.notas || ''}"
-                            title="Editar">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487l2.651 2.651a2.25 2.25 0 010 3.182L9.41 19.425l-4.682 1.02 1.02-4.682 10.103-10.105a2.25 2.25 0 013.182 0z"/>
-                        </svg>
-                    </button>
-                    <button class="eliminar-cita text-red-400 hover:text-blue-300" 
-                            data-cita-id="${cita.id}" 
-                            data-client-cita-id="${cita.id}"
-                            title="Eliminar">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
-                        </svg>
-                    </button>
+                <td class="px-6 py-4 whitespace-nowrap text-sm" data-estado="${cita.estado}">
+                    <select class="estado-cita text-white bg-gray-900 py-1 px-1 rounded-md border border-gray-600 text-sm focus:ring-rose-500 focus:border-rose-500"
+                            data-cita-id="${cita.id}"
+                            data-current-value="${cita.estado}"
+                            onchange="actualizarEstadoCita(this)"
+                            ${cita.estado === 'completado' ? 'disabled' : ''}>
+                        <option value="pendiente" ${cita.estado === 'pendiente' ? 'selected' : ''} class="bg-orange-100 text-orange-500">Pendiente</option>
+                        <option value="confirmado" ${cita.estado === 'confirmado' ? 'selected' : ''} class="bg-blue-300 text-blue-800">Confirmado</option>
+                        <option value="cancelado" ${cita.estado === 'cancelado' ? 'selected' : ''} class="bg-red-300 text-red-800">Cancelado</option>
+                        <option value="completado" ${cita.estado === 'completado' ? 'selected' : ''} class="bg-green-300 text-green-800">Completado</option>
+                    </select>
                 </td>
             `;
             tbody.appendChild(tr);
         });
+        totalCitas.textContent = citas.length; // Set initial total count
+        sortByDateAndTime();
 
         // Re-asignar eventos para botones de editar y eliminar
         document.querySelectorAll('.editar-cita').forEach(btn => {
@@ -77,7 +71,8 @@ async function cargarCitas() {
             });
         });
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="10" class="px-6 py-4 text-center text-gray-400">Error al conectar con el servidor: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-gray-400">Error al conectar con el servidor: ${error.message}</td></tr>`;
+        document.getElementById('total-citas').textContent = '0';
     }
 }
 
@@ -155,18 +150,13 @@ document.getElementById('form-cita-eliminar')?.addEventListener('submit', async 
 function setupDateRestrictions() {
     const dateInput = document.getElementById('edit-fecha_cita');
     if (dateInput) {
-        // Establecer fecha mínima a hoy
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
         dateInput.min = todayStr;
-
-        // Establecer fecha máxima a hoy + 1 mes
         const maxDate = new Date();
         maxDate.setMonth(today.getMonth() + 1);
         const maxDateStr = maxDate.toISOString().split('T')[0];
         dateInput.max = maxDateStr;
-
-        // Validar que no sea sábado o domingo
         dateInput.addEventListener('change', function() {
             const selectedDate = new Date(this.value);
             const day = selectedDate.getDay();
@@ -178,9 +168,288 @@ function setupDateRestrictions() {
     }
 }
 
-// Cargar citas, dropdowns y restricciones al iniciar la página
+// Admin-specific functionality
 document.addEventListener('DOMContentLoaded', () => {
     cargarCitas();
     cargarDropdowns();
     setupDateRestrictions();
+
+    const table = document.getElementById('citas-table');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    const searchInput = document.getElementById('search-input');
+    const totalCitas = document.getElementById('total-citas');
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterPopover = document.getElementById('filter-popover');
+    const closeFilterPopover = document.getElementById('close-filter-popover');
+    const orderToggle = document.getElementById('order-toggle');
+    const orderIcon = document.getElementById('order-icon');
+    const dateFilter = document.getElementById('date-filter');
+    const clearDateFilter = document.getElementById('clear-date-filter');
+    const statusFilter = document.getElementById('status-filter');
+
+    if (searchInput) { // Admin page
+        let searchTerm = '';
+        let filterStatus = '';
+        let filterDate = '';
+        let orderByDateDesc = true; // Default: Más reciente primero
+
+        function updateCount() {
+            const visibleRows = Array.from(tbody.querySelectorAll('tr:not(.hidden)')).filter(tr => !tr.querySelector('td[colspan]'));
+            totalCitas.textContent = visibleRows.length;
+        }
+
+        function applyFiltersAndSort() {
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]'));
+            rows.forEach(tr => {
+                let show = true;
+                if (searchTerm) {
+                    const text = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.toLowerCase()).join(' ');
+                    show = show && text.includes(searchTerm);
+                }
+                if (filterStatus) {
+                    const estado = tr.querySelector('[data-estado]').dataset.estado;
+                    show = show && (estado === filterStatus);
+                }
+                if (filterDate) {
+                    const fechaCita = tr.querySelector('[data-fecha_cita]').dataset.fecha_cita;
+                    show = show && (fechaCita === filterDate);
+                }
+                tr.classList.toggle('hidden', !show);
+            });
+
+            // Sort visible rows
+            const visibleRows = Array.from(tbody.querySelectorAll('tr:not(.hidden)')).filter(tr => !tr.querySelector('td[colspan]'));
+            visibleRows.sort((a, b) => {
+                const fechaA = new Date(a.querySelector('[data-fecha_cita]').dataset.fecha_cita);
+                const fechaB = new Date(b.querySelector('[data-fecha_cita]').dataset.fecha_cita);
+                const horaA = a.querySelector('[data-hora]').dataset.hora;
+                const horaB = b.querySelector('[data-hora]').dataset.hora;
+                const estadoA = a.querySelector('[data-estado]').dataset.estado;
+                const estadoB = b.querySelector('[data-estado]').dataset.estado;
+
+                // Sort by fecha_cita
+                if (orderByDateDesc) {
+                    if (fechaA > fechaB) return -1;
+                    if (fechaA < fechaB) return 1;
+                } else {
+                    if (fechaA < fechaB) return -1;
+                    if (fechaA > fechaB) return 1;
+                }
+
+                // Within same date, sort by hora
+                if (orderByDateDesc) {
+                    if (horaA > horaB) return -1;
+                    if (horaA < horaB) return 1;
+                } else {
+                    if (horaA < horaB) return -1;
+                    if (horaA > horaB) return 1;
+                }
+
+                // Within same date and time, completed goes last
+                if (estadoA === 'completado' && estadoB !== 'completado') return 1;
+                if (estadoB === 'completado' && estadoA !== 'completado') return -1;
+
+                return 0;
+            });
+
+            visibleRows.forEach(row => tbody.appendChild(row));
+            updateCount();
+        }
+
+        function sortByDateAndTime() {
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]'));
+            rows.sort((a, b) => {
+                const fechaA = new Date(a.querySelector('[data-fecha_cita]').dataset.fecha_cita);
+                const fechaB = new Date(b.querySelector('[data-fecha_cita]').dataset.fecha_cita);
+                const horaA = a.querySelector('[data-hora]').dataset.hora;
+                const horaB = b.querySelector('[data-hora]').dataset.hora;
+                const estadoA = a.querySelector('[data-estado]').dataset.estado;
+                const estadoB = b.querySelector('[data-estado]').dataset.estado;
+
+                // Sort by fecha_cita
+                if (orderByDateDesc) {
+                    if (fechaA > fechaB) return -1;
+                    if (fechaA < fechaB) return 1;
+                } else {
+                    if (fechaA < fechaB) return -1;
+                    if (fechaA > fechaB) return 1;
+                }
+
+                // Within same date, sort by hora
+                if (orderByDateDesc) {
+                    if (horaA > horaB) return -1;
+                    if (horaA < horaB) return 1;
+                } else {
+                    if (horaA < horaB) return -1;
+                    if (horaA > horaB) return 1;
+                }
+
+                // Within same date and time, completed goes last
+                if (estadoA === 'completado' && estadoB !== 'completado') return 1;
+                if (estadoB === 'completado' && estadoA !== 'completado') return -1;
+
+                return 0;
+            });
+            rows.forEach(row => tbody.appendChild(row));
+            updateCount();
+        }
+
+        // Popover positioning
+        filterToggle.addEventListener('click', () => {
+            // Show popover to calculate width
+            filterPopover.classList.remove('hidden');
+            // Use setTimeout to ensure width is calculated after display
+            setTimeout(() => {
+                const rect = filterToggle.getBoundingClientRect();
+                const popoverWidth = filterPopover.offsetWidth;
+                let leftPos = rect.right - popoverWidth;
+                // Ensure popover stays within window bounds
+                if (leftPos < 10) {
+                    leftPos = 10; // 10px margin from left
+                } else if (leftPos + popoverWidth > window.innerWidth - 10) {
+                    leftPos = window.innerWidth - popoverWidth - 10; // 10px margin from right
+                }
+                filterPopover.style.top = `${rect.bottom + window.scrollY + 5}px`; // 5px offset below button
+                filterPopover.style.left = `${leftPos + window.scrollX}px`;
+                // Center on mobile
+                if (window.innerWidth < 640) {
+                    filterPopover.style.left = '50%';
+                    filterPopover.style.transform = 'translateX(-50%)';
+                } else {
+                    filterPopover.style.transform = 'none';
+                }
+            }, 0);
+        });
+
+        // Close popover on click outside or close button
+        closeFilterPopover.addEventListener('click', () => cerrar('filter-popover'));
+        filterPopover.addEventListener('click', e => {
+            if (e.target.id === 'filter-popover') cerrar('filter-popover');
+        });
+
+        // Order toggle
+        orderToggle?.addEventListener('click', () => {
+            orderByDateDesc = !orderByDateDesc;
+            orderToggle.querySelector('span').textContent = orderByDateDesc ? 'Más reciente primero' : 'Más antiguo primero';
+            orderIcon.innerHTML = orderByDateDesc ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>' : '<path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>';
+            applyFiltersAndSort();
+        });
+
+        // Search
+        searchInput.addEventListener('input', () => {
+            searchTerm = searchInput.value.toLowerCase();
+            applyFiltersAndSort();
+        });
+
+        // Status filter
+        statusFilter.addEventListener('change', () => {
+            filterStatus = statusFilter.value;
+            applyFiltersAndSort();
+        });
+
+        // Date filter
+        dateFilter.addEventListener('change', () => {
+            filterDate = dateFilter.value;
+            applyFiltersAndSort();
+        });
+
+        // Clear date filter
+        clearDateFilter.addEventListener('click', () => {
+            dateFilter.value = '';
+            filterDate = '';
+            applyFiltersAndSort();
+        });
+
+        // Column sorting
+        window.sortTable = function(field) {
+            const th = Array.from(table.querySelectorAll('th')).find(t => t.onclick && t.onclick.toString().includes(`'${field}'`));
+            if (!th) return;
+            const ascPath = th.querySelector(`#sort-${field}-asc`);
+            const descPath = th.querySelector(`#sort-${field}-desc`);
+            const wasAsc = !ascPath.classList.contains('hidden');
+            const wasDesc = !descPath.classList.contains('hidden');
+            let isDesc;
+            if (!wasAsc && !wasDesc) {
+                ascPath.classList.remove('hidden');
+                descPath.classList.add('hidden');
+                isDesc = false;
+            } else if (wasAsc) {
+                ascPath.classList.add('hidden');
+                descPath.classList.remove('hidden');
+                isDesc = true;
+            } else {
+                ascPath.classList.remove('hidden');
+                descPath.classList.add('hidden');
+                isDesc = false;
+            }
+            table.querySelectorAll('th svg path:not(.hidden)').forEach(p => {
+                if (p !== ascPath && p !== descPath) p.classList.add('hidden');
+            });
+
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => !tr.querySelector('td[colspan]') && !tr.classList.contains('hidden'));
+
+            const getValue = (tr) => {
+                if (field === 'fecha_creacion' || field === 'fecha_cita') {
+                    return tr.querySelector(`[data-${field}]`).dataset[field];
+                } else if (field === 'servicio') {
+                    return tr.querySelector('td:nth-child(7)').textContent.trim();
+                } else if (field === 'estado') {
+                    return tr.querySelector('[data-estado]').dataset.estado;
+                }
+            };
+
+            rows.sort((a, b) => {
+                let va = getValue(a);
+                let vb = getValue(b);
+                if (field.includes('fecha')) {
+                    va = new Date(va);
+                    vb = new Date(vb);
+                    return isDesc ? (vb - va) : (va - vb);
+                } else {
+                    return isDesc ? vb.localeCompare(va) : va.localeCompare(vb);
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+            updateCount();
+        };
+
+        // Status update
+        window.actualizarEstadoCita = async function(select) {
+            const oldValue = select.dataset.currentValue;
+            const newValue = select.value;
+            if (newValue === oldValue) return;
+            try {
+                const response = await fetch(`/api/citas/${select.dataset.citaId}/estado`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: newValue })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+                select.dataset.currentValue = newValue;
+                select.parentNode.dataset.estado = newValue;
+                const tr = select.closest('tr');
+                if (newValue === 'completado') {
+                    select.disabled = true;
+                    select.classList.add('opacity-50', 'cursor-not-allowed');
+                    tr.classList.add('bg-gray-950', 'opacity-70');
+                } else {
+                    select.disabled = false;
+                    select.classList.remove('opacity-50', 'cursor-not-allowed');
+                    tr.classList.remove('bg-gray-950', 'opacity-70');
+                }
+                applyFiltersAndSort();
+            } catch (error) {
+                alert(`Error al actualizar estado: ${error.message}`);
+                select.value = oldValue;
+            }
+        };
+
+        // Initial sort and count
+        applyFiltersAndSort();
+    }
 });

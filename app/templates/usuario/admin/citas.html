@@ -1,89 +1,164 @@
 <div class="h-full flex flex-col">
-  <h2 class="text-2xl font-bold text-gray-200 mb-4 text-center">Gestión de Citas</h2>
+  <h2 class="text-2xl font-bold text-gray-200 mb-5 text-center">Gestión de Citas</h2>
+  <div class="mb-3 mt-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-center text-base text-gray-300">
+    <!-- Buscador -->
+    <div class="relative min-w-0 sm:col-span-2 lg:col-span-1">
+      <input
+        type="text"
+        id="search-input"
+        class="w-full h-10 px-4 pl-10 border border-gray-600 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-rose-500"
+        placeholder="Buscar cita..."
+      >
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm0 0v5h12V2M8 10h8m-8 4h8m-8 4h4"/>
+      </svg>
+    </div>
 
-<div class="flex-1 bg-gray-900 shadow-md rounded-lg border border-gray-600 overflow-hidden">
-  <div class="overflow-x-auto h-full">
-    <table id="citas-table" class="min-w-full divide-y divide-gray-700">
-    <thead class="bg-gray-700 sticky top-0">
-        <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Cliente</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('fecha_creacion')">Fecha Creación
-            <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path id="sort-fecha_creacion-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-            <path id="sort-fecha_creacion-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
-            </svg>
-        </th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('fecha_cita')">Fecha Cita
-            <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path id="sort-fecha_cita-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-            <path id="sort-fecha_cita-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
-            </svg>
-        </th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Hora</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('servicio')">
-            <span class="inline-flex items-center gap-1 leading-none">
+    <!-- Contador de citas -->
+    <div class="flex justify-start lg:justify-center">
+        <p>
+            Citas Registradas: <span id="total-citas" class="text-white">0</span>
+        </p>
+    </div>
+
+    <!-- Botón de filtros -->
+    <div class="flex items-center gap-2 justify-start sm:justify-end">
+      <button id="filter-toggle" class="inline-flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white w-full sm:w-auto" title="Filtros">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+        </svg>
+        <span class="truncate">Filtros</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Popover de filtros -->
+  <div id="filter-popover" class="hidden absolute z-50 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-4 w-80 sm:w-96 max-w-[calc(100vw-20px)] text-gray-200 sm:max-w-sm md:max-w-md">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="text-lg font-semibold">Filtros y Ordenación</h3>
+      <button id="close-filter-popover" class="text-gray-400 hover:text-gray-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Ordenar por fecha y hora</label>
+        <button id="order-toggle" class="inline-flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white w-full">
+          <svg id="order-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+          </svg>
+          <span class="truncate">Más reciente primero</span>
+        </button>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Filtrar por fecha de cita</label>
+        <div class="flex gap-2">
+          <input type="date" id="date-filter" class="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 focus:outline-none focus:ring-rose-500 focus:border-rose-500">
+          <button id="clear-date-filter" class="px-3 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-md">Limpiar</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Filtrar por estado</label>
+        <select id="status-filter" class="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-200 focus:outline-none focus:ring-rose-500 focus:border-rose-500">
+          <option value="">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmado">Confirmado</option>
+          <option value="cancelado">Cancelado</option>
+          <option value="completado">Completado</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1 bg-gray-900 shadow-md rounded-lg border border-gray-600 overflow-hidden">
+    <div class="overflow-x-auto h-full">
+      <table id="citas-table" class="min-w-full divide-y divide-gray-700">
+        <thead class="bg-gray-700 sticky top-0 z-10">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Cliente</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('fecha_creacion')">Fecha Creación
+              <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path id="sort-fecha_creacion-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+                <path id="sort-fecha_creacion-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
+              </svg>
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('fecha_cita')">Fecha Cita
+              <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path id="sort-fecha_cita-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+                <path id="sort-fecha_cita-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
+              </svg>
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Hora</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('servicio')">
+              <span class="inline-flex items-center gap-1 leading-none">
                 Servicio
                 <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2">
-                <path id="sort-servicio-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-                <path id="sort-servicio-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
+                  <path id="sort-servicio-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+                  <path id="sort-servicio-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
                 </svg>
-            </span>
-        </th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Notas</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Estado</th>
-        </tr>
-    </thead>
-    <tbody class="bg-gray-800 divide-y divide-gray-700">
-        {% for cita in citas %}
-        <tr>
+              </span>
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Notas</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap" onclick="sortTable('estado')">Estado
+              <svg class="inline size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path id="sort-estado-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
+                <path id="sort-estado-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
+              </svg>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-gray-800 divide-y divide-gray-700">
+          {% for cita in citas %}
+          <tr class="{% if cita.estado == 'completado' %}bg-gray-950 opacity-70{% endif %}">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
-
-            <!-- Cliente: si hay nombre_cliente (no vacío), mostrar texto; sino, link al perfil -->
-            {% set display_name = cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) %}
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                {% if cita.nombre_cliente and cita.nombre_cliente|trim != '' %}
-                    {{ display_name }}
-                {% else %}
-                    <a href="/perfil/{{ cita.usuario.id }}" class="text-gray-200 underline hover:text-gray-400">{{ display_name }}</a>
-                {% endif %}
+              {% set display_name = cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) %}
+              {% if cita.nombre_cliente and cita.nombre_cliente|trim != '' %}
+                {{ display_name }}
+              {% else %}
+                <a href="/perfil/{{ cita.usuario.id }}" class="text-gray-200 underline hover:text-gray-400">{{ display_name }}</a>
+              {% endif %}
             </td>
-
-            <!-- Teléfono: prioriza el de la cita, luego el del usuario -->
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                {{ cita.telefono_cliente or cita.usuario.telefono or '-' }}
+              {{ cita.telefono_cliente or cita.usuario.telefono or '-' }}
             </td>
-
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.hora_12h() }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-hora="{{ cita.hora }}">{{ cita.hora_12h() }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
               {{ cita.servicio.nombre if cita.servicio else '-' }}
             </td>
             <td class="px-6 py-4 text-sm text-gray-200">{{ cita.notas or '-' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <select class="estado-cita text-white bg-gray-900 py-1 px-1 rounded-md border border-gray-600 text-sm focus:ring-rose-500 focus:border-rose-500"
-                        data-cita-id="{{ cita.id }}"
-                        onchange="actualizarEstadoCita(this)">
+            <td class="px-6 py-4 whitespace-nowrap text-sm" data-estado="{{ cita.estado }}">
+              <select class="estado-cita text-white bg-gray-900 py-1 px-1 rounded-md border border-gray-600 text-sm focus:ring-rose-500 focus:border-rose-500"
+                      data-cita-id="{{ cita.id }}"
+                      data-current-value="{{ cita.estado }}"
+                      onchange="actualizarEstadoCita(this)"
+                      {% if cita.estado == 'completado' %}disabled{% endif %}>
                 <option value="pendiente" {% if cita.estado == 'pendiente' %}selected{% endif %}
-                        class="bg-orange-100 text-orange-500 line-through" disabled>Pendiente</option>
+                        class="bg-orange-100 text-orange-500">Pendiente</option>
                 <option value="confirmado" {% if cita.estado == 'confirmado' %}selected{% endif %}
                         class="bg-blue-300 text-blue-800">Confirmado</option>
                 <option value="cancelado" {% if cita.estado == 'cancelado' %}selected{% endif %}
                         class="bg-red-300 text-red-800">Cancelado</option>
                 <option value="completado" {% if cita.estado == 'completado' %}selected{% endif %}
                         class="bg-green-300 text-green-800">Completado</option>
-                </select>
+              </select>
             </td>
-        </tr>
-        {% else %}
-        <tr>
+          </tr>
+          {% else %}
+          <tr>
             <td colspan="9" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
-</div>
+
+<script src="{{ url_for('static', filename='js/citas.js') }}"></script>

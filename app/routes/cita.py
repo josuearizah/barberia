@@ -16,7 +16,6 @@ def reservar_cita():
     barberos = Usuario.query.filter_by(rol='admin').all()
     servicios = Servicio.query.order_by(Servicio.nombre.asc()).all()
 
-    # Si no hay servicios, muestra el formulario pero bloquea el POST
     if request.method == 'POST' and len(servicios) == 0:
         return render_template('cita/reservar.html', barberos=barberos, servicios=servicios, exito=False, error_message='No hay servicios disponibles.')
 
@@ -39,7 +38,6 @@ def reservar_cita():
             if not servicio:
                 raise ValueError("El servicio seleccionado no existe")
 
-            # Datos opcionales para reservas de invitados
             usuario_actual = Usuario.query.get(session['usuario_id'])
             full_name_db = f"{(usuario_actual.nombre or '').strip()} {(usuario_actual.apellido or '').strip()}".strip().lower()
 
@@ -81,15 +79,22 @@ def obtener_citas():
         usuario_id = session.get('usuario_id')
         if not usuario_id:
             return jsonify({'error': 'No autorizado'}), 401
-        citas = Cita.query.filter_by(usuario_id=usuario_id).all()
+        usuario = Usuario.query.get(usuario_id)
+        if usuario.rol == 'admin':
+            citas = Cita.query.all()
+        else:
+            citas = Cita.query.filter_by(usuario_id=usuario_id).all()
         return jsonify([{
             'id': cita.id,
             'barbero_id': cita.barbero_id,
             'barbero_nombre': cita.barbero.nombre if cita.barbero else None,
             'barbero_apellido': cita.barbero.apellido if cita.barbero else None,
+            'usuario_id': cita.usuario_id,
             'usuario_nombre': cita.usuario.nombre if cita.usuario else '',
             'usuario_apellido': cita.usuario.apellido if cita.usuario else '',
+            'usuario_telefono': cita.usuario.telefono if cita.usuario else None,
             'nombre_cliente': cita.nombre_cliente if cita.nombre_cliente else None,
+            'telefono_cliente': cita.telefono_cliente if cita.telefono_cliente else None,
             'fecha_creacion': cita.fecha_creacion.strftime('%Y-%m-%d'),
             'fecha_cita': cita.fecha_cita.strftime('%Y-%m-%d'),
             'hora': cita.hora,
@@ -145,3 +150,19 @@ def obtener_barberos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@cita_bp.route('/api/citas/<int:cita_id>/estado', methods=['POST'])
+def actualizar_estado_cita(cita_id):
+    if 'usuario_id' not in session or Usuario.query.get(session['usuario_id']).rol != 'admin':
+        return jsonify({'error': 'No autorizado'}), 401
+    try:
+        data = request.json
+        estado = data.get('estado')
+        if estado not in ['pendiente', 'confirmado', 'cancelado', 'completado']:
+            raise ValueError("Estado inválido")
+        cita = Cita.query.get_or_404(cita_id)
+        cita.estado = estado
+        db.session.commit()
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
