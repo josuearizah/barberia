@@ -150,6 +150,8 @@ def obtener_barberos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Elimina la segunda definición de la función y usa esta versión actualizada
+
 @cita_bp.route('/api/citas/<int:cita_id>/estado', methods=['POST'])
 def actualizar_estado_cita(cita_id):
     if 'usuario_id' not in session or Usuario.query.get(session['usuario_id']).rol != 'admin':
@@ -159,10 +161,21 @@ def actualizar_estado_cita(cita_id):
         estado = data.get('estado')
         if estado not in ['pendiente', 'confirmado', 'cancelado', 'completado']:
             raise ValueError("Estado inválido")
+        
         cita = Cita.query.get_or_404(cita_id)
+        
+        # Si se cambia a completado, crear entrada en el historial
+        if estado == 'completado' and cita.estado != 'completado':
+            from app.models.historial import HistorialCita
+            
+            # Crear registro en historial
+            historial = HistorialCita.from_cita(cita)
+            db.session.add(historial)
+        
         cita.estado = estado
         db.session.commit()
         return jsonify({'success': True}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
