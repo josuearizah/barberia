@@ -10,42 +10,6 @@
     </button>
   </div>
 
-  <div class="mb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 items-center text-base text-gray-300">
-    <!-- Buscador -->
-    <div class="relative min-w-0 sm:col-span-2 lg:col-span-1">
-      <input
-        type="text"
-        id="search-input"
-        class="w-full h-10 px-4 pl-10 border border-gray-600 rounded-lg bg-gray-800 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-rose-500"
-        placeholder="Buscar cliente..."
-      >
-      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    </div>
-
-    <!-- Contador de clientes -->
-    <div class="flex justify-center sm:justify-start lg:justify-center">
-      <p class="font-medium">
-        Clientes Registrados: <span id="total-clientes" class="text-white">0</span>
-      </p>
-    </div>
-
-    <!-- Orden -->
-    <div class="flex items-center gap-2 justify-start sm:justify-end">
-      <label class="whitespace-nowrap">Ordenar por:</label>
-      <button id="order-toggle" class="inline-flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white w-full sm:w-auto">
-        <svg id="order-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-        </svg>
-        <span class="truncate">Más viejo primero</span>
-      </button>
-    </div>
-  </div>
-
   <div class="flex-1 bg-gray-900 shadow-md rounded-lg border border-gray-600 overflow-hidden">
     <div class="overflow-x-auto h-full">
       <table class="min-w-full divide-y divide-gray-700">

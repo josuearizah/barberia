@@ -79,3 +79,44 @@ def eliminar_usuario(id):
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({'success': True}), 200
+
+# Añade esta nueva ruta al final del archivo
+
+@bp.route('/api/barberos', methods=['GET'])
+def obtener_barberos():
+    try:
+        from app.models.perfil import Perfil
+        import json
+        
+        # Obtener usuarios con rol de admin que actuarán como barberos
+        barberos = Usuario.query.filter_by(rol='admin').all()
+        
+        resultado = []
+        for barbero in barberos:
+            # Buscar el perfil correspondiente
+            perfil = Perfil.query.filter_by(usuario_id=barbero.id).first()
+            
+            # Preparar datos de redes sociales
+            redes_sociales = []
+            if perfil and perfil.redes_sociales:
+                try:
+                    redes_sociales = json.loads(perfil.redes_sociales)
+                except:
+                    # Si hay un error al parsear el JSON, dejamos la lista vacía
+                    pass
+            
+            # Crear objeto con los datos del barbero
+            datos_barbero = {
+                'id': barbero.id,
+                'nombre': barbero.nombre,
+                'apellido': barbero.apellido,
+                'imagen': perfil.imagen if perfil else None,
+                'descripcion': perfil.descripcion if perfil else None,
+                'redes_sociales': redes_sociales
+            }
+            resultado.append(datos_barbero)
+            
+        return jsonify(resultado)
+    except Exception as e:
+        print("Error al obtener barberos:", e)
+        return jsonify({'error': str(e)}), 500

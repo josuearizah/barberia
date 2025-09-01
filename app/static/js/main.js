@@ -190,8 +190,120 @@ async function cargarEstilosGaleria() {
     }
 }
 
-// Modificar el evento DOMContentLoaded para cargar tanto servicios como estilos
+// Función para cargar los barberos (administradores)
+async function cargarBarberos() {
+    try {
+        const response = await fetch('/api/barberos');
+        const barberos = await response.json();
+        const grid = document.getElementById('barberos-grid');
+        
+        if (!grid) return; // Salir si no estamos en la página con el equipo
+        
+        grid.innerHTML = '';
+        
+        if (!response.ok) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-600 py-8">Error al cargar el equipo: ' + barberos.error + '</div>';
+            return;
+        }
+        
+        if (barberos.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-600 py-8">No hay barberos disponibles en este momento.</div>';
+            return;
+        }
+
+        // Establecer la clase del grid según la cantidad de barberos
+        const numBarberos = barberos.length;
+        
+        if (numBarberos === 1) {
+            grid.className = 'flex justify-center';
+        } else if (numBarberos === 2) {
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto';
+        } else if (numBarberos === 3) {
+            grid.className = 'grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto';
+        } else {
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8';
+        }
+        
+        // Crear las tarjetas para cada barbero
+        barberos.forEach(barbero => {
+            const card = document.createElement('div');
+            
+            // Si solo hay un barbero, centrarlo con ancho máximo
+            if (numBarberos === 1) {
+                card.className = 'w-full max-w-sm';
+            }
+            
+            card.setAttribute('data-aos', 'zoom-in');
+            
+            // HTML interno de la tarjeta
+            const contenidoCard = `
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
+                    <a href="/perfil/${barbero.id}" class="block">
+                        <div class="h-64 bg-gray-200 relative">
+                            ${barbero.imagen 
+                                ? `<img src="${barbero.imagen}" alt="${barbero.nombre}" class="w-full h-full object-cover">`
+                                : `<div class="bg-gray-700 h-full w-full flex items-center justify-center">
+                                    <span class="text-4xl font-bold text-white">${barbero.nombre.charAt(0)}${barbero.apellido ? barbero.apellido.charAt(0) : ''}</span>
+                                  </div>`
+                            }
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                                <h3 class="text-white text-xl font-bold">${barbero.nombre} ${barbero.apellido || ''}</h3>
+                                <p class="text-gray-300">Barbero Profesional</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <div class="p-5">
+                        ${barbero.descripcion 
+                            ? `<p class="text-gray-600 mb-4">${barbero.descripcion}</p>` 
+                            : `<p class="text-gray-600 mb-4">Profesional con experiencia en barbería.</p>`
+                        }
+                        
+                        ${barbero.redes_sociales && barbero.redes_sociales.length > 0 
+                            ? `<div class="flex space-x-4">
+                                ${barbero.redes_sociales.map(red => {
+                                    const iconClass = obtenerIconoRedSocial(red.red_social);
+                                    return `<a href="${red.enlace}" target="_blank" class="text-gray-600 hover:text-rose-600 transition-colors">
+                                        <i class="${iconClass} fa-lg"></i>
+                                    </a>`;
+                                }).join('')}
+                              </div>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+            
+            card.innerHTML = contenidoCard;
+            grid.appendChild(card);
+        });
+    } catch (error) {
+        const grid = document.getElementById('barberos-grid');
+        if (grid) {
+            grid.innerHTML = '<div class="col-span-full text-center text-gray-600 py-8">Error al conectar con el servidor: ' + error.message + '</div>';
+        }
+    }
+}
+
+// Función auxiliar para obtener el icono correcto según la plataforma
+function obtenerIconoRedSocial(plataforma) {
+    const iconos = {
+        'instagram': 'fab fa-instagram',
+        'facebook': 'fab fa-facebook',
+        'x': 'fa-brands fa-x-twitter',
+        'twitter': 'fab fa-twitter',
+        'linkedin': 'fab fa-linkedin',
+        'youtube': 'fab fa-youtube',
+        'tiktok': 'fab fa-tiktok',
+        'whatsapp': 'fab fa-whatsapp'
+    };
+    
+    return iconos[plataforma.toLowerCase()] || 'fas fa-link';
+}
+
+// Modificar el evento DOMContentLoaded para incluir la carga de barberos
 document.addEventListener('DOMContentLoaded', function() {
     cargarServicios();
     cargarEstilosGaleria();
+    cargarBarberos(); // Añadir esta línea para cargar los barberos
 });

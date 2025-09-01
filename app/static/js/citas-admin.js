@@ -1,3 +1,5 @@
+// citas_admin.js
+
 function abrir(id) { document.getElementById(id)?.classList.remove('hidden'); }
 function cerrar(id) { document.getElementById(id)?.classList.add('hidden'); }
 
@@ -51,7 +53,7 @@ async function cargarCitas() {
         totalCitas.textContent = citas.length; // Set initial total count
         sortByDateAndTime();
 
-        // Re-asignar eventos para botones de editar y eliminar
+        // Re-asignar eventos para botones de editar y eliminar (si se agregan en admin)
         document.querySelectorAll('.editar-cita').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById('edit-id').value = btn.dataset.citaId;

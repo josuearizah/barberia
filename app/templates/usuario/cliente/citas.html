@@ -1,172 +1,156 @@
-<!-- Tabla de Citas -->
-<div class="mb-6">
-    <h2 class="text-2xl font-bold text-gray-200 mb-4 text-center">Gestión de Citas</h2>
-    <div class="bg-gray-900 shadow-md rounded-lg overflow-x-auto border border-gray-600">
-        <table id="citas-table" class="min-w-full divide-y divide-gray-700">
-            <thead class="bg-gray-700">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Nombre</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Barbero</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('fecha_creacion')">Fecha Creación
-                        <svg class="inline size-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path id="sort-fecha_creacion-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-                            <path id="sort-fecha_creacion-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
-                        </svg>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('fecha_cita')">Fecha Cita
-                        <svg class="inline size-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path id="sort-fecha_cita-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-                            <path id="sort-fecha_cita-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
-                        </svg>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Hora</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer whitespace-nowrap align-middle" onclick="sortTable('servicio')">Servicio
-                        <svg class="inline size-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path id="sort-servicio-asc" class="hidden" d="M12 5v14m0 0l-4-4m4 4l4-4"/>
-                            <path id="sort-servicio-desc" class="hidden" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>
-                        </svg>
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Notas</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Estado</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="bg-gray-800 divide-y divide-gray-700" id="citas-table-body">
-                {% for cita in citas %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
-                    <!-- Nombre: muestra nombre_cliente o nombre/apellido del usuario, sin enlace -->
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                      {{ cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) }}
-                    </td>
-                    <!-- Barbero: muestra nombre del barbero con enlace al perfil -->
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                      {% if cita.barbero %}
-                        <a href="/perfil/{{ cita.barbero.id }}" class="text-gray-200 hover:text-gray-400 underline">
-                          {{ cita.barbero.nombre }} {{ cita.barbero.apellido }}
-                        </a>
-                      {% else %}
-                        -
-                      {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.hora_12h() }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-                        {{ cita.servicio.nombre if cita.servicio else '-' }}
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-200">{{ cita.notas or '-' }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.estado | capitalize }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
-                        <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
-                                data-cita-id="{{ cita.id }}" 
-                                data-client-cita-id="{{ cita.id }}"
-                                data-barbero-id="{{ cita.barbero_id }}"
-                                data-fecha-cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}"
-                                data-hora="{{ cita.hora }}"
-                                data-servicio-id="{{ cita.servicio_id or '' }}"
-                                data-notas="{{ cita.notas or '' }}"
-                                title="Editar">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487l2.651 2.651a2.25 2.25 0 010 3.182L9.41 19.425l-4.682 1.02 1.02-4.682 10.103-10.105a2.25 2.25 0 013.182 0z"/>
-                            </svg>
-                        </button>
-                        <button class="eliminar-cita text-red-400 hover:text-blue-300" 
-                                data-cita-id="{{ cita.id }}" 
-                                data-client-cita-id="{{ cita.id }}"
-                                title="Eliminar">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
-                            </svg>
-                        </button>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="10" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="h-full flex flex-col">
+  <h2 class="text-2xl font-bold text-gray-200 mb-5 text-center">Mis Citas</h2>
+  <div class="flex-1 bg-gray-900 shadow-md rounded-lg border border-gray-600 overflow-hidden">
+    <div class="overflow-x-auto h-full">
+      <table id="citas-table" class="min-w-full divide-y divide-gray-700">
+        <thead class="bg-gray-700 sticky top-0 z-10">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">ID</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Barbero</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Fecha Creación</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Fecha Cita</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Hora</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Servicio</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Notas</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Estado</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider align-middle">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-gray-800 divide-y divide-gray-700" id="citas-table-body">
+          {% for cita in citas %}
+          <tr class="{% if cita.estado == 'completado' %}bg-gray-950 opacity-70{% endif %}">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+              {{ cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+              {% if cita.barbero %}
+                <a href="/perfil/{{ cita.barbero.id }}" class="text-gray-200 hover:text-gray-400 underline">
+                  {{ cita.barbero.nombre }} {{ cita.barbero.apellido }}
+                </a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-hora="{{ cita.hora }}">{{ cita.hora_12h() }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+              {{ cita.servicio.nombre if cita.servicio else '-' }}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-200">{{ cita.notas or '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-estado="{{ cita.estado }}">{{ cita.estado | capitalize }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+              {% if cita.estado != 'completado' %}
+              <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
+                      data-cita-id="{{ cita.id }}" 
+                      data-client-cita-id="{{ cita.id }}"
+                      data-barbero-id="{{ cita.barbero_id }}"
+                      data-fecha-cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}"
+                      data-hora="{{ cita.hora }}"
+                      data-servicio-id="{{ cita.servicio_id or '' }}"
+                      data-notas="{{ cita.notas or '' }}"
+                      title="Editar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487l2.651 2.651a2.25 2.25 0 010 3.182L9.41 19.425l-4.682 1.02 1.02-4.682 10.103-10.105a2.25 2.25 0 013.182 0z"/>
+                </svg>
+              </button>
+              <button class="eliminar-cita text-red-400 hover:text-red-300" 
+                      data-cita-id="{{ cita.id }}" 
+                      data-client-cita-id="{{ cita.id }}"
+                      title="Eliminar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>
+                </svg>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" class="px-6 py-4 text-center text-gray-400">No hay citas registradas.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 
 <!-- Modal: Editar Cita -->
 <div id="modal-editar-cita" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full text-gray-900 relative">
-        <button class="cerrar-modal-editar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        <h3 class="text-xl font-bold mb-4">Editar Cita</h3>
-        <form id="form-cita-editar" enctype="multipart/form-data">
-            <input type="hidden" name="id" id="edit-id">
-            <div class="mb-3">
-                <label class="block text-sm font-medium mb-1">Barbero</label>
-                <select name="barbero" id="edit-barbero" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
-                    <option value="">Seleccionar</option>
-                    <!-- Opciones de barberos pobladas dinámicamente -->
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium mb-1">Fecha Cita</label>
-                <input type="date" name="fecha_cita" id="edit-fecha_cita" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium mb-1">Hora</label>
-                <select name="hora" id="edit-hora" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
-                    <option value="">Seleccionar hora</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="18:00">6:00 PM</option>
-                    <option value="19:00">7:00 PM</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="block text-sm font-medium mb-1">Servicio</label>
-                <select name="servicio" id="edit-servicio" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
-                    <option value="">Seleccionar</option>
-                    <!-- Opciones de servicios pobladas dinámicamente -->
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">Notas</label>
-                <textarea name="notas" id="edit-notas" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500"></textarea>
-            </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" class="cerrar-modal-editar px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">Cancelar</button>
-                <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Actualizar</button>
-            </div>
-        </form>
-    </div>
+  <div class="bg-white rounded-lg p-6 max-w-md w-full text-gray-900 relative">
+    <button class="cerrar-modal-editar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <h3 class="text-xl font-bold mb-4">Editar Cita</h3>
+    <form id="form-cita-editar" enctype="multipart/form-data">
+      <input type="hidden" name="id" id="edit-id">
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Barbero</label>
+        <select name="barbero" id="edit-barbero" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+          <option value="">Seleccionar</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Fecha Cita</label>
+        <input type="date" name="fecha_cita" id="edit-fecha_cita" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Hora</label>
+        <select name="hora" id="edit-hora" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+          <option value="">Seleccionar hora</option>
+          <option value="09:00">9:00 AM</option>
+          <option value="10:00">10:00 AM</option>
+          <option value="11:00">11:00 AM</option>
+          <option value="12:00">12:00 PM</option>
+          <option value="14:00">2:00 PM</option>
+          <option value="15:00">3:00 PM</option>
+          <option value="16:00">4:00 PM</option>
+          <option value="17:00">5:00 PM</option>
+          <option value="18:00">6:00 PM</option>
+          <option value="19:00">7:00 PM</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">Servicio</label>
+        <select name="servicio" id="edit-servicio" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500" required>
+          <option value="">Seleccionar</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Notas</label>
+        <textarea name="notas" id="edit-notas" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-rose-500 focus:border-rose-500"></textarea>
+      </div>
+      <div class="flex justify-end gap-3">
+        <button type="button" class="cerrar-modal-editar px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2 rounded-md font-medium transition">Actualizar</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- Modal: Eliminar Cita -->
 <div id="modal-eliminar-cita" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 hidden">
-    <div class="bg-white rounded-lg p-6 max-w-sm w-full text-gray-900 relative">
-        <button class="cerrar-modal-eliminar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        <h3 class="text-lg font-bold mb-3">Eliminar Cita</h3>
-        <p class="text-sm text-gray-600 mb-4">¿Seguro que deseas eliminar la cita con ID <span id="eliminar-client-id-display" class="font-semibold"></span>? Esta acción no se puede deshacer.</p>
-        <form id="form-cita-eliminar">
-            <input type="hidden" name="id" id="eliminar-id">
-            <div class="flex justify-end gap-3">
-                <button type="button" class="cerrar-modal-eliminar px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">Cancelar</button>
-                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition">Eliminar</button>
-            </div>
-        </form>
-    </div>
+  <div class="bg-white rounded-lg p-6 max-w-sm w-full text-gray-900 relative">
+    <button class="cerrar-modal-eliminar absolute top-3 right-3 text-gray-400 hover:text-gray-700">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <h3 class="text-lg font-bold mb-3">Eliminar Cita</h3>
+    <p class="text-sm text-gray-600 mb-4">¿Seguro que deseas eliminar la cita con ID <span id="eliminar-client-id-display" class="font-semibold"></span>? Esta acción no se puede deshacer.</p>
+    <form id="form-cita-eliminar">
+      <input type="hidden" name="id" id="eliminar-id">
+      <div class="flex justify-end gap-3">
+        <button type="button" class="cerrar-modal-eliminar px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">Cancelar</button>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md font-medium transition">Eliminar</button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/citas.js') }}"></script>
+<script src="{{ url_for('static', filename='js/citas_cliente.js') }}"></script>
