@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Main Container -->
-<div class="flex flex-col h-screen lg:pl-64 transition-all duration-300 overflow-hidden">
+<div class="flex flex-col h-screen lg:pl-64 transition-all duration-300">
   <!-- Header -->
   <header class="sticky top-0 z-30 w-full bg-white py-5 dark:bg-gray-900 dark:border-gray-700 flex-shrink-0">
     <nav class="px-4 sm:px-6 flex items-center mx-auto max-w-7xl relative">
@@ -198,7 +198,7 @@
   </div>
 
   <!-- Content Area -->
-  <div class="p-4 sm:p-6 bg-gray-800 flex-1 overflow-hidden">
+  <div class="p-4 sm:p-6 bg-gray-800 flex-1 min-h-0 overflow-y-auto">
     {% if request.endpoint == 'auth.citas' %}
       {% include 'usuario/admin/citas.html' %}
     {% elif request.endpoint == 'auth.servicios' %}
@@ -209,6 +209,8 @@
       {% include 'usuario/admin/clientes.html' %}
     {% elif request.endpoint == 'auth.historial' %}
       {% include 'usuario/admin/historial.html' %}
+    {% elif request.endpoint == 'auth.ingresos' %}
+      {% include 'usuario/admin/ingresos.html' %}
     {% else %}
       <div class="bg-gray-800 shadow-md rounded-lg p-6">
         <h2 class="text-2xl font-bold text-gray-200 mb-4">Bienvenido al Dashboard</h2>

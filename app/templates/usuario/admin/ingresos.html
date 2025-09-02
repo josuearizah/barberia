@@ -1,0 +1,96 @@
+<div class="flex flex-col min-h-screen bg-gray-800 text-gray-200 overflow-y-auto">
+  <h2 class="text-2xl font-bold mb-3 text-center">Gestión de Ingresos</h2>
+
+  <!-- Filtros -->
+  <div class="px-4 mb-3 flex flex-wrap gap-2 items-center text-sm">
+    <button data-rango="dia" class="rango-btn inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-rose-500 hover:bg-rose-600 text-white active transition-colors duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Hoy
+    </button>
+    <button data-rango="semana" class="rango-btn inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Semana
+    </button>
+    <button data-rango="mes" class="rango-btn inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Mes
+    </button>
+    <button data-rango="3meses" class="rango-btn inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      3 Meses
+    </button>
+    <button data-rango="6meses" class="rango-btn inline-flex items-center gap-2 h-8 px-3 rounded-lg bg-gray-700 hover:bg-gray-600 text-white transition-colors duration-200">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      6 Meses
+    </button>
+  </div>
+
+  <!-- Métricas financieras -->
+  <div class="px-4 mb-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 hover:bg-gray-750 transition-colors duration-200">
+      <div class="flex items-center justify-between mb-2">
+        <div class="p-2 bg-green-900/30 rounded-lg">
+          <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+          </svg>
+        </div>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Ingresos Totales</h3>
+      </div>
+      <p id="ingresos-totales" class="text-3xl font-bold text-white">$0.00</p>
+    </div>
+    <div class="bg-gray-800 p-2 rounded-lg border border-gray-700 hover:bg-gray-750 transition-colors duration-200">
+      <div class="flex items-center justify-between mb-2">
+        <div class="p-2 bg-blue-900/30 rounded-lg">
+          <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Citas Completadas</h3>
+      </div>
+      <p id="citas-completadas" class="text-3xl font-bold text-white">0</p>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="px-4 mb-3 grid grid-cols-1 gap-3">
+    <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
+      <div class="flex items-center mb-2">
+        <div class="p-2 bg-blue-900/30 rounded-lg mr-2">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4"/>
+          </svg>
+        </div>
+        <h3 class="text-sm font-semibold text-gray-300">Tendencia de Ingresos</h3>
+      </div>
+      <div class="bg-gray-900 p-2 rounded-lg h-64 sm:h-[150px]">
+        <canvas id="tendencia-ingresos" width="400" height="150" class="w-full"></canvas>
+      </div>
+    </div>
+    <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
+      <div class="flex items-center mb-2">
+        <div class="p-2 bg-green-900/30 rounded-lg mr-2">
+          <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+          </svg>
+        </div>
+        <h3 class="text-sm font-semibold text-gray-300">Distribución por Servicio</h3>
+      </div>
+      <div class="bg-gray-900 p-2 rounded-lg h-64 sm:h-[150px]">
+        <canvas id="distribucion-servicios" width="400" height="150" class="w-full"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/ingresos.js') }}"></script>
