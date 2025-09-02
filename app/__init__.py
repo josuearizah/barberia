@@ -39,7 +39,7 @@ def create_app():
         db.create_all()
 
     # Registrar blueprints
-    from app.routes import auth, usuario, cita, servicio, estilo, perfil, historial, ingreso  # Añade servicios
+    from app.routes import auth, usuario, cita, servicio, estilo, perfil, historial, ingreso, metrica  # Añade servicios
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
@@ -48,6 +48,7 @@ def create_app():
     app.register_blueprint(perfil.perfil_bp)  # Registra el blueprint de perfil
     app.register_blueprint(historial.historial_bp)  # Registra el blueprint de historial
     app.register_blueprint(ingreso.ingreso_bp)  # Registra el blueprint de ingresos
+    app.register_blueprint(metrica.metrica_bp)  # Registra el blueprint de métricas
 
     @app.context_processor
     def inject_perfil_actual():
