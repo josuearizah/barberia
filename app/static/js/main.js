@@ -282,14 +282,12 @@ async function cargarBarberos() {
       const contenidoCard = `
                 <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
                     <a href="/perfil/${barbero.id}" class="block">
-                        <div class="h-64 bg-gray-200 relative">
+                        <div class="h-72 bg-gray-200 relative">
                             ${
                               barbero.imagen
                                 ? `<img src="${barbero.imagen}" alt="${barbero.nombre}" class="w-full h-full object-cover">`
                                 : `<div class="bg-gray-700 h-full w-full flex items-center justify-center">
-                                    <span class="text-4xl font-bold text-white">${barbero.nombre.charAt(
-                                      0
-                                    )}${
+                                    <span class="text-4xl font-bold text-white">${barbero.nombre?.charAt(0) || ""}${
                                     barbero.apellido
                                       ? barbero.apellido.charAt(0)
                                       : ""
@@ -298,7 +296,7 @@ async function cargarBarberos() {
                             }
                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                                 <h3 class="text-white text-xl font-bold">${
-                                  barbero.nombre
+                                  barbero.nombre || ""
                                 } ${barbero.apellido || ""}</h3>
                                 <p class="text-gray-300">Barbero Profesional</p>
                             </div>
@@ -314,14 +312,30 @@ async function cargarBarberos() {
                         
                         ${
                           barbero.redes_sociales &&
+                          Array.isArray(barbero.redes_sociales) &&
                           barbero.redes_sociales.length > 0
                             ? `<div class="flex space-x-4">
                                 ${barbero.redes_sociales
+                                  .filter(
+                                    (red) =>
+                                      red &&
+                                      (red.red_social || red.plataforma) &&
+                                      (red.enlace || red.username)
+                                  )
                                   .map((red) => {
-                                    const iconClass = obtenerIconoRedSocial(
-                                      red.red_social
-                                    );
-                                    return `<a href="${red.enlace}" target="_blank" class="text-gray-600 hover:text-rose-600 transition-colors">
+                                    const plataforma = (
+                                      red.red_social ||
+                                      red.plataforma ||
+                                      ""
+                                    ).toLowerCase();
+                                    const iconClass =
+                                      obtenerIconoRedSocial(plataforma);
+                                    const rawUsername =
+                                      red.enlace || red.username || "";
+                                    const username = String(rawUsername)
+                                      .replace(/\\/g, "\\\\")
+                                      .replace(/'/g, "\\'");
+                                    return `<a href="#" onclick="openSocialLink('${plataforma}', '${username}'); return false;" class="text-gray-600 hover:text-rose-600 transition-colors" aria-label="${plataforma}">
                                         <i class="${iconClass} fa-lg"></i>
                                     </a>`;
                                   })
@@ -360,7 +374,45 @@ function obtenerIconoRedSocial(plataforma) {
     whatsapp: "fab fa-whatsapp",
   };
 
-  return iconos[plataforma.toLowerCase()] || "fas fa-link";
+  return iconos[(plataforma || "").toLowerCase()] || "fas fa-link";
+}
+
+// Abrir enlaces de redes de forma consistente
+function openSocialLink(plataforma, username) {
+  plataforma = (plataforma || "").toLowerCase();
+  username = (username || "").trim();
+
+  const bases = {
+    instagram: "https://instagram.com/",
+    facebook: "https://facebook.com/",
+    x: "https://x.com/",
+    twitter: "https://twitter.com/",
+    linkedin: "https://linkedin.com/in/",
+    youtube: "https://youtube.com/@",
+    tiktok: "https://tiktok.com/@",
+    whatsapp: "https://wa.me/",
+  };
+
+  let url = "";
+
+  // Si ya viene una URL completa, abrir tal cual
+  if (/^https?:\/\//i.test(username)) {
+    url = username;
+  } else if (plataforma === "whatsapp") {
+    // Solo números para WhatsApp
+    const number = username.replace(/\D/g, "");
+    if (number) url = bases.whatsapp + number;
+  } else if (plataforma && bases[plataforma]) {
+    // Quitar @ inicial si existe
+    const clean = username.replace(/^@/, "");
+    if (clean) url = bases[plataforma] + clean;
+  }
+
+  if (url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  } else {
+    console.warn("Red social/usuario no válido:", plataforma, username);
+  }
 }
 
 async function registrarVistaHome() {
