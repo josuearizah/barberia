@@ -139,22 +139,21 @@ async function cargarServicios() {
   }
 }
 
-// Función para cargar los estilos en la galería
 async function cargarEstilosGaleria() {
   try {
     const response = await fetch("/api/estilos");
     const estilos = await response.json();
-    const grid = document.getElementById("estilos-grid");
+    const grid = document.querySelector(".estilos-grid"); // Usar querySelector con la clase
 
     if (!grid) return; // Salir si no estamos en la página con la galería
 
     grid.innerHTML = "";
 
     if (!response.ok) {
-      grid.innerHTML =
-        '<div class="col-span-full text-center text-gray-600 py-8">Error al cargar estilos: ' +
-        estilos.error +
-        "</div>";
+      grid.innerHTML = `
+        <div class="col-span-full text-center py-8 text-gray-500">
+          Error al cargar estilos: ${estilos.error}
+        </div>`;
       return;
     }
 
@@ -166,63 +165,63 @@ async function cargarEstilosGaleria() {
 
     // Llenar con placeholders si hay menos de 8 estilos
     const totalItems = Math.max(estilosMostrados.length, 8);
+    const items = [];
 
-    for (let i = 0; i < totalItems; i++) {
-      const div = document.createElement("div");
-      div.className =
-        "gallery-img overflow-hidden rounded-lg shadow-md bg-gray-800";
+    // Generar cards para estilos reales
+    for (let i = 0; i < estilosMostrados.length; i++) {
+      const e = estilosMostrados[i];
+      const img = e.imagen_url || 'https://via.placeholder.com/300x200?text=Sin+imagen';
+      const catLabel = {
+        corte: 'Corte',
+        barba: 'Barba',
+        lineas: 'Líneas',
+        disenos: 'Diseños'
+      }[e.categoria] || e.categoria;
 
-      // Si hay un estilo disponible para esta posición, mostrarlo
-      if (i < estilosMostrados.length) {
-        const estilo = estilosMostrados[i];
-
-        div.innerHTML = `
-                    <div class="relative h-64">
-                        <div class="flex items-center justify-center h-full w-full">
-                            <img 
-                                src="${estilo.imagen_url}" 
-                                alt="${estilo.nombre || "Estilo de corte"}" 
-                                class="max-h-full max-w-full object-contain"
-                                loading="lazy"
-                                onerror="this.onerror=null; this.src='https://via.placeholder.com/300x300/374151/6B7280?text=RG4LBarber';"
-                            >
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                            <h3 class="text-white text-lg font-bold">${
-                              estilo.nombre || "Estilo"
-                            }</h3>
-                            <p class="text-gray-300 text-sm capitalize">${
-                              estilo.categoria || "Corte"
-                            }</p>
-                        </div>
-                    </div>
-                `;
-      } else {
-        // Placeholder para completar la cuadrícula cuando hay menos de 8 estilos
-        div.innerHTML = `
-                    <div class="relative h-64">
-                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                            <rect width="100" height="100" fill="#374151"></rect>
-                            <circle cx="50" cy="35" r="20" fill="#6b7280"></circle>
-                            <rect x="30" y="60" width="40" height="30" fill="#4b5563"></rect>
-                        </svg>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                            <h3 class="text-white text-lg font-bold">Próximamente</h3>
-                            <p class="text-gray-300 text-sm">Nuevo estilo</p>
-                        </div>
-                    </div>
-                `;
-      }
-
-      grid.appendChild(div);
+      items.push(`
+        <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
+          <div class="relative h-[200px] md:h-[250px] bg-gray-700 overflow-hidden flex items-center justify-center">
+            <img src="${img}" alt="${e.nombre}" class="max-w-full max-h-full object-contain object-center" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Sin+imagen';">
+          </div>
+          <div class="p-2 min-h-[60px] flex items-center bg-gray-800 text-white">
+            <div class="flex items-center justify-between w-full">
+              <h3 class="font-semibold truncate">${e.nombre}</h3>
+              <span class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-200 border border-gray-500">${catLabel}</span>
+            </div>
+          </div>
+        </article>
+      `);
     }
-  } catch (error) {
-    const grid = document.getElementById("estilos-grid");
+
+    // Agregar placeholders para completar hasta 8 items - CORREGIDO
+    for (let i = estilosMostrados.length; i < totalItems; i++) {
+        items.push(`
+            <article class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-sm">
+            <div class="relative h-[200px] md:h-[250px] bg-gray-700">
+                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                <rect width="100" height="100" fill="#374151"></rect>
+                <circle cx="50" cy="35" r="20" fill="#6b7280"></circle>
+                <rect x="30" y="60" width="40" height="30" fill="#4b5563"></rect>
+                </svg>
+                <!-- Eliminado el texto duplicado aquí -->
+            </div>
+            <div class="p-2 min-h-[60px] flex items-center bg-gray-800 text-white">
+                <div class="flex items-center justify-between w-full">
+                <h3 class="font-semibold truncate">Próximamente</h3>
+                <span class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-200 border border-gray-500">N/A</span>
+                </div>
+            </div>
+            </article>
+        `);
+    }
+    grid.innerHTML = items.join('');
+  } catch (err) {
+    const grid = document.querySelector(".estilos-grid");
     if (grid) {
-      grid.innerHTML =
-        '<div class="col-span-full text-center text-gray-600 py-8">Error al conectar con el servidor: ' +
-        error.message +
-        "</div>";
+      grid.innerHTML = `
+        <div class="col-span-full text-center py-8 text-red-400">
+          Error al cargar estilos: ${err.message}
+        </div>`;
     }
   }
 }
@@ -282,12 +281,14 @@ async function cargarBarberos() {
       const contenidoCard = `
                 <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
                     <a href="/perfil/${barbero.id}" class="block">
-                        <div class="h-72 bg-gray-200 relative">
+                        <div class="h-64 bg-gray-200 relative">
                             ${
                               barbero.imagen
                                 ? `<img src="${barbero.imagen}" alt="${barbero.nombre}" class="w-full h-full object-cover">`
                                 : `<div class="bg-gray-700 h-full w-full flex items-center justify-center">
-                                    <span class="text-4xl font-bold text-white">${barbero.nombre?.charAt(0) || ""}${
+                                    <span class="text-4xl font-bold text-white">${barbero.nombre.charAt(
+                                      0
+                                    )}${
                                     barbero.apellido
                                       ? barbero.apellido.charAt(0)
                                       : ""
@@ -296,7 +297,7 @@ async function cargarBarberos() {
                             }
                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                                 <h3 class="text-white text-xl font-bold">${
-                                  barbero.nombre || ""
+                                  barbero.nombre
                                 } ${barbero.apellido || ""}</h3>
                                 <p class="text-gray-300">Barbero Profesional</p>
                             </div>
@@ -312,30 +313,14 @@ async function cargarBarberos() {
                         
                         ${
                           barbero.redes_sociales &&
-                          Array.isArray(barbero.redes_sociales) &&
                           barbero.redes_sociales.length > 0
                             ? `<div class="flex space-x-4">
                                 ${barbero.redes_sociales
-                                  .filter(
-                                    (red) =>
-                                      red &&
-                                      (red.red_social || red.plataforma) &&
-                                      (red.enlace || red.username)
-                                  )
                                   .map((red) => {
-                                    const plataforma = (
-                                      red.red_social ||
-                                      red.plataforma ||
-                                      ""
-                                    ).toLowerCase();
-                                    const iconClass =
-                                      obtenerIconoRedSocial(plataforma);
-                                    const rawUsername =
-                                      red.enlace || red.username || "";
-                                    const username = String(rawUsername)
-                                      .replace(/\\/g, "\\\\")
-                                      .replace(/'/g, "\\'");
-                                    return `<a href="#" onclick="openSocialLink('${plataforma}', '${username}'); return false;" class="text-gray-600 hover:text-rose-600 transition-colors" aria-label="${plataforma}">
+                                    const iconClass = obtenerIconoRedSocial(
+                                      red.red_social
+                                    );
+                                    return `<a href="${red.enlace}" target="_blank" class="text-gray-600 hover:text-rose-600 transition-colors">
                                         <i class="${iconClass} fa-lg"></i>
                                     </a>`;
                                   })
@@ -374,45 +359,7 @@ function obtenerIconoRedSocial(plataforma) {
     whatsapp: "fab fa-whatsapp",
   };
 
-  return iconos[(plataforma || "").toLowerCase()] || "fas fa-link";
-}
-
-// Abrir enlaces de redes de forma consistente
-function openSocialLink(plataforma, username) {
-  plataforma = (plataforma || "").toLowerCase();
-  username = (username || "").trim();
-
-  const bases = {
-    instagram: "https://instagram.com/",
-    facebook: "https://facebook.com/",
-    x: "https://x.com/",
-    twitter: "https://twitter.com/",
-    linkedin: "https://linkedin.com/in/",
-    youtube: "https://youtube.com/@",
-    tiktok: "https://tiktok.com/@",
-    whatsapp: "https://wa.me/",
-  };
-
-  let url = "";
-
-  // Si ya viene una URL completa, abrir tal cual
-  if (/^https?:\/\//i.test(username)) {
-    url = username;
-  } else if (plataforma === "whatsapp") {
-    // Solo números para WhatsApp
-    const number = username.replace(/\D/g, "");
-    if (number) url = bases.whatsapp + number;
-  } else if (plataforma && bases[plataforma]) {
-    // Quitar @ inicial si existe
-    const clean = username.replace(/^@/, "");
-    if (clean) url = bases[plataforma] + clean;
-  }
-
-  if (url) {
-    window.open(url, "_blank", "noopener,noreferrer");
-  } else {
-    console.warn("Red social/usuario no válido:", plataforma, username);
-  }
+  return iconos[plataforma.toLowerCase()] || "fas fa-link";
 }
 
 async function registrarVistaHome() {

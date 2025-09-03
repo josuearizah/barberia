@@ -80,7 +80,7 @@ def servicios():
     servicios = Servicio.query.all()
     return render_template('usuario/admin/admin_dashboard.html', servicios=servicios)
 
-@bp.route('/estilos')
+@bp.route('/admin/estilos')
 def estilos():
     if session.get('rol') != 'admin':
         flash('Acceso no autorizado.', 'error')

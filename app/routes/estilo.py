@@ -1,9 +1,14 @@
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, session, render_template
 from app import db
 from app.models.estilo import Estilo
 import cloudinary.uploader
 
 estilos_bp = Blueprint('estilos', __name__)
+
+# Página pública de estilos
+@estilos_bp.route('/estilos', methods=['GET'])
+def pagina_estilos():
+    return render_template('estilo/estilos.html')
 
 # Listar estilos
 @estilos_bp.route('/api/estilos', methods=['GET'])

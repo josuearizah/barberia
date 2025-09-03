@@ -78,23 +78,19 @@ content %}
 </section>
 
 <!-- Gallery Section -->
-<section id="galeria" class="py-16 bg-gray-100">
+<section id="galeria" class="py-16 bg-gray-100 text-gray-900">
   <div class="container mx-auto px-4">
     <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4">GALERÍA DE ESTILOS</h2>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">GALERÍA DE ESTILOS</h2>
       <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
       <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
-        Descubre nuestros mejores trabajos y encuentra inspiración para tu
-        próximo look.
+        Descubre nuestros mejores trabajos y encuentra inspiración para tu próximo look.
       </p>
     </div>
 
-    <!-- Reemplazar este div con la versión con ID -->
-    <div id="estilos-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <!-- Aquí se cargarán dinámicamente las imágenes -->
-      <!-- Indicador de carga simple -->
-      <div class="col-span-full text-center py-8">
-        <svg class="animate-spin h-8 w-8 text-gray-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <div class="estilos-grid grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 min-h-[200px]">
+      <div class="col-span-full text-center py-8 text-gray-500">
+        <svg class="animate-spin h-8 w-8 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -104,10 +100,9 @@ content %}
 
     <div class="mt-12 text-center">
       <a
-        href="#"
+        href="{{ url_for('estilos.pagina_estilos') }}"
         class="inline-block bg-gray-800 hover:bg-gray-900 text-white px-8 py-3 rounded-md font-medium text-lg transition transform hover:scale-105"
-        >Ver Más Estilos</a
-      >
+        >Ver Más Estilos</a>
     </div>
   </div>
 </section>
