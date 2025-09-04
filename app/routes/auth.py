@@ -72,6 +72,17 @@ def citas():
         citas = Cita.query.filter_by(usuario_id=usuario_id).all()
         return render_template('usuario/cliente/cliente_dashboard.html', citas=citas)
 
+# Añadir esta función en app/routes/auth.py, junto a las demás rutas
+@bp.route('/calendario')
+def calendario():
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    return render_template('usuario/cliente/cliente_dashboard.html')
+
 @bp.route('/servicios')
 def servicios():
     if session.get('rol') != 'admin':

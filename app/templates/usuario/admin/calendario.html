@@ -1,0 +1,127 @@
+<div class="h-full flex flex-col bg-gray-800">
+  <div class="text-center mb-4">
+    <h2 class="text-3xl font-bold text-white">Calendario de Citas</h2>
+  </div>
+
+  <!-- Topbar en 3 columnas -->
+  <div class="px-4 mb-3">
+    <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-3">
+        <!-- IZQUIERDA: vistas + hoy -->
+        <div class="flex flex-wrap items-center gap-2 overflow-x-auto">
+        <div class="flex shadow-sm rounded-md">
+            <button id="view-month" class="view-btn py-2 px-3 text-sm font-medium bg-rose-600 text-white rounded-l-md hover:bg-rose-700">Mes</button>
+            <button id="view-week"  class="view-btn py-2 px-3 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600">Semana</button>
+            <button id="view-day"   class="view-btn py-2 px-3 text-sm font-medium bg-gray-700 text-white rounded-r-md hover:bg-gray-600">Día</button>
+        </div>
+
+        <button id="today-btn" class="py-2 px-3 text-sm font-medium bg-rose-600 text-white rounded-md hover:bg-rose-700">
+            Hoy
+        </button>
+        </div>
+
+        <!-- CENTRO: mes/año -->
+        <div class="flex justify-center">
+        <span id="month-year" class="text-xl md:text-2xl font-semibold text-white text-center"></span>
+        </div>
+
+        <!-- DERECHA: navegación -->
+        <div class="flex justify-end items-center gap-2">
+        <button id="prev-btn" aria-label="Anterior" class="p-2 bg-rose-600 text-white rounded-md hover:bg-rose-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
+            </svg>
+        </button>
+        <button id="next-btn" aria-label="Siguiente" class="p-2 bg-rose-600 text-white rounded-md hover:bg-rose-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+            </svg>
+        </button>
+        </div>
+    </div>
+  </div>
+
+
+  <!-- Contenedor del calendario -->
+  <div id="calendar" class="flex-1 bg-gray-800 rounded-lg p-2 overflow-hidden" style="color: white;"></div>
+
+  <!-- Modal de detalles de cita -->
+  <div id="event-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+    <div class="bg-gray-800 rounded-lg p-6 max-w-lg w-full text-white shadow-xl">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold" id="modal-title">Detalles de la Cita</h3>
+        <button id="close-modal" class="text-gray-300 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4" id="modal-content">
+        <div class="flex items-center">
+          <div class="w-8 h-8 mr-3 flex-shrink-0 rounded-full bg-rose-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">Cliente</p>
+            <p class="font-medium" id="modal-cliente">-</p>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-8 h-8 mr-3 flex-shrink-0 rounded-full bg-blue-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">Servicios</p>
+            <p class="font-medium" id="modal-servicios">-</p>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-8 h-8 mr-3 flex-shrink-0 rounded-full bg-green-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">Fecha y Hora</p>
+            <p class="font-medium" id="modal-fecha">-</p>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <div class="w-8 h-8 mr-3 flex-shrink-0 rounded-full bg-purple-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm text-gray-300">Estado</p>
+            <p class="font-medium" id="modal-estado">-</p>
+          </div>
+        </div>
+
+        <div class="pt-2" id="modal-notas-container">
+          <p class="text-sm text-gray-300">Notas</p>
+          <p class="mt-1 text-white" id="modal-notas">-</p>
+        </div>
+      </div>
+
+      <div class="mt-6 flex gap-2 justify-end flex-wrap" id="modal-actions">
+        <!-- Estos botones aparecerán dependiendo del rol y estado -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Importar FullCalendar -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
+
+<!-- Script del calendario -->
+<script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
