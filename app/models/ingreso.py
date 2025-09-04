@@ -14,7 +14,8 @@ class Ingreso(db.Model):
     descripcion = db.Column(db.Text, nullable=True)
 
     # Relaciones ORM
-    cita = db.relationship('Cita', backref=db.backref('ingreso', uselist=False, lazy=True))
+    # Relaciones ORM
+    cita = db.relationship('Cita', backref=db.backref('ingresos', uselist=True, lazy=True))
     barbero = db.relationship('Usuario', backref=db.backref('ingresos', lazy=True))
     servicio = db.relationship('Servicio', backref=db.backref('ingresos', lazy=True))
 
@@ -43,3 +44,9 @@ class Ingreso(db.Model):
         total = db.session.query(func.sum(cls.monto)).filter(query.whereclause).scalar()
 
         return total or 0.0
+    
+    @property
+    def servicio_nombre(self):
+        return self.servicio.nombre if self.servicio else None
+
+

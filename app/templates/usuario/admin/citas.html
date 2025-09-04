@@ -131,6 +131,9 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-hora="{{ cita.hora }}">{{ cita.hora_12h() }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
               {{ cita.servicio.nombre if cita.servicio else '-' }}
+              {% if cita.servicio_adicional %}
+                <span class="text-gray-400">+</span> {{ cita.servicio_adicional.nombre }}
+              {% endif %}
             </td>
             <td class="px-6 py-4 text-sm text-gray-200">{{ cita.notas or '-' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm" data-estado="{{ cita.estado }}">

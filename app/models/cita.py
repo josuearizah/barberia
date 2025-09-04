@@ -15,6 +15,9 @@ class Cita(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     barbero_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     servicio_id = db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=False)
+    
+    # Servicio adicional (opcional)
+    servicio_adicional_id = db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=True)
 
     # Datos de invitado (opcional)
     nombre_cliente = db.Column(db.String(120), nullable=True)
@@ -25,6 +28,7 @@ class Cita(db.Model):
     barbero = db.relationship('Usuario', foreign_keys=[barbero_id], backref=db.backref('citas_barbero', lazy=True))
     # Quitar backref para no colisionar con Servicio.citas ya existente
     servicio = db.relationship('Servicio', foreign_keys=[servicio_id], back_populates='citas')
+    servicio_adicional = db.relationship('Servicio', foreign_keys=[servicio_adicional_id])
 
     def __repr__(self):
         return f'<Cita {self.fecha_cita} {self.hora} - Usuario {self.usuario_id} - Barbero {self.barbero_id}>'

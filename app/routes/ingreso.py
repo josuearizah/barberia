@@ -50,7 +50,6 @@ def obtener_ingresos():
         return jsonify({'error': 'Formato de fecha inválido'}), 400
 
     try:
-        # Base: ingresos del barbero + join a Cita (usar fecha/hora de la cita)
         q = (
             db.session.query(Ingreso, Cita)
             .join(Cita, Ingreso.cita_id == Cita.id)
@@ -68,14 +67,10 @@ def obtener_ingresos():
         for ing, cita in rows:
             monto = float(ing.monto or 0)
             total += monto
-
             fecha_cita_str = cita.fecha_cita.strftime('%Y-%m-%d') if getattr(cita, 'fecha_cita', None) else None
-
             hora_str = '00:00:00'
             if hasattr(cita, 'hora') and cita.hora:
-                # Soporta TIME, datetime, y string 'HH:MM'/'HH:MM:SS'
                 try:
-                    # datetime.time o datetime.datetime
                     hora_str = cita.hora.strftime('%H:%M:%S')
                 except Exception:
                     if isinstance(cita.hora, str):
@@ -86,6 +81,7 @@ def obtener_ingresos():
                 'id': ing.id,
                 'monto': monto,
                 'servicio_id': ing.servicio_id,
+                'servicio_nombre': ing.servicio_nombre,
                 'cita_id': ing.cita_id,
                 'fecha_cita': fecha_cita_str,
                 'hora': hora_str,
@@ -93,9 +89,19 @@ def obtener_ingresos():
                 'fecha_registro': ing.fecha_registro.strftime('%Y-%m-%d %H:%M:%S') if ing.fecha_registro else None,
             })
 
-        count = len(rows)
+        # Conteo correcto de citas completadas (DISTINCT cita_id)
+        count_q = (
+            db.session.query(func.count(func.distinct(Ingreso.cita_id)))
+            .join(Cita, Ingreso.cita_id == Cita.id)
+            .filter(Ingreso.barbero_id == barbero_id)
+        )
+        if fi_date:
+            count_q = count_q.filter(Cita.fecha_cita >= fi_date)
+        if ff_date:
+            count_q = count_q.filter(Cita.fecha_cita <= ff_date)
+        citas_completadas = int(count_q.scalar() or 0)
 
-        # Tendencia por día (fecha de la cita)
+        # Tendencia por día
         tq = (
             db.session.query(
                 Cita.fecha_cita.label('fecha'),
@@ -125,12 +131,12 @@ def obtener_ingresos():
             dq = dq.filter(Cita.fecha_cita >= fi_date)
         if ff_date:
             dq = dq.filter(Cita.fecha_cita <= ff_date)
-        distribucion_rows = dq.group_by(Servicio.nombre).all()
+        distribucion_rows = dq.group_by(Servicio.nombre).order_by(func.sum(Ingreso.monto).desc()).all()
         distribucion = [{'servicio_nombre': r.servicio_nombre, 'monto': float(r.monto or 0)} for r in distribucion_rows]
 
         return jsonify({
             'total': total,
-            'citas_completadas': count,
+            'citas_completadas': citas_completadas,  # ahora es por cita, no por ingreso
             'ingresos': ingresos_list,
             'tendencia': tendencia,
             'distribucion': distribucion
@@ -139,3 +145,4 @@ def obtener_ingresos():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Error interno', 'detalle': str(e)}), 500
+# ...existing code...

@@ -2,14 +2,48 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from app.models.usuario import Usuario
 from app.models.cita import Cita
 from app.models.servicio import Servicio
+from app.models.ingreso import Ingreso
 from app import db
 from datetime import datetime
+from decimal import Decimal
 import re
 
 cita_bp = Blueprint('cita', __name__)
 
+# Función auxiliar para calcular precio con descuento
+def _precio_con_descuento(servicio, fecha_cita):
+    """Calcula el precio final de un servicio aplicando descuento si existe y está vigente"""
+    if not servicio:
+        return Decimal('0.00')
+    
+    precio = Decimal(servicio.precio)
+    descuento = getattr(servicio, 'descuento', None)
+    
+    if not descuento:
+        return precio
+    
+    try:
+        # Verificar vigencia del descuento respecto a la fecha de la cita
+        if descuento.fecha_inicio and fecha_cita < descuento.fecha_inicio:
+            return precio
+        if descuento.fecha_fin and fecha_cita > descuento.fecha_fin:
+            return precio
+            
+        # Aplicar descuento según tipo
+        if descuento.tipo == 'porcentaje':
+            porcentaje = Decimal(descuento.valor) / Decimal('100')
+            return max(Decimal('0.00'), (precio * (Decimal('1.00') - porcentaje)).quantize(Decimal('0.01')))
+        elif descuento.tipo == 'cantidad':
+            return max(Decimal('0.00'), (precio - Decimal(descuento.valor)).quantize(Decimal('0.01')))
+    except Exception as e:
+        print(f"Error al calcular descuento: {str(e)}")
+        return precio
+        
+    return precio
+
 @cita_bp.route('/reservar_cita', methods=['GET', 'POST'])
 def reservar_cita():
+    # [código sin cambios]
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
 
@@ -38,6 +72,14 @@ def reservar_cita():
             if not servicio:
                 raise ValueError("El servicio seleccionado no existe")
 
+            # Verificar si hay un segundo servicio
+            segundo_servicio_id = request.form.get('second_service_id')
+            segundo_servicio = None
+            if segundo_servicio_id:
+                segundo_servicio = Servicio.query.get(int(segundo_servicio_id))
+                if not segundo_servicio:
+                    raise ValueError("El servicio adicional seleccionado no existe")
+
             usuario_actual = Usuario.query.get(session['usuario_id'])
             full_name_db = f"{(usuario_actual.nombre or '').strip()} {(usuario_actual.apellido or '').strip()}".strip().lower()
 
@@ -52,6 +94,7 @@ def reservar_cita():
                 nombre_cliente = None
                 telefono_cliente = None
 
+            # Crear la cita con el servicio principal
             cita = Cita(
                 fecha_cita=fecha,
                 hora=request.form['time'],
@@ -60,8 +103,10 @@ def reservar_cita():
                 barbero_id=barbero_id,
                 servicio_id=servicio_id,
                 nombre_cliente=nombre_cliente or None,
-                telefono_cliente=telefono_cliente or None
+                telefono_cliente=telefono_cliente or None,
+                servicio_adicional_id=segundo_servicio.id if segundo_servicio else None
             )
+            
             db.session.add(cita)
             db.session.commit()
             return render_template('cita/reservar.html', barberos=barberos, servicios=servicios, exito=True)
@@ -73,8 +118,10 @@ def reservar_cita():
 
     return render_template('cita/reservar.html', barberos=barberos, servicios=servicios)
 
+
 @cita_bp.route('/api/citas', methods=['GET'])
 def obtener_citas():
+    # [código sin cambios]
     try:
         usuario_id = session.get('usuario_id')
         if not usuario_id:
@@ -101,14 +148,18 @@ def obtener_citas():
             'hora_12h': cita.hora_12h(),
             'servicio_id': cita.servicio_id,
             'servicio_nombre': cita.servicio.nombre if cita.servicio else None,
+            'servicio_adicional_id': cita.servicio_adicional_id,
+            'servicio_adicional_nombre': cita.servicio_adicional.nombre if cita.servicio_adicional else None,
             'notas': cita.notas,
             'estado': cita.estado
         } for cita in citas]), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @cita_bp.route('/api/citas/<int:cita_id>', methods=['PUT'])
 def actualizar_cita(cita_id):
+    # [código sin cambios]
     try:
         cita = Cita.query.get_or_404(cita_id)
         if cita.usuario_id != session.get('usuario_id'):
@@ -127,6 +178,7 @@ def actualizar_cita(cita_id):
 
 @cita_bp.route('/api/citas/<int:cita_id>', methods=['DELETE'])
 def eliminar_cita(cita_id):
+    # [código sin cambios]
     try:
         cita = Cita.query.get_or_404(cita_id)
         if cita.usuario_id != session.get('usuario_id'):
@@ -140,6 +192,7 @@ def eliminar_cita(cita_id):
 
 @cita_bp.route('/api/barberos', methods=['GET'])
 def obtener_barberos():
+    # [código sin cambios]
     try:
         barberos = Usuario.query.filter_by(rol='admin').all()
         return jsonify([{
@@ -152,39 +205,98 @@ def obtener_barberos():
 
 @cita_bp.route('/api/citas/<int:cita_id>/estado', methods=['POST'])
 def actualizar_estado_cita(cita_id):
-    if 'usuario_id' not in session or Usuario.query.get(session['usuario_id']).rol != 'admin':
-        return jsonify({'error': 'No autorizado'}), 401
     try:
-        data = request.json
-        estado = data.get('estado')
-        if estado not in ['pendiente', 'confirmado', 'cancelado', 'completado']:
-            raise ValueError("Estado inválido")
+        if 'usuario_id' not in session:
+            return jsonify({'error': 'No autorizado'}), 403
         
-        cita = Cita.query.get_or_404(cita_id)
+        data = request.get_json()
+        if not data or 'estado' not in data:
+            return jsonify({'error': 'Datos incompletos'}), 400
         
-        # Si se cambia a completado, crear entrada en el historial y registrar ingreso
-        if estado == 'completado' and cita.estado != 'completado':
+        nuevo_estado = data['estado']
+        if nuevo_estado not in ['pendiente', 'confirmado', 'cancelado', 'completado']:
+            return jsonify({'error': 'Estado no válido'}), 400
+        
+        cita = Cita.query.get(cita_id)
+        if not cita:
+            return jsonify({'error': 'Cita no encontrada'}), 404
+        
+        # Verificar permisos y validaciones
+        usuario_id = session['usuario_id']
+        if session.get('rol') != 'admin' and cita.usuario_id != usuario_id:
+            return jsonify({'error': 'No autorizado para modificar esta cita'}), 403
+        
+        if cita.estado == 'completado' and nuevo_estado != 'completado':
+            return jsonify({'error': 'No se puede modificar una cita ya completada'}), 400
+        
+        estado_anterior = cita.estado
+        cita.estado = nuevo_estado
+        
+        # Si se completa la cita, registrar en historial y crear ingresos
+        if nuevo_estado == 'completado' and estado_anterior != 'completado':
             from app.models.historial import HistorialCita
             from app.models.ingreso import Ingreso
+            from app.models.servicio import Servicio
             
-            # Crear registro en historial
-            historial = HistorialCita.from_cita(cita)
+            # 1. Crear entrada en el historial
+            historial = HistorialCita(
+                cita_id=cita.id,
+                fecha_cita=cita.fecha_cita,
+                hora=cita.hora,
+                usuario_id=cita.usuario_id,
+                barbero_id=cita.barbero_id,
+                servicio_id=cita.servicio_id,
+                servicio_adicional_id=cita.servicio_adicional_id,
+                nombre_cliente=cita.nombre_cliente,
+                notas=cita.notas
+            )
             db.session.add(historial)
             
-            # Crear registro de ingreso si hay servicio asociado
-            if cita.servicio:
-                ingreso = Ingreso(
-                    monto=cita.servicio.precio,
+            # 2. Crear un ingreso para el servicio principal CON DESCUENTO
+            servicio_principal = Servicio.query.get(cita.servicio_id)
+            if servicio_principal:
+                # Calcular precio con descuento para servicio principal
+                monto_principal = _precio_con_descuento(servicio_principal, cita.fecha_cita)
+                
+                ingreso_principal = Ingreso(
+                    monto=monto_principal,  # Usar precio con descuento
                     cita_id=cita.id,
                     barbero_id=cita.barbero_id,
                     servicio_id=cita.servicio_id,
-                    descripcion=f"Ingreso por cita #{cita.id}"
+                    descripcion=f"Ingreso por {servicio_principal.nombre}"
                 )
-                db.session.add(ingreso)
+                db.session.add(ingreso_principal)
+            
+            # 3. Crear un ingreso para el servicio adicional CON DESCUENTO
+            if cita.servicio_adicional_id:
+                servicio_adicional = Servicio.query.get(cita.servicio_adicional_id)
+                if servicio_adicional:
+                    # Calcular precio con descuento para servicio adicional
+                    monto_adicional = _precio_con_descuento(servicio_adicional, cita.fecha_cita)
+                    
+                    ingreso_adicional = Ingreso(
+                        monto=monto_adicional,  # Usar precio con descuento
+                        cita_id=cita.id,
+                        barbero_id=cita.barbero_id,
+                        servicio_id=cita.servicio_adicional_id,
+                        descripcion=f"Ingreso adicional por {servicio_adicional.nombre}"
+                    )
+                    db.session.add(ingreso_adicional)
         
-        cita.estado = estado
         db.session.commit()
-        return jsonify({'success': True}), 200
+        
+        return jsonify({
+            'success': True, 
+            'mensaje': f'Estado actualizado a: {nuevo_estado}',
+            'cita': {
+                'id': cita.id,
+                'estado': cita.estado
+            }
+        })
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        print("Error en actualizar_estado_cita:", str(e))
+        print(traceback.format_exc())
+        return jsonify({'error': f'Error al actualizar estado: {str(e)}'}), 500

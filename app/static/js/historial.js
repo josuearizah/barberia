@@ -60,6 +60,7 @@ async function cargarHistorial() {
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
                         ${cita.servicio_nombre || '-'}
+                        ${cita.servicio_adicional_nombre ? `<span class="text-gray-400"> + </span>${cita.servicio_adicional_nombre}` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_completado="${cita.fecha_completado}">
                         ${cita.fecha_completado_formato}
@@ -89,6 +90,7 @@ async function cargarHistorial() {
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
                         ${cita.servicio_nombre || '-'}
+                        ${cita.servicio_adicional_nombre ? `<span class="text-gray-400"> + </span>${cita.servicio_adicional_nombre}` : ''}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-200">
                         ${cita.notas || '-'}

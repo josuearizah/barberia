@@ -24,6 +24,8 @@ def cliente_historial():
     
     return render_template('usuario/cliente/historial.html')
 
+# ...existing code...
+
 @historial_bp.route('/api/historial', methods=['GET'])
 def obtener_historial():
     """API para obtener historial de citas"""
@@ -65,6 +67,7 @@ def obtener_historial():
                     usuario_id=cita.usuario_id,
                     barbero_id=cita.barbero_id,
                     servicio_id=cita.servicio_id,
+                    servicio_adicional_id=cita.servicio_adicional_id,  # Incluir servicio adicional
                     nombre_cliente=cita.nombre_cliente,
                     notas=cita.notas
                 )
@@ -92,6 +95,7 @@ def obtener_historial():
                     usuario_id=cita.usuario_id,
                     barbero_id=cita.barbero_id,
                     servicio_id=cita.servicio_id,
+                    servicio_adicional_id=cita.servicio_adicional_id,  # Incluir servicio adicional
                     nombre_cliente=cita.nombre_cliente,
                     notas=cita.notas
                 )
@@ -110,6 +114,11 @@ def obtener_historial():
             servicio_nombre = None
             if h.servicio:
                 servicio_nombre = h.servicio.nombre
+                
+            # Obtener datos del servicio adicional
+            servicio_adicional_nombre = None
+            if h.servicio_adicional:
+                servicio_adicional_nombre = h.servicio_adicional.nombre
             
             # Convertir hora a formato 12h
             hora_12h = h.hora_12h() if hasattr(h, 'hora_12h') else h.hora
@@ -147,6 +156,8 @@ def obtener_historial():
                 'barbero_apellido': h.barbero.apellido if h.barbero else None,
                 'servicio_id': h.servicio_id,
                 'servicio_nombre': servicio_nombre,
+                'servicio_adicional_id': h.servicio_adicional_id,
+                'servicio_adicional_nombre': servicio_adicional_nombre,
                 'nombre_cliente': h.nombre_cliente,
                 'notas': h.notas
             })

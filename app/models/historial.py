@@ -15,6 +15,9 @@ class HistorialCita(db.Model):
     barbero_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)  # Barbero
     servicio_id = db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=False)
     
+    # Servicio adicional
+    servicio_adicional_id = db.Column(db.Integer, db.ForeignKey('servicio.id'), nullable=True)
+    
     # Datos adicionales que queremos conservar
     nombre_cliente = db.Column(db.String(120), nullable=True)  # Por si fue un invitado
     notas = db.Column(db.Text, nullable=True)
@@ -23,6 +26,7 @@ class HistorialCita(db.Model):
     usuario = db.relationship('Usuario', foreign_keys=[usuario_id], backref=db.backref('historial_cliente', lazy=True))
     barbero = db.relationship('Usuario', foreign_keys=[barbero_id], backref=db.backref('historial_barbero', lazy=True))
     servicio = db.relationship('Servicio', foreign_keys=[servicio_id])
+    servicio_adicional = db.relationship('Servicio', foreign_keys=[servicio_adicional_id])
     cita = db.relationship('Cita', foreign_keys=[cita_id])
     
     def __repr__(self):
@@ -46,6 +50,7 @@ class HistorialCita(db.Model):
             usuario_id=cita.usuario_id,
             barbero_id=cita.barbero_id,
             servicio_id=cita.servicio_id,
+            servicio_adicional_id=cita.servicio_adicional_id,  # Añadir servicio adicional
             nombre_cliente=cita.nombre_cliente,
             notas=cita.notas
         )

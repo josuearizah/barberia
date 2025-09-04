@@ -28,7 +28,10 @@ async function cargarCitas() {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="${cita.fecha_creacion}">${new Date(cita.fecha_creacion).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="${cita.fecha_cita}">${new Date(cita.fecha_cita).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-hora="${cita.hora}">${cita.hora_12h}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${cita.servicio_nombre || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
+                    ${cita.servicio_nombre || '-'}
+                    ${cita.servicio_adicional_nombre ? `<span class="text-gray-400"> + </span>${cita.servicio_adicional_nombre}` : ''}
+                </td>
                 <td class="px-6 py-4 text-sm text-gray-200">${cita.notas || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-estado="${cita.estado}">${estado}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
