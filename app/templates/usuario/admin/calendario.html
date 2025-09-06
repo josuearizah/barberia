@@ -3,11 +3,12 @@
     <h2 class="text-3xl font-bold text-white">Calendario de Citas</h2>
   </div>
 
-  <!-- Topbar en 3 columnas -->
+  <!-- Topbar responsive -->
   <div class="px-4 mb-3">
-    <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-3">
-        <!-- IZQUIERDA: vistas + hoy -->
-        <div class="flex flex-wrap items-center gap-2 overflow-x-auto">
+    <!-- En móvil: 2 columnas; En desktop: 3 columnas -->
+    <div class="grid grid-cols-2 md:grid-cols-3 items-center gap-3">
+        <!-- IZQUIERDA: vistas + hoy (ocupa todo el ancho en móvil) -->
+        <div class="col-span-2 md:col-span-1 flex flex-wrap items-center gap-2 overflow-x-auto">
         <div class="flex shadow-sm rounded-md">
             <button id="view-month" class="view-btn py-2 px-3 text-sm font-medium bg-rose-600 text-white rounded-l-md hover:bg-rose-700">Mes</button>
             <button id="view-week"  class="view-btn py-2 px-3 text-sm font-medium bg-gray-700 text-white hover:bg-gray-600">Semana</button>
@@ -20,8 +21,8 @@
         </div>
 
         <!-- CENTRO: mes/año -->
-        <div class="flex justify-center">
-        <span id="month-year" class="text-xl md:text-2xl font-semibold text-white text-center"></span>
+        <div class="flex justify-start md:justify-center">
+        <span id="month-year" class="text-xl md:text-2xl font-semibold text-white text-left md:text-center"></span>
         </div>
 
         <!-- DERECHA: navegación -->

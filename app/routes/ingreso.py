@@ -18,7 +18,10 @@ def panel_ingresos():
 def usuario_actual():
     if 'usuario_id' not in session:
         return jsonify({'error': 'No autenticado'}), 401
-    return jsonify({'id': int(session['usuario_id'])}), 200
+    return jsonify({
+        'id': int(session['usuario_id']),
+        'rol': session.get('rol')
+    }), 200
 
 def _parse_fecha(fecha_str):
     if not fecha_str:
@@ -33,11 +36,20 @@ def obtener_ingresos():
     if 'usuario_id' not in session:
         return jsonify({'error': 'No autenticado'}), 401
 
-    barbero_id = request.args.get('barbero_id') or session.get('usuario_id')
+    # Asegurar aislamiento: el barbero solo puede ver sus propios ingresos
+    barbero_id_param = request.args.get('barbero_id')
     try:
-        barbero_id = int(barbero_id)
+        barbero_id = int(session.get('usuario_id'))
     except Exception:
-        return jsonify({'error': 'barbero_id inválido'}), 400
+        return jsonify({'error': 'Sesión inválida'}), 401
+    # Si se envía un barbero_id distinto al de la sesión, denegar.
+    if barbero_id_param is not None:
+        try:
+            param_id = int(barbero_id_param)
+            if param_id != barbero_id:
+                return jsonify({'error': 'No autorizado'}), 403
+        except Exception:
+            return jsonify({'error': 'barbero_id inválido'}), 400
 
     fi_str = request.args.get('fecha_inicio')
     ff_str = request.args.get('fecha_fin')

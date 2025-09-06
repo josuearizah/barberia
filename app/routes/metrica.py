@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from sqlalchemy import func, cast, Float
 from app import db
 from app.models.usuario import Usuario
@@ -30,15 +30,26 @@ def metrica_dashboard():
         total_clientes = db.session.query(func.count(Usuario.id))\
             .filter(func.lower(Usuario.rol) == 'cliente').scalar() or 0
 
-        # Cast por seguridad si monto no es estrictamente numérico en el motor
-        total_ingresos = db.session.query(func.coalesce(func.sum(cast(Ingreso.monto, Float)), 0.0)).scalar() or 0.0
+        # Ingresos por barbero (aislado por cuenta)
+        # Si hay un barbero autenticado (rol 'admin'), filtramos SIEMPRE por su propio usuario_id.
+        # Ignoramos cualquier barbero_id externo para evitar fugas de información.
+        barbero_id = session.get('usuario_id') if session.get('rol') == 'admin' else None
+
+        total_ingresos_q = db.session.query(func.coalesce(func.sum(cast(Ingreso.monto, Float)), 0.0))
+        if barbero_id is not None and session.get('rol') == 'admin':
+            total_ingresos_q = total_ingresos_q.filter(Ingreso.barbero_id == barbero_id)
+        else:
+            # Si no hay barbero_id o no es admin, no exponemos ingresos de otros.
+            # Devolvemos 0 para evitar filtrado global no deseado.
+            total_ingresos_q = total_ingresos_q.filter(False)
+        total_ingresos = float(total_ingresos_q.scalar() or 0.0)
 
         vistas_home = VisitaPagina.query.filter_by(ruta='/').first()
         total_vistas = int(vistas_home.contador) if vistas_home else 0
 
         return jsonify({
             'total_clientes': int(total_clientes),
-            'total_ingresos': float(total_ingresos),
+            'total_ingresos': total_ingresos,
             'total_vistas': total_vistas
         }), 200
     except Exception as e:

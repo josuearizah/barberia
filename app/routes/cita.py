@@ -121,15 +121,16 @@ def reservar_cita():
 
 @cita_bp.route('/api/citas', methods=['GET'])
 def obtener_citas():
-    # [código sin cambios]
     try:
         usuario_id = session.get('usuario_id')
         if not usuario_id:
             return jsonify({'error': 'No autorizado'}), 401
         usuario = Usuario.query.get(usuario_id)
         if usuario.rol == 'admin':
-            citas = Cita.query.all()
+            # Barbero: solo sus citas
+            citas = Cita.query.filter_by(barbero_id=usuario_id).all()
         else:
+            # Cliente: solo sus citas
             citas = Cita.query.filter_by(usuario_id=usuario_id).all()
         return jsonify([{
             'id': cita.id,
