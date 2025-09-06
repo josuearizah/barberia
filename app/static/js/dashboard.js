@@ -16,6 +16,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Helpers seguros
     const has = (el) => !!el && typeof el.classList !== 'undefined';
 
+    function triggerCalendarResize() {
+      // Pequeña demora para permitir que el layout termine de transicionar
+      setTimeout(() => {
+        try { window.dispatchEvent(new Event('resize')); } catch {}
+      }, 150);
+    }
+
     // Abrir sidebar (mobile)
     function openSidebar() {
       if (!has(sidebar)) return;
@@ -23,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (has(sidebarOverlay)) sidebarOverlay.classList.remove('hidden');
       if (toggleIconOpen) toggleIconOpen.classList.add('hidden');
       if (toggleIconClose) toggleIconClose.classList.remove('hidden');
+      triggerCalendarResize();
     }
 
     // Cerrar sidebar (mobile)
@@ -32,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (has(sidebarOverlay)) sidebarOverlay.classList.add('hidden');
       if (toggleIconOpen) toggleIconOpen.classList.remove('hidden');
       if (toggleIconClose) toggleIconClose.classList.add('hidden');
+      triggerCalendarResize();
     }
 
     // Listeners sidebar
@@ -71,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
             mainContent.classList.add('lg:pl-64');
           }
         }
+        triggerCalendarResize();
       });
     }
 
