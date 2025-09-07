@@ -124,6 +124,16 @@ def ingresos():
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')
 
+@bp.route('/pagos')
+def pagos():
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    # Por ahora no hay vista de pagos para cliente
+    return render_template('usuario/cliente/cliente_dashboard.html')
+
 @bp.route('/inventario')
 def inventario():
     return render_template('usuario/admin/admin_dashboard.html')

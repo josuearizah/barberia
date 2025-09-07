@@ -301,3 +301,81 @@ def actualizar_estado_cita(cita_id):
         print("Error en actualizar_estado_cita:", str(e))
         print(traceback.format_exc())
         return jsonify({'error': f'Error al actualizar estado: {str(e)}'}), 500
+
+@cita_bp.route('/api/citas/<int:cita_id>/resumen', methods=['GET'])
+def resumen_cita(cita_id):
+    """Devuelve un resumen informativo del cobro para una cita (no procesa pago)."""
+    try:
+        if 'usuario_id' not in session:
+            return jsonify({'error': 'No autorizado'}), 403
+
+        cita = Cita.query.get_or_404(cita_id)
+        usuario_id = session['usuario_id']
+
+        # Permisos: barbero de la cita o cliente dueño de la cita
+        if session.get('rol') == 'admin':
+            if cita.barbero_id != usuario_id:
+                return jsonify({'error': 'No autorizado'}), 403
+        else:
+            if cita.usuario_id != usuario_id:
+                return jsonify({'error': 'No autorizado'}), 403
+
+        def precios(servicio, fecha_cita):
+            if not servicio:
+                return (Decimal('0.00'), Decimal('0.00'), Decimal('0.00'))
+            base = Decimal(servicio.precio).quantize(Decimal('0.01'))
+            final = _precio_con_descuento(servicio, fecha_cita)
+            try:
+                final = Decimal(final).quantize(Decimal('0.01'))
+            except Exception:
+                final = Decimal(str(final)).quantize(Decimal('0.01'))
+            desc = max(Decimal('0.00'), (base - final)).quantize(Decimal('0.01'))
+            return (base, desc, final)
+
+        # Servicio principal
+        sp = Servicio.query.get(cita.servicio_id)
+        base_p, desc_p, final_p = precios(sp, cita.fecha_cita)
+
+        # Servicio adicional
+        sa = Servicio.query.get(cita.servicio_adicional_id) if cita.servicio_adicional_id else None
+        base_a, desc_a, final_a = precios(sa, cita.fecha_cita) if sa else (Decimal('0.00'), Decimal('0.00'), Decimal('0.00'))
+
+        subtotal = (base_p + base_a).quantize(Decimal('0.01'))
+        descuento_total = (desc_p + desc_a).quantize(Decimal('0.01'))
+        total = (final_p + final_a).quantize(Decimal('0.01'))
+
+        return jsonify({
+            'cita_id': cita.id,
+            'cliente': {
+                'id': cita.usuario_id,
+                'nombre': cita.usuario.nombre if cita.usuario else None,
+                'apellido': cita.usuario.apellido if cita.usuario else None
+            },
+            'barbero': {
+                'id': cita.barbero_id,
+                'nombre': cita.barbero.nombre if cita.barbero else None,
+                'apellido': cita.barbero.apellido if cita.barbero else None
+            },
+            'fecha': cita.fecha_cita.strftime('%Y-%m-%d'),
+            'hora': cita.hora,
+            'items': [
+                {
+                    'tipo': 'principal',
+                    'nombre': sp.nombre if sp else None,
+                    'precio_base': float(base_p),
+                    'descuento': float(desc_p),
+                    'precio_final': float(final_p)
+                }
+            ] + ([{
+                'tipo': 'adicional',
+                'nombre': sa.nombre if sa else None,
+                'precio_base': float(base_a),
+                'descuento': float(desc_a),
+                'precio_final': float(final_a)
+            }] if sa else []),
+            'subtotal': float(subtotal),
+            'descuento_total': float(descuento_total),
+            'total': float(total)
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

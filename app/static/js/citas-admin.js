@@ -5,9 +5,11 @@ function cerrar(id) { document.getElementById(id)?.classList.add('hidden'); }
 
 async function cargarCitas() {
     try {
+        const tbody = document.getElementById('citas-table-body');
+        // Si no existe tbody dinámico, no recargar (usa HTML del servidor)
+        if (!tbody) return;
         const response = await fetch('/api/citas');
         const citas = await response.json();
-        const tbody = document.getElementById('citas-table-body');
         const totalCitas = document.getElementById('total-citas');
         tbody.innerHTML = '';
         if (!response.ok) {
@@ -418,10 +420,154 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Status update
+        let pagoContext = { select: null, citaId: null, total: 0 };
+
+        async function fetchResumen(citaId) {
+            const res = await fetch(`/api/citas/${citaId}/resumen`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        }
+
+        function formatear(valor) {
+            return `$${Number(valor || 0).toFixed(2)}`;
+        }
+
+        function abrirModalPago(data, select) {
+            pagoContext = { select, citaId: data.cita_id, total: Number(data.total || 0) };
+            const modal = document.getElementById('modal-pago-cita');
+            const elCliente = document.getElementById('pago-cliente');
+            const elFecha = document.getElementById('pago-fecha');
+            const itemsTbody = document.getElementById('pago-items');
+            const elSubtotal = document.getElementById('pago-subtotal');
+            const elDesc = document.getElementById('pago-descuento');
+            const elTotal = document.getElementById('pago-total');
+            const inputRecibido = document.getElementById('pago-recibido');
+            const elSaldo = document.getElementById('pago-saldo');
+
+            elCliente.textContent = `${data.cliente?.nombre || ''} ${data.cliente?.apellido || ''}`.trim() || '-';
+            const fecha = new Date(`${data.fecha}T${data.hora}:00`);
+            const fechaStr = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric'}) + ' ' + 
+              fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            elFecha.textContent = fechaStr;
+
+            itemsTbody.innerHTML = '';
+            (data.items || []).forEach(it => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <td class="py-1 pr-2">${it.tipo === 'principal' ? 'Servicio' : 'Adicional'}: ${it.nombre || '-'}</td>
+                  <td class="py-1 text-right">${formatear(it.precio_base)}</td>
+                  <td class="py-1 text-right">-${formatear(it.descuento)}</td>
+                  <td class="py-1 text-right">${formatear(it.precio_final)}</td>
+                `;
+                itemsTbody.appendChild(tr);
+            });
+            elSubtotal.textContent = formatear(data.subtotal);
+            elDesc.textContent = `-${formatear(data.descuento_total)}`;
+            elTotal.textContent = formatear(data.total);
+            inputRecibido.value = '';
+            elSaldo.textContent = `Saldo: ${formatear(data.total)}`;
+
+            modal.classList.remove('hidden');
+
+            function actualizarSaldo() {
+                const recibido = Number((inputRecibido.value || '').replace(',', '.')) || 0;
+                const saldo = Math.max(0, pagoContext.total - recibido);
+                elSaldo.textContent = `Saldo: ${formatear(saldo)}`;
+            }
+            inputRecibido.oninput = actualizarSaldo;
+        }
+
+        async function completarCita(citaId, select) {
+            const response = await fetch(`/api/citas/${citaId}/estado`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: 'completado' })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Error desconocido');
+            select.dataset.currentValue = 'completado';
+            select.parentNode.dataset.estado = 'completado';
+            const tr = select.closest('tr');
+            select.disabled = true;
+            select.classList.add('opacity-50', 'cursor-not-allowed');
+            tr.classList.add('bg-gray-950', 'opacity-70');
+            applyFiltersAndSort();
+        }
+
+        // Eventos modal
+        (function initPagoModalEvents(){
+            const modal = document.getElementById('modal-pago-cita');
+            if (!modal) return;
+            const btnCerrar = document.getElementById('pago-close');
+            const btnCancel = document.getElementById('pago-cancel');
+            const btnAceptar = document.getElementById('pago-aceptar');
+
+            const cerrarModal = () => modal.classList.add('hidden');
+            btnCerrar?.addEventListener('click', () => {
+                cerrarModal();
+                if (pagoContext.select) pagoContext.select.value = pagoContext.select.dataset.currentValue;
+            });
+            btnCancel?.addEventListener('click', () => {
+                cerrarModal();
+                if (pagoContext.select) pagoContext.select.value = pagoContext.select.dataset.currentValue;
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    cerrarModal();
+                    if (pagoContext.select) pagoContext.select.value = pagoContext.select.dataset.currentValue;
+                }
+            });
+            btnAceptar?.addEventListener('click', async () => {
+                try {
+                    // Registrar pago informativo antes de completar
+                    const metodo = document.getElementById('pago-metodo')?.value || 'efectivo';
+                    const recibidoStr = document.getElementById('pago-recibido')?.value || '';
+                    const recibido = recibidoStr ? Number(recibidoStr.replace(',', '.')) : null;
+                    try {
+                        const resPago = await fetch('/api/pagos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                cita_id: pagoContext.citaId,
+                                metodo,
+                                monto_recibido: recibido
+                            })
+                        });
+                        const dataPago = await resPago.json();
+                        if (!resPago.ok) throw new Error(dataPago.error || 'No se pudo registrar el pago');
+                    } catch (e) {
+                        alert(`Error al registrar el pago: ${e.message}`);
+                        return;
+                    }
+
+                    // Completar cita
+                    await completarCita(pagoContext.citaId, pagoContext.select);
+                    cerrarModal();
+                    // Notificación simple
+                    alert('Cita completada y pago registrado.');
+                } catch (err) {
+                    alert(`Error al completar: ${err.message}`);
+                }
+            });
+        })();
+
         window.actualizarEstadoCita = async function(select) {
             const oldValue = select.dataset.currentValue;
             const newValue = select.value;
             if (newValue === oldValue) return;
+            // Interceptar cuando se selecciona 'completado'
+            if (newValue === 'completado') {
+                try {
+                    const data = await fetchResumen(select.dataset.citaId);
+                    abrirModalPago(data, select);
+                } catch (error) {
+                    alert(`No se pudo obtener el resumen: ${error.message}`);
+                    select.value = oldValue;
+                }
+                return;
+            }
+
+            // Otras transiciones (pendiente/confirmado/cancelado) van directo
             try {
                 const response = await fetch(`/api/citas/${select.dataset.citaId}/estado`, {
                     method: 'POST',

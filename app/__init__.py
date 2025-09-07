@@ -34,12 +34,22 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
 
+    # Asegurar que todos los modelos estén importados antes de create_all
+    # para que se creen sus tablas (incluida 'pago').
+    from app.models import usuario as _m_usuario  # noqa: F401
+    from app.models import cita as _m_cita        # noqa: F401
+    from app.models import servicio as _m_serv    # noqa: F401
+    from app.models import historial as _m_hist   # noqa: F401
+    from app.models import ingreso as _m_ing      # noqa: F401
+    from app.models import pago as _m_pago        # noqa: F401
+
     # Crear tablas en la base de datos
     with app.app_context():
         db.create_all()
 
     # Registrar blueprints
     from app.routes import auth, usuario, cita, servicio, estilo, perfil, historial, ingreso, metrica  # Añade servicios
+    from app.routes import pago
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
@@ -49,6 +59,7 @@ def create_app():
     app.register_blueprint(historial.historial_bp)  # Registra el blueprint de historial
     app.register_blueprint(ingreso.ingreso_bp)  # Registra el blueprint de ingresos
     app.register_blueprint(metrica.metrica_bp)  # Registra el blueprint de métricas
+    app.register_blueprint(pago.pago_bp)  # Registra el blueprint de pagos
 
     @app.context_processor
     def inject_perfil_actual():

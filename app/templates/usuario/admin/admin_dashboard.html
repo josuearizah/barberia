@@ -166,20 +166,44 @@
             </a>
           </li>
           <li>
-            <a class="flex items-center gap-x-2 py-2 px-3 text-base font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.historial' %}bg-white/20{% endif %}" href="{{ url_for('auth.historial') }}">
-              <svg class="size-4 hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v4"/>
-                <path d="M12 22v-4"/>
-                <path d="M4.93 4.93 7.76 7.76"/>
-                <path d="M18.24 18.24 15.41 15.41"/>
-                <path d="M4.93 19.07 7.76 16.24"/>
-                <path d="M18.24 5.76 15.41 8.59"/>
-                <path d="M2 12H6"/>
-                <path d="M22 12H18"/>
-                <circle cx="12" cy="12" r="10"/>
+            <button id="historial-toggle" type="button" class="w-full flex items-center justify-between py-2 px-3 text-base font-medium rounded-lg hover:bg-white/10">
+              <span class="flex items-center gap-x-2">
+                <svg class="size-4 hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4"/>
+                  <path d="M12 22v-4"/>
+                  <path d="M4.93 4.93 7.76 7.76"/>
+                  <path d="M18.24 18.24 15.41 15.41"/>
+                  <path d="M4.93 19.07 7.76 16.24"/>
+                  <path d="M18.24 5.76 15.41 8.59"/>
+                  <path d="M2 12H6"/>
+                  <path d="M22 12H18"/>
+                  <circle cx="12" cy="12" r="10"/>
+                </svg>
+                <span class="sidebar-text">Historial</span>
+              </span>
+              <svg id="historial-caret" class="size-4 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6"/>
               </svg>
-              <span class="sidebar-text">Historial</span>
-            </a>
+            </button>
+            <ul id="historial-submenu" class="ml-6 mt-1 space-y-1 hidden">
+              <li>
+                <a class="flex items-center gap-x-2 py-2 px-3 text-sm font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.historial' %}bg-white/20{% endif %}" href="{{ url_for('auth.historial') }}">
+                  <svg class="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M4 19h16M8 15h.01M12 15h.01M16 15h.01"/>
+                  </svg>
+                  <span class="sidebar-text">Citas</span>
+                </a>
+              </li>
+              <li>
+                <a class="flex items-center gap-x-2 py-2 px-3 text-sm font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.pagos' %}bg-white/20{% endif %}" href="{{ url_for('auth.pagos') }}">
+                  <svg class="size-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" x2="12" y1="2" y2="22"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                  <span class="sidebar-text">Pagos</span>
+                </a>
+              </li>
+            </ul>
           </li>
           <li>
             <a class="flex items-center gap-x-2 py-2 px-3 text-base font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.ingresos' %}bg-white/20{% endif %}" href="{{ url_for('auth.ingresos') }}">
@@ -217,6 +241,8 @@
       {% include 'usuario/admin/clientes.html' %}
     {% elif request.endpoint == 'auth.historial' %}
       {% include 'usuario/admin/historial.html' %}
+    {% elif request.endpoint == 'auth.pagos' %}
+      {% include 'usuario/admin/pago.html' %}
     {% elif request.endpoint == 'auth.ingresos' %}
       {% include 'usuario/admin/ingresos.html' %}
     {% elif request.endpoint == 'auth.calendario' %}
