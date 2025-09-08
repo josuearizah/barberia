@@ -1,1 +1,86 @@
+# ========================
+# CONFIGURACIÓN GENERAL
+# ========================
+
+# Fuerza a Git a normalizar saltos de línea a LF
+* text=auto eol=lf
+
+# ========================
+# ESPECÍFICO PARA WINDOWS
+# ========================
+
+# Archivos que deben tener CRLF (ejecutables en Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ========================
+# PYTHON
+# ========================
+
+# Archivos de código
+*.py text eol=lf
+*.pyw text eol=lf
+
+# Archivos de configuración comunes
+*.ini text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+
+# ========================
+# DOCUMENTACIÓN
+# ========================
+
+*.md text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
+
+# ========================
+# JUPYTER NOTEBOOKS
+# ========================
+
+*.ipynb text eol=lf
+
+# ========================
+# ARCHIVOS WEB
+# ========================
+
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Además de tu configuración para GitHub Linguist
 *.html linguist-language=Python
+
+# ========================
+# BINARIOS Y DATOS
+# ========================
+
+# Imágenes (no normalizar)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+
+# Archivos comprimidos
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+
+# Archivos de base de datos o binarios de ML
+*.db binary
+*.h5 binary
+*.pkl binary
+*.pt binary
+*.model binary
+
+# ========================
+# EXTRA (opcional)
+# ========================
+
+# Evita que GitHub cuente migraciones de bases de datos como código
+*migrations/* linguist-generated

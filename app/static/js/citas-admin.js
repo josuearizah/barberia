@@ -501,6 +501,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnCerrar = document.getElementById('pago-close');
             const btnCancel = document.getElementById('pago-cancel');
             const btnAceptar = document.getElementById('pago-aceptar');
+            const btnDescargar = document.getElementById('pago-descargar');
+            let lastPagoId = null;
+            async function crearPagoSiNecesario() {
+                if (lastPagoId) return lastPagoId;
+                const metodo = document.getElementById('pago-metodo')?.value || 'efectivo';
+                const recibidoStr = document.getElementById('pago-recibido')?.value || '';
+                const recibido = recibidoStr ? Number(recibidoStr.replace(',', '.')) : null;
+                const resPago = await fetch('/api/pagos', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cita_id: pagoContext.citaId, metodo, monto_recibido: recibido })
+                });
+                const dataPago = await resPago.json();
+                if (!resPago.ok) throw new Error(dataPago.error || 'No se pudo registrar el pago');
+                lastPagoId = dataPago?.pago?.id || null;
+                return lastPagoId;
+            }
+            btnDescargar?.addEventListener('click', async () => {
+                try {
+                    const pid = await crearPagoSiNecesario();
+                    if (pid) window.open(`/facturas/${pid}/descargar`, '_blank');
+                } catch (e) {
+                    alert(`Error al generar factura: ${e.message}`);
+                }
+            });
 
             const cerrarModal = () => modal.classList.add('hidden');
             btnCerrar?.addEventListener('click', () => {

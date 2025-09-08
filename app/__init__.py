@@ -42,6 +42,7 @@ def create_app():
     from app.models import historial as _m_hist   # noqa: F401
     from app.models import ingreso as _m_ing      # noqa: F401
     from app.models import pago as _m_pago        # noqa: F401
+    from app.models import factura as _m_factura  # noqa: F401
 
     # Crear tablas en la base de datos
     with app.app_context():
@@ -50,6 +51,7 @@ def create_app():
     # Registrar blueprints
     from app.routes import auth, usuario, cita, servicio, estilo, perfil, historial, ingreso, metrica  # Añade servicios
     from app.routes import pago
+    from app.routes import factura
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
@@ -60,6 +62,7 @@ def create_app():
     app.register_blueprint(ingreso.ingreso_bp)  # Registra el blueprint de ingresos
     app.register_blueprint(metrica.metrica_bp)  # Registra el blueprint de métricas
     app.register_blueprint(pago.pago_bp)  # Registra el blueprint de pagos
+    app.register_blueprint(factura.factura_bp)  # Registra el blueprint de facturas
 
     @app.context_processor
     def inject_perfil_actual():

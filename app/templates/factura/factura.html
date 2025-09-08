@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ factura.numero }}</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; color: #0f172a; margin: 0; }
+    .wrap { max-width: 820px; margin: 24px auto; padding: 24px; border: 1px solid #e5e7eb; }
+    .flex { display: flex; }
+    .between { justify-content: space-between; align-items: center; }
+    .title { font-size: 22px; font-weight: 700; margin: 0; }
+    .sub { color: #475569; font-size: 13px; }
+    .mt { margin-top: 16px; }
+    .mb { margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; font-size: 14px; }
+    .tright { text-align: right; }
+    .muted { color: #64748b; }
+    .tag { display: inline-block; padding: 4px 8px; background: #eef2ff; color: #4338ca; border-radius: 6px; font-size: 12px; }
+  </style>
+  </head>
+<body>
+  <div class="wrap">
+    <div class="flex between">
+      <div>
+        <h1 class="title">Factura</h1>
+        <div class="sub">Número: {{ factura.numero }}</div>
+        <div class="sub">Emitida: {{ factura.fecha_emision.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+      </div>
+      <div>
+        <div class="tag">{{ pago.metodo|capitalize }}</div>
+      </div>
+    </div>
+
+    <div class="flex between mt">
+      <div>
+        <div class="muted">Cliente</div>
+        <div>{{ cliente.nombre }} {{ cliente.apellido }}</div>
+      </div>
+      <div>
+        <div class="muted">Barbero</div>
+        <div>{{ barbero.nombre }} {{ barbero.apellido }}</div>
+      </div>
+    </div>
+
+    {% if cita %}
+    <div class="mt">
+      <div class="muted">Cita</div>
+      <div>Fecha: {{ cita.fecha_cita.strftime('%Y-%m-%d') }} — Hora: {{ cita.hora }}</div>
+    </div>
+    {% endif %}
+
+    <div class="mt">
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th class="tright">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if items and items|length %}
+            {% for it in items %}
+            <tr>
+              <td>{{ it.nombre }}</td>
+              <td class="tright">${{ '%.2f' % it.precio }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td>Servicios de barbería — Pago #{{ pago.id }}</td>
+              <td class="tright">${{ '%.2f' % (pago.subtotal or 0) }}</td>
+            </tr>
+          {% endif %}
+          <tr>
+            <td>Descuento</td>
+            <td class="tright">-${{ '%.2f' % (pago.descuento or 0) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <th class="tright">${{ '%.2f' % (pago.total or 0) }}</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="mt muted">Gracias por su preferencia.</div>
+  </div>
+</body>
+</html>

@@ -56,10 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="px-6 py-3 text-sm text-right text-gray-200">${fmt(p.total)}</td>
         <td class="px-6 py-3 text-sm text-right text-gray-200">${p.monto_recibido != null ? fmt(p.monto_recibido) : '-'}</td>
         <td class="px-6 py-3 text-sm text-right text-gray-200">${p.saldo != null ? fmt(p.saldo) : '-'}</td>`;
-      if (window.isAdmin === true || typeof isAdmin !== 'undefined' && isAdmin) {
+      if (window.isAdmin === true || (typeof isAdmin !== 'undefined' && isAdmin)) {
         row += `
         <td class="px-6 py-3 text-sm text-right text-gray-200">
           <span class="inline-flex items-center justify-end gap-2">
+            <span class="relative">
+              <button class="pago-menu inline-flex items-center justify-center size-8 bg-gray-700 hover:bg-gray-600 rounded" data-id="${p.id}" title="Opciones">⋯</button>
+              <div class="menu-pop absolute right-0 mt-1 hidden bg-gray-800 border border-gray-600 rounded shadow-lg z-10">
+                <button class="pago-factura flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 w-full text-left" data-id="${p.id}">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3h8v4M19 21H5a2 2 0 01-2-2V7h18v12a2 2 0 01-2 2z"/></svg>
+                  Factura
+                </button>
+              </div>
+            </span>
             <span class="pago-editar cursor-pointer text-blue-600 hover:text-blue-400" title="Editar" data-id="${p.id}" data-total="${p.total}" data-recibido="${p.monto_recibido ?? ''}">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487l2.651 2.651a2.25 2.25 0 010 3.182L9.41 19.425l-4.682 1.02 1.02-4.682 10.103-10.105a2.25 2.25 0 013.182 0z"/>
@@ -72,15 +81,25 @@ document.addEventListener('DOMContentLoaded', () => {
             </span>
           </span>
         </td>`;
+      } else {
+        row += `
+        <td class="px-6 py-3 text-sm text-right text-gray-200">
+          <span class="relative inline-flex justify-end w-full">
+            <button class="pago-menu inline-flex items-center justify-center size-8 bg-gray-700 hover:bg-gray-600 rounded" data-id="${p.id}" title="Opciones">⋯</button>
+            <div class="menu-pop absolute right-0 mt-1 hidden bg-gray-800 border border-gray-600 rounded shadow-lg z-10">
+              <button class="pago-factura flex items-center gap-2 px-3 py-2 text-sm text-gray-200 hover:bg-gray-700 w-full text-left" data-id="${p.id}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3h8v4M19 21H5a2 2 0 01-2-2V7h18v12a2 2 0 01-2 2z"/></svg>
+                Factura
+              </button>
+            </div>
+          </span>
+        </td>`;
       }
       tr.innerHTML = row;
-      // Ajustes por rol: en cliente mostrar nombre del barbero y sin acciones
+      // Ajustes por rol: en cliente mostrar nombre del barbero
       if (!isAdmin) {
         const tds = tr.querySelectorAll('td');
         if (tds[3]) tds[3].textContent = nombre;
-        if (tds.length > 10) {
-          tds[tds.length - 1].remove();
-        }
       }
       tbody.appendChild(tr);
     });
@@ -170,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const editEl = e.target.closest('.pago-editar');
     const delEl = e.target.closest('.pago-eliminar');
+    const menuBtn = e.target.closest('.pago-menu');
+    const facturaBtn = e.target.closest('.pago-factura');
     if (editEl) {
       editContext.id = Number(editEl.dataset.id);
       editContext.total = Number(editEl.dataset.total || 0);
@@ -183,6 +204,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (delEl) {
       delContextId = Number(delEl.dataset.id);
       modalDel.classList.remove('hidden');
+    }
+    if (menuBtn) {
+      const wrap = menuBtn.parentElement;
+      const pop = wrap.querySelector('.menu-pop');
+      document.querySelectorAll('.menu-pop').forEach(x => { if (x !== pop) x.classList.add('hidden'); });
+      if (pop) pop.classList.toggle('hidden');
+    } else if (!e.target.closest('.menu-pop')) {
+      document.querySelectorAll('.menu-pop').forEach(x => x.classList.add('hidden'));
+    }
+    if (facturaBtn) {
+      const id = Number(facturaBtn.dataset.id);
+      window.open(`/facturas/${id}/descargar`, '_blank');
     }
   });
 
