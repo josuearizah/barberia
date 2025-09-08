@@ -180,12 +180,12 @@
             </ul>
           </li>
           <li>
-            <a class="flex items-center gap-x-2 py-2 px-3 text-base font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.ingresos' %}bg-white/20{% endif %}" href="{{ url_for('auth.ingresos') }}">
+            <a class="flex items-center gap-x-2 py-2 px-3 text-base font-medium rounded-lg hover:bg-white/10 {% if request.endpoint == 'auth.finanzas' %}bg-white/20{% endif %}" href="{{ url_for('auth.finanzas') }}">
               <svg class="size-4 hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" x2="12" y1="2" y2="22"/>
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
               </svg>
-              <span class="sidebar-text">Ingresos</span>
+              <span class="sidebar-text">Finanzas</span>
             </a>
           </li>
         </ul>
@@ -210,12 +210,41 @@
       {% include 'usuario/cliente/historial.html' %}
     {% elif request.endpoint == 'auth.calendario' %}
       {% include 'usuario/cliente/calendario.html' %}
+    {% elif request.endpoint == 'auth.finanzas' %}
+      {% include 'usuario/cliente/finanzas.html' %}
     {% elif request.endpoint == 'auth.pagos' %}
       {% include 'usuario/cliente/pago.html' %}
     {% else %}
       <div class="bg-gray-800 shadow-md rounded-lg p-6">
-        <h2 class="text-2xl font-bold text-gray-200 mb-4">Bienvenido al Dashboard</h2>
-        <p class="text-gray-400">Aquí puedes gestionar tus citas, clientes, ingresos y más. Selecciona una opción en el menú lateral para comenzar.</p>
+        <h2 class="text-2xl font-bold text-gray-200 mb-4">Bienvenido, {{ session.get('nombre', 'Usuario') }}</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+            <p class="text-xs uppercase text-gray-400">Dinero Gastado</p>
+            <h3 id="cliente-gasto" class="mt-1 text-2xl font-semibold text-white">$0.00</h3>
+            <a href="{{ url_for('auth.finanzas') }}" class="text-rose-400 hover:text-rose-300 text-sm">Ver finanzas</a>
+          </div>
+          <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+            <p class="text-xs uppercase text-gray-400">Citas Completadas</p>
+            <h3 id="cliente-citas" class="mt-1 text-2xl font-semibold text-white">0</h3>
+            <a href="{{ url_for('auth.historial') }}" class="text-rose-400 hover:text-rose-300 text-sm">Ver historial</a>
+          </div>
+        </div>
+        <script>
+          (async function(){
+            try{
+              const u = await fetch('/api/usuario_actual');
+              if(!u.ok) return; const info = await u.json();
+              if(info.rol !== 'cliente') return;
+              const r = await fetch('/api/pagos/cliente');
+              if(!r.ok) return; const pagos = await r.json();
+              let total = 0; for(const p of pagos) total += Number(p.total||0);
+              const gastoEl = document.getElementById('cliente-gasto');
+              const citasEl = document.getElementById('cliente-citas');
+              if(gastoEl) gastoEl.textContent = `$${total.toFixed(2)}`;
+              if(citasEl) citasEl.textContent = String(pagos.length);
+            }catch(e){ console.warn('Resumen cliente:', e); }
+          })();
+        </script>
       </div>
     {% endif %}
   </div>

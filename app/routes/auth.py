@@ -433,3 +433,12 @@ def completar_reset():
     db.session.commit()
     
     return jsonify({'message': 'Contraseña cambiada con éxito'}), 200
+
+@bp.route('/finanzas')
+def finanzas():
+    if 'usuario_id' not in session:
+        return redirect(url_for('auth.login'))
+    rol = session.get('rol')
+    if rol == 'admin':
+        return render_template('usuario/admin/admin_dashboard.html')
+    return render_template('usuario/cliente/cliente_dashboard.html')
