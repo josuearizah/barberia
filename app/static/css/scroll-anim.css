@@ -1,0 +1,46 @@
+/* Lightweight scroll animations: noticeable but tasteful */
+
+.sa {
+  opacity: 0;
+  transform: translateY(0);
+  filter: blur(var(--sa-blur, 0));
+  transition:
+    transform var(--sa-duration, 800ms) var(--sa-ease, cubic-bezier(.2,.7,.2,1)) var(--sa-delay, 0ms),
+    opacity var(--sa-duration, 800ms) var(--sa-ease, cubic-bezier(.2,.7,.2,1)) var(--sa-delay, 0ms),
+    filter var(--sa-duration, 800ms) var(--sa-ease, cubic-bezier(.2,.7,.2,1)) var(--sa-delay, 0ms);
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+/* Types */
+.sa[data-anim="fade-up"] { transform: translateY(var(--sa-distance, 28px)); }
+.sa[data-anim="fade-down"] { transform: translateY(calc(var(--sa-distance, 28px) * -1)); }
+.sa[data-anim="slide-left"] { transform: translateX(var(--sa-distance, 32px)); }
+.sa[data-anim="slide-right"] { transform: translateX(calc(var(--sa-distance, 32px) * -1)); }
+.sa[data-anim="fade-in"] { opacity: 0; filter: blur(var(--sa-blur, 4px)); }
+
+.sa[data-anim="zoom-in"] { transform: scale(var(--sa-scale, 0.94)); }
+
+.sa[data-anim="flip-left"] {
+  transform-origin: left center;
+  transform: perspective(800px) rotateY(calc(var(--sa-rotate, 12deg) * -1));
+}
+
+.sa[data-anim="flip-right"] {
+  transform-origin: right center;
+  transform: perspective(800px) rotateY(var(--sa-rotate, 12deg));
+}
+
+/* Active state */
+.sa.is-inview {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Optional: prefers-reduced-motion respects users' settings */
+@media (prefers-reduced-motion: reduce) {
+  .sa {
+    transition: none !important;
+  }
+}

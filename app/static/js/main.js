@@ -51,7 +51,7 @@ async function cargarServicios() {
       document.head.appendChild(styleEl);
     }
 
-    servicios.forEach((s) => {
+    servicios.forEach((s, i) => {
       // Comprobar si tiene descuento
       const tieneDescuento = s.descuento !== null;
       const precioOriginal = Math.round(s.precio);
@@ -80,7 +80,9 @@ async function cargarServicios() {
 
       const div = document.createElement("div");
       div.className = cardClass;
-      div.setAttribute("data-aos", "fade-up");
+      div.setAttribute("data-anim", "fade-up");
+      div.setAttribute("data-anim-delay", String(i * 80));
+      div.setAttribute("data-anim-distance", "32");
 
       // HTML del servicio con o sin descuento
       div.innerHTML = `
@@ -131,6 +133,11 @@ async function cargarServicios() {
             `;
       grid.appendChild(div);
     });
+
+    // Ensure newly added items get observed for animations
+    if (window.ScrollAnim && typeof window.ScrollAnim.refresh === "function") {
+      window.ScrollAnim.refresh();
+    }
   } catch (error) {
     document.getElementById("servicios-grid").innerHTML =
       '<div class="col-span-full text-center text-gray-600">Error al conectar con el servidor: ' +
@@ -179,7 +186,7 @@ async function cargarEstilosGaleria() {
       }[e.categoria] || e.categoria;
 
       items.push(`
-        <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition">
+        <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition" data-anim="fade-up" data-anim-delay="${i*80}" data-anim-distance="28">
           <div class="relative h-[200px] md:h-[250px] bg-gray-700 overflow-hidden flex items-center justify-center">
             <img src="${img}" alt="${e.nombre}" class="max-w-full max-h-full object-contain object-center" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Sin+imagen';">
           </div>
@@ -196,7 +203,7 @@ async function cargarEstilosGaleria() {
     // Agregar placeholders para completar hasta 8 items - CORREGIDO
     for (let i = estilosMostrados.length; i < totalItems; i++) {
         items.push(`
-            <article class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-sm">
+            <article class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-sm" data-anim="fade-up" data-anim-delay="${i*80}" data-anim-distance="28">
             <div class="relative h-[200px] md:h-[250px] bg-gray-700">
                 <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
                 <rect width="100" height="100" fill="#374151"></rect>
@@ -267,7 +274,7 @@ async function cargarBarberos() {
     }
 
     // Crear las tarjetas para cada barbero
-    barberos.forEach((barbero) => {
+    barberos.forEach((barbero, i) => {
       const card = document.createElement("div");
 
       // Si solo hay un barbero, centrarlo con ancho máximo
@@ -275,7 +282,8 @@ async function cargarBarberos() {
         card.className = "w-full max-w-sm";
       }
 
-      card.setAttribute("data-aos", "zoom-in");
+      card.setAttribute("data-anim", "zoom-in");
+      card.setAttribute("data-anim-delay", String(i * 90));
 
       // HTML interno de la tarjeta
       const contenidoCard = `
@@ -335,6 +343,11 @@ async function cargarBarberos() {
       card.innerHTML = contenidoCard;
       grid.appendChild(card);
     });
+
+    // Observe the newly appended barber cards
+    if (window.ScrollAnim && typeof window.ScrollAnim.refresh === "function") {
+      window.ScrollAnim.refresh();
+    }
   } catch (error) {
     const grid = document.getElementById("barberos-grid");
     if (grid) {

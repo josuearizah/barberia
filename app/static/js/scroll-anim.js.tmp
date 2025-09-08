@@ -1,0 +1,76 @@
+// Lightweight IntersectionObserver-based scroll animations.
+// Usage: add data-anim="fade-up|zoom-in|flip-left|flip-right"
+// Optional: data-anim-duration="700", data-anim-delay="120", data-anim-ease="ease-out", data-anim-once="false"
+(function () {
+  const defaults = {
+    root: null,
+    rootMargin: '0px 0px -10% 0px',
+    threshold: 0.15,
+  };
+
+  let observer;
+  const observed = new Set();
+
+  function toMs(val) {
+    const n = parseInt(val, 10);
+    return Number.isFinite(n) ? `${n}ms` : undefined;
+  }
+
+  function applyVars(el) {
+    const dur = el.getAttribute('data-anim-duration');
+    const delay = el.getAttribute('data-anim-delay');
+    const ease = el.getAttribute('data-anim-ease');
+    if (dur) el.style.setProperty('--sa-duration', toMs(dur));
+    if (delay) el.style.setProperty('--sa-delay', toMs(delay));
+    if (ease) el.style.setProperty('--sa-ease', ease);
+  }
+
+  function observe(el) {
+    if (!el || observed.has(el)) return;
+    applyVars(el);
+    el.classList.add('sa');
+    observer.observe(el);
+    observed.add(el);
+  }
+
+  function handle(entries) {
+    for (const entry of entries) {
+      const el = entry.target;
+      const onceAttr = el.getAttribute('data-anim-once');
+      const once = !(onceAttr === 'false' || onceAttr === '0'); // default true
+
+      if (entry.isIntersecting) {
+        applyVars(el); // re-apply in case attributes changed
+        el.classList.add('is-inview');
+        if (once) observer.unobserve(el);
+      } else if (!once) {
+        el.classList.remove('is-inview');
+      }
+    }
+  }
+
+  function init(options) {
+    if (observer) return; // already initialized
+    const cfg = Object.assign({}, defaults, options || {});
+    observer = new IntersectionObserver(handle, {
+      root: cfg.root,
+      rootMargin: cfg.rootMargin,
+      threshold: cfg.threshold,
+    });
+    refresh();
+  }
+
+  function refresh() {
+    const nodes = document.querySelectorAll('[data-anim]');
+    nodes.forEach(observe);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { init(); });
+  } else {
+    init();
+  }
+
+  window.ScrollAnim = { init, refresh };
+})();
+

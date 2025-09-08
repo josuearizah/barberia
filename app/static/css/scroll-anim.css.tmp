@@ -1,0 +1,45 @@
+/* Lightweight scroll animations: customizable and subtle */
+
+.sa {
+  opacity: 0;
+  transform: translateY(0);
+  transition:
+    transform var(--sa-duration, 700ms) var(--sa-ease, cubic-bezier(.22,.61,.36,1)) var(--sa-delay, 0ms),
+    opacity var(--sa-duration, 700ms) var(--sa-ease, cubic-bezier(.22,.61,.36,1)) var(--sa-delay, 0ms);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Types */
+.sa[data-anim="fade-up"] {
+  transform: translateY(16px);
+}
+
+.sa[data-anim="zoom-in"] {
+  transform: scale(0.96);
+}
+
+.sa[data-anim="flip-left"] {
+  transform-origin: left center;
+  transform: perspective(800px) rotateY(-12deg);
+}
+
+.sa[data-anim="flip-right"] {
+  transform-origin: right center;
+  transform: perspective(800px) rotateY(12deg);
+}
+
+/* Active state */
+.sa.is-inview {
+  opacity: 1;
+  transform: none;
+}
+
+/* Optional: prefers-reduced-motion respects users' settings */
+@media (prefers-reduced-motion: reduce) {
+  .sa {
+    transition: none !important;
+  }
+}
+
+
