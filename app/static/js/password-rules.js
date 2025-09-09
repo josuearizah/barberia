@@ -45,10 +45,17 @@
     const confirm = opts.confirmId ? document.getElementById(opts.confirmId) : null;
     const submitBtn = opts.submitSelector ? form.querySelector(opts.submitSelector) : null;
 
-    // UI container just after input
+    // UI container as sibling AFTER the input wrapper, so the eye button
+    // (absolute inside wrapper) does not shift vertically when rules show.
     const uiWrap = document.createElement('div');
-    uiWrap.className = 'text-xs mt-1';
-    input.insertAdjacentElement('afterend', uiWrap);
+    uiWrap.className = 'text-xs mt-1 hidden';
+    const wrapper = input.closest('.relative') || input.parentElement;
+    const cWrapper = confirm ? (confirm.closest && (confirm.closest('.relative') || confirm.parentElement)) : null;
+    if (wrapper && wrapper.parentElement) {
+      wrapper.insertAdjacentElement('afterend', uiWrap);
+    } else {
+      input.insertAdjacentElement('afterend', uiWrap);
+    }
 
     const ids = Object.assign({
       minLengthId: 'pwd-min-length',
@@ -89,6 +96,31 @@
     input.addEventListener('input', evaluate);
     if (confirm) confirm.addEventListener('input', evaluate);
 
+    // Show on focus anywhere inside the password group (input or its toggle button)
+    function show() { uiWrap.classList.remove('hidden'); }
+    function isInPwGroup(el) {
+      if (!el) return false;
+      if (wrapper && wrapper.contains(el)) return true;
+      if (cWrapper && cWrapper.contains(el)) return true;
+      return false;
+    }
+    function maybeHide() {
+      const ae = document.activeElement;
+      if (isInPwGroup(ae)) return; // keep visible when interacting with eye button
+      const a = (input.value || '').length;
+      const b = confirm ? (confirm.value || '').length : 0;
+      if (!a && !b) uiWrap.classList.add('hidden');
+    }
+    // Use focusin/focusout on wrappers so clicks on the eye don't hide rules
+    if (wrapper) {
+      wrapper.addEventListener('focusin', show);
+      wrapper.addEventListener('focusout', () => setTimeout(maybeHide, 0));
+    }
+    if (cWrapper) {
+      cWrapper.addEventListener('focusin', show);
+      cWrapper.addEventListener('focusout', () => setTimeout(maybeHide, 0));
+    }
+
     form.addEventListener('submit', function (e) {
       if (!evaluate()) {
         e.preventDefault();
@@ -98,6 +130,7 @@
 
     // initial state
     evaluate();
+    // keep hidden initially until focus
+    uiWrap.classList.add('hidden');
   };
 })();
-

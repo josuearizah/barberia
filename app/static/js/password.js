@@ -207,6 +207,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const pwdNumber = document.getElementById('pwd-number');
         const pwdMatch = document.getElementById('pwd-match');
         
+        // Contenedor de reglas (oculto por defecto)
+        const rulesContainer = document.getElementById('pwd-min-length')?.parentElement;
+        if (rulesContainer) rulesContainer.classList.add('hidden');
+
+        function showRules() { rulesContainer?.classList.remove('hidden'); }
+        function maybeHideRules() {
+            const a = (newPassword?.value || '').length;
+            const b = (confirmPassword?.value || '').length;
+            if (!a && !b) rulesContainer?.classList.add('hidden');
+        }
+
         // Función para validar contraseña
         function validatePassword() {
             const password = newPassword.value;
@@ -258,6 +269,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Eventos para validación en tiempo real
         newPassword.addEventListener('input', validatePassword);
         confirmPassword.addEventListener('input', validatePassword);
+
+        // Mostrar/ocultar reglas según foco
+        newPassword.addEventListener('focus', showRules);
+        confirmPassword.addEventListener('focus', showRules);
+        newPassword.addEventListener('blur', () => setTimeout(maybeHideRules, 0));
+        confirmPassword.addEventListener('blur', () => setTimeout(maybeHideRules, 0));
         
         // Iniciar con el botón deshabilitado
         btnCambiar.disabled = true;

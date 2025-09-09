@@ -402,17 +402,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // confirmPasswordInput?.addEventListener("blur", hidePwRulesIfEmpty);
 
   // Mostrar reglas SOLO con foco en "Nueva" o "Confirmar". Ocultar en cualquier otro foco dentro del modal.
-  function isPwField(el) {
-    return el === newPasswordInput || el === confirmPasswordInput;
+  const newPwWrapper = newPasswordInput?.closest?.(".relative") || newPasswordInput?.parentElement || null;
+  const confirmPwWrapper = confirmPasswordInput?.closest?.(".relative") || confirmPasswordInput?.parentElement || null;
+  function isInPwGroup(el) {
+    if (!el) return false;
+    if (el === newPasswordInput || el === confirmPasswordInput) return true;
+    if (newPwWrapper && newPwWrapper.contains(el)) return true; // includes eye button
+    if (confirmPwWrapper && confirmPwWrapper.contains(el)) return true;
+    return false;
   }
 
   changePasswordModal?.addEventListener("focusin", (e) => {
-    if (isPwField(e.target)) showPwRules();
+    if (isInPwGroup(e.target)) showPwRules();
   });
 
   changePasswordModal?.addEventListener("focusout", () => {
     setTimeout(() => {
-      if (!isPwField(document.activeElement)) {
+      if (!isInPwGroup(document.activeElement)) {
         pwRulesEls?.container?.classList.add("hidden");
       }
     }, 0);

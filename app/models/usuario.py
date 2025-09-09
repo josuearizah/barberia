@@ -10,7 +10,8 @@ class Usuario(db.Model, UserMixin):
     apellido = db.Column(db.String(50), nullable=False)
     telefono = db.Column(db.String(20), nullable=False)
     correo = db.Column(db.String(100), unique=True, nullable=False)
-    contrasena = db.Column(db.String(120), nullable=False)
+    # Sube el tamaño para hashes largos (scrypt/bcrypt/PBKDF2)
+    contrasena = db.Column(db.String(255), nullable=False)
     rol = db.Column(db.String(20), nullable=False, default='cliente')  # 'admin' o 'cliente'
     # Añade estos campos a la clase Usuario (dentro de la definición de la clase)
     reset_codigo = db.Column(db.String(6), nullable=True)
