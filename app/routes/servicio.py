@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, session
 from app import db
 from app.models.servicio import Servicio
 from app.models.descuento import Descuento
+from app.models.usuario import Usuario
+from app.models.notificacion import Notificacion
 import cloudinary.uploader
 from datetime import time, date, datetime
 from sqlalchemy import text
@@ -203,6 +205,22 @@ def actualizar_servicio(id):
                         servicio_id=servicio.id
                     )
                     db.session.add(nuevo_descuento)
+                    # Notificar a clientes que hay un nuevo descuento
+                    try:
+                        clientes = Usuario.query.filter(Usuario.rol != 'admin').all()
+                        for u in clientes:
+                            n = Notificacion(
+                                usuario_id=u.id,
+                                titulo='Nuevo descuento disponible',
+                                mensaje=f"Descuento en {servicio.nombre}",
+                                tipo='descuento',
+                                prioridad='media',
+                                data={"url": "/#servicios"}
+                            )
+                            db.session.add(n)
+                        db.session.commit()
+                    except Exception:
+                        db.session.rollback()
             else:
                 # Si el valor es 0 o negativo, eliminar el descuento si existe
                 if servicio.descuento:

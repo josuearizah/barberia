@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Notificaciones{% endblock %}
+{% block content %}
+<section class="pt-24 pb-12 container mx-auto px-4">
+  <h1 class="text-2xl font-bold mb-6">Notificaciones</h1>
+
+  <div class="flex items-center justify-between mb-4">
+    <p class="text-gray-600" id="notif-summary">Cargando...</p>
+    <div class="flex items-center gap-2">
+      <button id="mark-all" class="px-3 py-1.5 text-sm bg-gray-800 text-white rounded hover:bg-gray-700">Marcar todas como leídas</button>
+    </div>
+  </div>
+
+  <div id="notif-list" class="space-y-3">
+    <div class="p-4 bg-white rounded border border-gray-200">Cargando notificaciones...</div>
+  </div>
+</section>
+
+<script>
+  function estadoPill(estado) {
+    if (!estado) return '';
+    const map = { confirmado: 'bg-blue-100 text-blue-700 border-blue-200', cancelado: 'bg-rose-100 text-rose-700 border-rose-200', completado: 'bg-green-100 text-green-700 border-green-200' };
+    const cls = map[estado] || 'bg-gray-100 text-gray-700 border-gray-200';
+    const label = estado === 'confirmado' ? 'confirmada' : estado === 'cancelado' ? 'cancelada' : estado === 'completado' ? 'completada' : estado;
+    return `<span class="inline-block text-xs font-semibold px-2 py-0.5 rounded border ${cls}">${label}</span>`;
+  }
+
+  async function fetchNotifs() {
+    const res = await fetch('/api/notificaciones?limit=50');
+    const data = await res.json();
+    const list = document.getElementById('notif-list');
+    if (!Array.isArray(data)) {
+      list.innerHTML = '<div class="p-4 bg-red-50 text-red-600 rounded">Error al cargar notificaciones</div>';
+      return;
+    }
+    document.getElementById('notif-summary').textContent = `${data.filter(n => !n.leida).length} sin leer, ${data.length} totales`;
+    if (data.length === 0) {
+      list.innerHTML = '<div class="p-4 bg-gray-50 text-gray-600 rounded">No tienes notificaciones.</div>';
+      return;
+    }
+    list.innerHTML = data.map(n => {
+      const isCita = n.tipo === 'cita';
+      const estado = n.data && n.data.estado;
+      let bodyHtml = '';
+      if (isCita && estado) {
+        const citaId = n.data.cita_id || '';
+        const fecha = n.data.fecha || '';
+        const hora = n.data.hora || '';
+        bodyHtml = `<p class="text-gray-700 mt-1">Tu cita #${citaId} ha sido ${estadoPill(estado)}.<span class="ml-1 text-gray-500">${fecha && hora ? `Día ${fecha} a las ${hora}` : ''}</span></p>`;
+      } else if (n.mensaje) {
+        bodyHtml = `<p class="text-gray-600 mt-1">${n.mensaje}</p>`;
+      }
+      const linkHtml = (n.data && n.data.url) ? `<a href="${n.data.url}" class="mt-2 inline-block text-rose-600 hover:text-rose-700 text-sm">Abrir</a>` : '';
+      return `
+      <article class="p-4 rounded border ${n.leida ? 'bg-white border-gray-200' : 'bg-rose-50 border-rose-200'}">
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="font-semibold ${n.leida ? 'text-gray-800' : 'text-gray-900'}">${n.titulo || 'Notificación'}</h3>
+            ${bodyHtml}
+            ${linkHtml}
+          </div>
+          <div class="ml-4">
+            ${n.leida ? '' : `<button data-id="${n.id}" class="mark-one text-xs px-2 py-1 bg-gray-800 text-white rounded">Marcar leída</button>`}
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    document.querySelectorAll('.mark-one').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        await fetch(`/api/notificaciones/${id}/leida`, { method: 'POST' });
+        fetchNotifs();
+        updateNavCounters();
+      });
+    });
+  }
+
+  async function markAll() {
+    await fetch('/api/notificaciones/leidas_todas', { method: 'POST' });
+    fetchNotifs();
+    updateNavCounters();
+  }
+
+  async function updateNavCounters() {
+    try {
+      const res = await fetch('/api/notificaciones/unread_count');
+      const data = await res.json();
+      const c = data.count || 0;
+      const ids = ['notif-count', 'notif-count-menu', 'notif-count-avatar', 'notif-count-mobile'];
+      ids.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = c;
+        el.classList.toggle('hidden', c===0);
+      });
+    } catch {}
+  }
+
+  document.getElementById('mark-all').addEventListener('click', markAll);
+  fetchNotifs();
+
+  // (Push eliminado) Solo in-app
+</script>
+{% endblock %}

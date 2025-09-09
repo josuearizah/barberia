@@ -7,8 +7,22 @@ from app import db
 from datetime import datetime
 from decimal import Decimal
 import re
+from app.models.notificacion import Notificacion
 
 cita_bp = Blueprint('cita', __name__)
+
+def _to_12h(hhmm: str) -> str:
+    try:
+        parts = (hhmm or '').split(':')
+        h = int(parts[0])
+        m = int(parts[1]) if len(parts) > 1 else 0
+        suffix = 'am' if h < 12 else 'pm'
+        h12 = h % 12
+        if h12 == 0:
+            h12 = 12
+        return f"{h12}:{m:02d} {suffix}"
+    except Exception:
+        return hhmm or ''
 
 # Función auxiliar para calcular precio con descuento
 def _precio_con_descuento(servicio, fecha_cita):
@@ -109,6 +123,22 @@ def reservar_cita():
             
             db.session.add(cita)
             db.session.commit()
+            # Notificación al barbero sobre nueva cita
+            try:
+                cliente = Usuario.query.get(session['usuario_id'])
+                nombre_cli = f"{(cliente.nombre or '').strip()} {(cliente.apellido or '').strip()}".strip()
+                n = Notificacion(
+                    usuario_id=barbero_id,
+                    titulo='Nueva cita reservada',
+                    mensaje=f"{nombre_cli} reservó una cita para {fecha.strftime('%Y-%m-%d')} a las {request.form['time']}",
+                    tipo='cita',
+                    prioridad='alta',
+                    data={"url": "/dashboard"}
+                )
+                db.session.add(n)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
             return render_template('cita/reservar.html', barberos=barberos, servicios=servicios, exito=True)
 
         except Exception as e:
@@ -172,6 +202,20 @@ def actualizar_cita(cita_id):
         cita.servicio_id = int(form_data.get('servicio')) if form_data.get('servicio') else None
         cita.notas = form_data.get('notas')
         db.session.commit()
+        # Notificar al barbero
+        try:
+            notif = Notificacion(
+                usuario_id=cita.barbero_id,
+                titulo='Cita actualizada por cliente',
+                mensaje=f"La cita #{cita.id} fue actualizada",
+                tipo='cita',
+                prioridad='media',
+                data={"url": "/dashboard"}
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         return jsonify({'success': True}), 200
     except Exception as e:
         db.session.rollback()
@@ -184,8 +228,22 @@ def eliminar_cita(cita_id):
         cita = Cita.query.get_or_404(cita_id)
         if cita.usuario_id != session.get('usuario_id'):
             return jsonify({'error': 'No tienes permiso para eliminar esta cita'}), 403
+        barbero_id = cita.barbero_id
         db.session.delete(cita)
         db.session.commit()
+        try:
+            notif = Notificacion(
+                usuario_id=barbero_id,
+                titulo='Cita eliminada por cliente',
+                mensaje='Una cita fue cancelada por el cliente',
+                tipo='cita',
+                prioridad='media',
+                data={"url": "/dashboard"}
+            )
+            db.session.add(notif)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         return jsonify({'success': True}), 200
     except Exception as e:
         db.session.rollback()
@@ -284,6 +342,30 @@ def actualizar_estado_cita(cita_id):
                     )
                     db.session.add(ingreso_adicional)
         
+        # Notificar al cliente sobre cambio de estado (mensaje claro + datos para UI)
+        try:
+            if nuevo_estado in ['confirmado', 'cancelado', 'completado'] and estado_anterior != nuevo_estado:
+                estado_lbl = {
+                    'confirmado': 'confirmada con éxito',
+                    'cancelado': 'cancelada',
+                    'completado': 'completada con éxito'
+                }.get(nuevo_estado, nuevo_estado)
+                hora12 = _to_12h(cita.hora)
+                tit = f"Tu cita #{cita.id}"
+                msg = f"Tu cita #{cita.id} ha sido {estado_lbl}. Día {cita.fecha_cita} a las {hora12}."
+                n = Notificacion(
+                    usuario_id=cita.usuario_id,
+                    titulo=tit,
+                    mensaje=msg,
+                    tipo='cita',
+                    prioridad='alta' if nuevo_estado in ['confirmado','cancelado'] else 'media',
+                    data={"url": "/citas", "estado": nuevo_estado, "cita_id": cita.id, "fecha": str(cita.fecha_cita), "hora": hora12}
+                )
+                db.session.add(n)
+                db.session.commit()
+        except Exception:
+            pass
+
         db.session.commit()
         
         return jsonify({

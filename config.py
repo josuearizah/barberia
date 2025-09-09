@@ -8,3 +8,4 @@ class Config:
     CLOUDINARY_API_KEY = "898169432537864"       # Reemplaza con tu api_key
     CLOUDINARY_API_SECRET = "kouHeUEf0wNqwGi-DOzLIph6nf0" # Reemplaza con tu api_secret
     SECURE = True
+    # Web Push deshabilitado

@@ -55,6 +55,55 @@ function loadUserData() {
 // Inicializar el avatar al cargar la página
 loadUserData();
 
+// Notifications: SSE stream + fallback count poll
+function updateNotifBadges(count) {
+  const el1 = document.getElementById('notif-count');
+  const el2 = document.getElementById('notif-count-menu');
+  const el3 = document.getElementById('notif-count-avatar');
+  const el4 = document.getElementById('notif-count-mobile');
+  [el1, el2, el3, el4].forEach((el) => {
+    if (!el) return;
+    el.textContent = String(count);
+    el.classList.toggle('hidden', !count);
+  });
+}
+
+async function fetchNotifCountOnce() {
+  try {
+    const res = await fetch('/api/notificaciones/unread_count');
+    const data = await res.json();
+    updateNotifBadges(data.count || 0);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function startSSE() {
+  try {
+    const es = new EventSource('/api/notificaciones/sse');
+    es.addEventListener('init', (e) => {
+      try { const d = JSON.parse(e.data); updateNotifBadges(d.count || 0); } catch {}
+    });
+    es.addEventListener('tick', (e) => {
+      try { const d = JSON.parse(e.data); updateNotifBadges(d.count || 0); } catch {}
+    });
+    es.onerror = () => {
+      es.close();
+      // fallback polling cada 30s
+      fetchNotifCountOnce();
+      setInterval(fetchNotifCountOnce, 30000);
+    };
+  } catch (e) {
+    fetchNotifCountOnce();
+    setInterval(fetchNotifCountOnce, 30000);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Solo iniciar si hay sesión (el backend retornará 401 si no)
+  startSSE();
+});
+
 // Listener para actualizar el avatar cuando se cambia en perfil.js
 document.addEventListener("profileImageUpdated", (event) => {
   updateNavbarAvatar(event.detail.imageUrl, event.detail.name);

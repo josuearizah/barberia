@@ -28,8 +28,9 @@
           <div class="group">
             <button class="flex items-center gap-2 text-white hover:text-rose-500">
               <!-- Reemplazar icono genérico con foto de perfil o iniciales -->
-              <div class="navbar-avatar w-8 h-8 bg-black rounded-full flex items-center justify-center text-white text-sm font-bold">
+              <div class="navbar-avatar w-8 h-8 bg-black rounded-full flex items-center justify-center text-white text-sm font-bold relative">
                 {{ session['nombre'][0] }}{{ session['apellido'][0] }}
+                <span class="absolute -top-0.5 -right-0.5 bg-rose-600 text-white text-[10px] rounded-full px-1 hidden" id="notif-count-avatar">0</span>
               </div>
             </button>
             <div class="absolute right-0 mt-[18px] w-64 bg-gray-800 border border-gray-700 rounded shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
@@ -51,6 +52,10 @@
                   <a href="/usuarios" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
                     <i class="fas fa-users text-gray-400"></i> Usuarios
                   </a>
+                  <a href="/notificaciones" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-bell text-gray-400"></i> Notificaciones
+                    <span id="notif-count-menu" class="ml-auto inline-flex items-center justify-center bg-rose-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 hidden">0</span>
+                  </a>
                   <a href="/configuracion" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
                     <i class="fas fa-cogs text-gray-400"></i> Configuración
                   </a>
@@ -58,8 +63,9 @@
                   <a href="/dashboard" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
                     <i class="fas fa-calendar-check text-gray-400"></i> Mis Citas
                   </a>
-                  <a href="/historial" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
-                    <i class="fas fa-history text-gray-400"></i> Historial
+                  <a href="/notificaciones" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-700">
+                    <i class="fas fa-bell text-gray-400"></i> Notificaciones
+                    <span id="notif-count-menu" class="ml-auto inline-flex items-center justify-center bg-rose-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 hidden">0</span>
                   </a>
                 {% endif %}
               </div>
@@ -119,6 +125,10 @@
           <a href="/usuarios" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
             <i class="fas fa-users"></i> Usuarios
           </a>
+          <a href="/notificaciones" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+            <i class="fas fa-bell"></i> Notificaciones
+            <span id="notif-count-mobile" class="ml-auto inline-flex items-center justify-center bg-rose-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 hidden">0</span>
+          </a>
           <a href="/configuracion" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
             <i class="fas fa-cogs"></i> Configuración
           </a>
@@ -126,8 +136,9 @@
           <a href="/dashboard" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
             <i class="fas fa-calendar-check"></i> Mis Citas
           </a>
-          <a href="/historial" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
-            <i class="fas fa-history"></i> Historial
+          <a href="/notificaciones" class="flex items-center gap-2 text-white hover:bg-gray-800 px-3 py-2 rounded-md">
+            <i class="fas fa-bell"></i> Notificaciones
+            <span id="notif-count-mobile" class="ml-auto inline-flex items-center justify-center bg-rose-600 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 hidden">0</span>
           </a>
         {% endif %}
       </div>

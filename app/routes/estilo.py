@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request, session, render_template
 from app import db
 from app.models.estilo import Estilo
+from app.models.usuario import Usuario
+from app.models.notificacion import Notificacion
 import cloudinary.uploader
 
 estilos_bp = Blueprint('estilos', __name__)
@@ -42,6 +44,22 @@ def crear_estilo():
         estilo = Estilo(nombre=nombre, categoria=categoria, imagen_url=imagen_url, activo=activo)
         db.session.add(estilo)
         db.session.commit()
+        # Notificar a clientes sobre nuevo estilo
+        try:
+            clientes = Usuario.query.filter(Usuario.rol != 'admin').all()
+            for u in clientes:
+                n = Notificacion(
+                    usuario_id=u.id,
+                    titulo='Nuevo estilo agregado',
+                    mensaje=f"Se agregó un nuevo estilo: {nombre}",
+                    tipo='estilo',
+                    prioridad='baja',
+                    data={"url": "/estilos"}
+                )
+                db.session.add(n)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         return jsonify({'message':'Estilo creado','id':estilo.id}),200
     except Exception as e:
         db.session.rollback()

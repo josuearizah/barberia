@@ -177,6 +177,33 @@ document.addEventListener('DOMContentLoaded', function () {
   } catch (e) {
     console.error('Error inicializando dashboard:', e);
   }
+
+  // Notificaciones: SSE para el contador en admin dashboard (header icon)
+  function updateAdminBadge(count) {
+    const ids = ['admin-notif-count', 'client-notif-count'];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = String(count || 0);
+      el.classList.toggle('hidden', !count);
+    });
+  }
+  try {
+    const es = new EventSource('/api/notificaciones/sse');
+    es.addEventListener('init', (e) => {
+      try { const d = JSON.parse(e.data); updateAdminBadge(d.count || 0); } catch {}
+    });
+    es.addEventListener('tick', (e) => {
+      try { const d = JSON.parse(e.data); updateAdminBadge(d.count || 0); } catch {}
+    });
+    es.onerror = () => {
+      es.close();
+      (async function poll(){
+        try { const r = await fetch('/api/notificaciones/unread_count'); const j = await r.json(); updateAdminBadge(j.count || 0); } catch {}
+        setTimeout(poll, 30000);
+      })();
+    };
+  } catch (e) {}
 });
 
 async function cargarMetricasDashboard() {

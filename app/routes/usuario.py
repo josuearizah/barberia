@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app import db
 from app.models.usuario import Usuario
+from app.models.notificacion import Notificacion
 
 bp = Blueprint('usuario', __name__)
 
@@ -34,6 +35,22 @@ def register():
             nuevo_usuario.set_password(contrasena)
             db.session.add(nuevo_usuario)
             db.session.commit()
+            # Notificar a administradores sobre nuevo registro
+            try:
+                admins = Usuario.query.filter_by(rol='admin').all()
+                for a in admins:
+                    n = Notificacion(
+                        usuario_id=a.id,
+                        titulo='Nuevo usuario registrado',
+                        mensaje=f"Se registró {nombre} {apellido}",
+                        tipo='usuario',
+                        prioridad='baja',
+                        data={"url": "/clientes"}
+                    )
+                    db.session.add(n)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
 
             flash('Registro exitoso. Ya puedes iniciar sesión.', 'success')
             return redirect(url_for('auth.login'))
