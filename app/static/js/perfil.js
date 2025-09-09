@@ -351,10 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ----------------- Cambiar contraseña (sin bloquear por reglas visuales) -----------------
   function validateNewPasswordForSubmit(pw) {
-    // NO se valida longitud mínima ahora (solo evitar vacío).
-    return !!pw;
-    // Para ACTIVAR más adelante:
-    // return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(pw);
+    return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(pw);
   }
 
   if (changePasswordBtn) {
@@ -434,11 +431,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // NO bloquear por reglas ahora (solo visual). Para ACTIVAR más tarde, descomenta:
-    // if (!/^(?=.*[A-Z])(?=.*\d).{8,}$/.test(next)) {
-    //   showNotification("La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula", "error");
-    //   return;
-    // }
+    if (!/^(?=.*[A-Z])(?=.*\d).{8,}$/.test(next)) {
+      showNotification("La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula", "error");
+      return;
+    }
 
     if (next !== confirm) {
       showNotification("Las contraseñas no coinciden", "error");

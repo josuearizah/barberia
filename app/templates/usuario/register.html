@@ -169,5 +169,22 @@
       </p>
     </div>
     <script src="{{ url_for('static', filename='js/password2.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/password-rules.js') }}" defer></script>
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function(){
+        if (window.initPasswordRules) {
+          window.initPasswordRules({
+            inputId: 'contrasena',
+            formSelector: 'form',
+            submitSelector: 'button[type="submit"]',
+            ui: {
+              minLengthId: 'reg-pwd-min-length',
+              uppercaseId: 'reg-pwd-uppercase',
+              numberId: 'reg-pwd-number'
+            }
+          });
+        }
+      });
+    </script>
   </body>
 </html>

@@ -3,6 +3,7 @@ from app.models.usuario import Usuario
 from app.models.perfil import Perfil
 from app import db
 import json
+import re
 
 perfil_bp = Blueprint('perfil', __name__)
 
@@ -190,6 +191,10 @@ def cambiar_contrasena():
     # import re
     # if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', new_password):
     #     return jsonify({'success': False, 'message': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
+    
+    # Validación fuerte unificada
+    if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', new_password):
+        return jsonify({'success': False, 'message': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
 
     usuario.set_password(new_password)
     db.session.commit()

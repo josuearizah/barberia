@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+import re
 from app import db
 from app.models.usuario import Usuario
 from app.models.notificacion import Notificacion
@@ -23,6 +24,11 @@ def register():
         except Exception as e:
             print("Error al buscar el correo:", e)
             flash('Error interno al validar el usuario.', 'error')
+            return render_template('usuario/register.html')
+
+        # Validar complejidad de contraseña
+        if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', (contrasena or '')):
+            flash('La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula', 'error')
             return render_template('usuario/register.html')
 
         try:

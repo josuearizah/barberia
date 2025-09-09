@@ -6,6 +6,7 @@ from app.models.cita import Cita
 from app.models.estilo import Estilo
 from app.models.servicio import Servicio
 from datetime import datetime, timedelta
+import re
 import random
 import string
 
@@ -421,6 +422,10 @@ def completar_reset():
     if datetime.now() > usuario.reset_token_expiracion:
         return jsonify({'error': 'Sesión expirada. Inicia el proceso nuevamente.'}), 400
     
+    # Validar complejidad de contraseña
+    if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password or ''):
+        return jsonify({'error': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
+
     # Cambiar contraseña
     usuario.set_password(password)
     
