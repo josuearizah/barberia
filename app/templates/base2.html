@@ -4,9 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% set meta_description = meta_description | default('RG4LBarber: administra citas, clientes y servicios de barbería desde el panel.') %}
+    {% set meta_keywords = meta_keywords | default('panel barbería, RG4L Barber admin, gestión de barbería, citas barbería, servicios barbería') %}
+    {% set canonical_url = canonical_url | default(request.url) %}
+    {% set meta_image = meta_image | default(url_for('static', filename='img/logo2.png', _external=True)) %}
+    {% set default_title = 'Panel RG4LBarber' %}
+
+    <title>{% block title %}Panel RG4LBarber{% endblock %}</title>
+    {% set computed_title = self.title() | trim if self.title is defined else default_title %}
+    {% set meta_title = meta_title | default(computed_title if computed_title else default_title) %}
     <meta name="description" content="{{ meta_description }}">
+    <meta name="keywords" content="{{ meta_keywords }}">
+    <meta name="robots" content="{{ meta_robots | default('noindex, nofollow') }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    <meta property="og:locale" content="es_CO">
+    <meta property="og:type" content="{{ og_type | default('website') }}">
+    <meta property="og:site_name" content="{{ og_site_name | default('RG4LBarber') }}">
+    <meta property="og:title" content="{{ meta_title }}">
+    <meta property="og:description" content="{{ meta_description }}">
+    <meta property="og:url" content="{{ og_url | default(canonical_url) }}">
+    {% if meta_image %}<meta property="og:image" content="{{ meta_image }}">{% endif %}
+
+    <meta name="twitter:card" content="{{ twitter_card | default(meta_image and 'summary_large_image' or 'summary') }}">
+    <meta name="twitter:title" content="{{ meta_title }}">
+    <meta name="twitter:description" content="{{ meta_description }}">
+    {% if meta_image %}<meta name="twitter:image" content="{{ meta_image }}">{% endif %}
+
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo2.png') }}">
-    <title>{% block title %}Barbería{% endblock %}</title>
 
     <!-- Tailwind CDN solo aquí -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,6 +48,5 @@
         {% block content %}{% endblock %}
     </main>
 
-    
 </body>
 </html>

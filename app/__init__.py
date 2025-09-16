@@ -56,6 +56,7 @@ def create_app():
     from app.routes import pago
     from app.routes import factura
     from app.routes import notificacion
+    from app.routes import seo
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuario.bp)
     app.register_blueprint(cita.cita_bp)
@@ -68,6 +69,7 @@ def create_app():
     app.register_blueprint(pago.pago_bp)  # Registra el blueprint de pagos
     app.register_blueprint(factura.factura_bp)  # Registra el blueprint de facturas
     app.register_blueprint(notificacion.notificacion_bp)  # Registra el blueprint de notificaciones
+    app.register_blueprint(seo.seo_bp)  # Rutas SEO (sitemap y robots)
 
     @app.context_processor
     def inject_perfil_actual():

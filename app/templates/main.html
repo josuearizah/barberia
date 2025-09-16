@@ -1,5 +1,44 @@
-{% extends 'base.html' %} {% block title %}RG4LBarber{% endblock %} {% block
-content %}
+{% extends 'base.html' %}
+{% set meta_title = 'RG4LBarber | Barbería en Vélez, Santander' %}
+{% set meta_description = 'Reserva tu cita en RG4LBarber, la barbería en Vélez, Santander, especializada en cortes modernos, afeitados clásicos y diseños personalizados.' %}
+{% set meta_keywords = 'barbería Vélez, RG4LBarber, corte de cabello hombre, barbería en Santander, afeitado profesional, diseño de barba' %}
+{% set canonical_url = url_for('auth.index', _external=True) %}
+{% set meta_image = url_for('static', filename='img/logo2.png', _external=True) %}
+{% set structured_data = {
+    '@context': 'https://schema.org',
+    '@type': 'Barbershop',
+    'name': 'RG4LBarber',
+    'image': meta_image,
+    'url': canonical_url,
+    'telephone': '+57 313 851 2244',
+    'priceRange': '$$',
+    'description': meta_description,
+    'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': 'Carrera 10 #1-41, Barrio Centro',
+        'addressLocality': 'Vélez',
+        'addressRegion': 'Santander',
+        'postalCode': '685567',
+        'addressCountry': 'CO'
+    },
+    'geo': {
+        '@type': 'GeoCoordinates',
+        'latitude': 6.013697,
+        'longitude': -73.672278
+    },
+    'openingHoursSpecification': [{
+        '@type': 'OpeningHoursSpecification',
+        'dayOfWeek': ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+        'opens': '09:00',
+        'closes': '20:00'
+    }],
+    'sameAs': [
+        'https://www.instagram.com/rg4l_barber_.19?igsh=YzljYTk1ODg3Zg==',
+        'https://www.facebook.com'
+    ]
+} %}
+{% block title %}RG4LBarber | Barbería en Vélez, Santander{% endblock %}
+{% block content %}
 
 <!-- Hero Section -->
 <section id="inicio" class="hero-pattern text-white pt-16 relative overflow-hidden">
