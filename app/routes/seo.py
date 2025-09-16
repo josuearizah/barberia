@@ -51,3 +51,10 @@ def sitemap():
     xml_lines.append("</urlset>")
 
     return Response("\n".join(xml_lines), mimetype='application/xml')
+
+
+@seo_bp.route('/googlee73b57cd67bfb3d7.html')
+def google_site_verification():
+    """Serve Google Search Console verification file without storing it on disk."""
+    content = "google-site-verification: googlee73b57cd67bfb3d7.html"
+    return Response(content, mimetype='text/plain')
