@@ -210,7 +210,8 @@ async function cargarMetricasDashboard() {
   const elClientes = document.getElementById('stat-clientes');
   const elIngresos = document.getElementById('stat-ingresos');
   const elVistas = document.getElementById('stat-vistas');
-  if (!elClientes || !elIngresos || !elVistas) return;
+  const elCitasCompletadas = document.getElementById('stat-citas-completadas');
+  if (!elClientes || !elIngresos || !elVistas || !elCitasCompletadas) return;
 
   // Cambiar a la ruta SINGULAR que tienes en metrica.py
   const res = await fetch('/api/metrica/dashboard', { headers: { 'Cache-Control': 'no-cache' } });
@@ -220,6 +221,7 @@ async function cargarMetricasDashboard() {
   elClientes.textContent = data.total_clientes ?? 0;
   elIngresos.textContent = `$${Number(data.total_ingresos ?? 0).toFixed(2)}`;
   elVistas.textContent = data.total_vistas ?? 0;
+  elCitasCompletadas.textContent = data.total_citas_completadas ?? 0;
 }
 
 function actualizarEstadoCita(select) {

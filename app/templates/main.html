@@ -2,8 +2,16 @@
 content %}
 
 <!-- Hero Section -->
-<section id="inicio" class="hero-pattern text-white pt-16">
-  <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
+<section id="inicio" class="hero-pattern text-white pt-16 relative overflow-hidden">
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <img
+      src="{{ url_for('static', filename='img/logo2.png') }}"
+      alt="Logo RG4LBarber"
+      class="w-[260px] md:w-[420px] opacity-50"
+    />
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60 pointer-events-none"></div>
+  <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center relative z-10">
     <div class="text-center max-w-3xl" data-anim-stagger="80">
       <h1 class="text-4xl md:text-6xl font-bold mb-6" data-anim="fade-up" data-anim-distance="36">
         ESTILO Y TRADICIÓN PARA EL HOMBRE MODERNO
@@ -278,8 +286,7 @@ content %}
             <div>
               <h4 class="font-bold text-lg">Horario</h4>
               <p class="text-gray-600">
-                Lunes a Viernes: 9:00 am - 1:00 pm <br />
-                2:00 pm - 8:00 pm<br />
+                Lunes a Sábado: 9:00 am - 8:00 pm<br />
                 Domingo: Cerrado
               </p>
             </div>

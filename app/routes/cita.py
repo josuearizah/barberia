@@ -109,9 +109,12 @@ def reservar_cita():
                 telefono_cliente = None
 
             # Crear la cita con el servicio principal
+            hora_reserva = (request.form['time'] or '').strip()
+            hora_legible = _to_12h(hora_reserva).upper() if hora_reserva else hora_reserva
+
             cita = Cita(
                 fecha_cita=fecha,
-                hora=request.form['time'],
+                hora=hora_reserva,
                 notas=request.form.get('notes', ''),
                 usuario_id=session['usuario_id'],
                 barbero_id=barbero_id,
@@ -130,10 +133,15 @@ def reservar_cita():
                 n = Notificacion(
                     usuario_id=barbero_id,
                     titulo='Nueva cita reservada',
-                    mensaje=f"{nombre_cli} reservó una cita para {fecha.strftime('%Y-%m-%d')} a las {request.form['time']}",
+                    mensaje=f"{nombre_cli} reservó una cita para {fecha.strftime('%Y-%m-%d')} a las {hora_legible}",
                     tipo='cita',
                     prioridad='alta',
-                    data={"url": "/dashboard"}
+                    data={
+                        "url": "/dashboard",
+                        "fecha": fecha.strftime('%Y-%m-%d'),
+                        "hora": hora_legible,
+                        "cita_id": cita.id
+                    }
                 )
                 db.session.add(n)
                 db.session.commit()
@@ -225,7 +233,9 @@ def actualizar_cita(cita_id):
 def eliminar_cita(cita_id):
     # [código sin cambios]
     try:
-        cita = Cita.query.get_or_404(cita_id)
+        cita = Cita.query.get(cita_id)
+        if not cita:
+            return jsonify({'error': 'Cita no encontrada'}), 404
         if cita.usuario_id != session.get('usuario_id'):
             return jsonify({'error': 'No tienes permiso para eliminar esta cita'}), 403
         barbero_id = cita.barbero_id

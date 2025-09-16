@@ -78,13 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     filteredUsuarios.forEach((user) => {
       const tr = document.createElement("tr")
-      tr.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.nombre} ${user.apellido}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.telefono}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.correo}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.rol}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-center relative">
+      const userId = Number(user.id)
+      const isProtectedAdmin = userId === 3
+      const isProtectedClient = userId === 6
+      let accionesHtml = ''
+      if (isProtectedAdmin) {
+        accionesHtml = '<span class="text-xs text-gray-400">Administrador protegido</span>'
+      } else if (isProtectedClient) {
+        accionesHtml = '<span class="text-xs text-gray-400">Cliente principal</span>'
+      } else {
+        accionesHtml = `
           <button class="popover-toggle text-gray-400 hover:text-gray-300 p-1 rounded-lg hover:bg-gray-700 transition-colors" data-user-id="${user.id}">
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 12h.01M12 12h.01M18 12h.01"/>
@@ -110,7 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
               </li>
             </ul>
           </div>
-        </td>
+        `
+      }
+      tr.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.nombre} ${user.apellido}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.telefono}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.correo}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.rol}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-center relative">${accionesHtml}</td>
       `
       tableBody.appendChild(tr)
     })
@@ -193,13 +204,15 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),
       })
+      const result = await response.json().catch(() => ({}))
       if (response.ok) {
         await cargarUsuarios()
       } else {
-        console.error("Error al actualizar usuario")
+        alert(result.error || "Error al actualizar usuario")
       }
     } catch (error) {
       console.error("Error:", error)
+      alert("Error al actualizar usuario")
     }
   }
 
@@ -208,13 +221,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch(`/api/usuarios/${id}`, {
         method: "DELETE",
       })
+      const result = await response.json().catch(() => ({}))
       if (response.ok) {
         await cargarUsuarios()
       } else {
-        console.error("Error al eliminar usuario")
+        alert(result.error || "Error al eliminar usuario")
       }
     } catch (error) {
       console.error("Error:", error)
+      alert("Error al eliminar usuario")
     }
   }
 

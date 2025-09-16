@@ -44,7 +44,7 @@ def crear_pago():
         recibido = data.get('monto_recibido')
         notas = (data.get('notas') or '').strip() or None
 
-        if metodo not in ('efectivo', 'transferencia'):
+        if metodo not in ('efectivo', 'nequi', 'transferencia'):
             return jsonify({'error': 'Método de pago inválido'}), 400
 
         cita = Cita.query.get(cita_id)

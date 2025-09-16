@@ -14,7 +14,7 @@ class Pago(db.Model):
     cliente_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
     # Información del pago (informativa)
-    metodo = db.Column(db.String(20), nullable=False)  # 'efectivo' | 'transferencia'
+    metodo = db.Column(db.String(20), nullable=False)  # 'efectivo' | 'nequi' | 'transferencia'
     subtotal = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     descuento = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
@@ -27,4 +27,3 @@ class Pago(db.Model):
 
     def __repr__(self):
         return f'<Pago #{self.id} Cita #{self.cita_id} Total {self.total}>'
-

@@ -19,7 +19,7 @@
 <script>
   function estadoPill(estado) {
     if (!estado) return '';
-    const map = { confirmado: 'bg-blue-100 text-blue-700 border-blue-200', cancelado: 'bg-rose-100 text-rose-700 border-rose-200', completado: 'bg-green-100 text-green-700 border-green-200' };
+    const map = { confirmado: 'bg-blue-100 text-blue-700 border-blue-200', cancelado: 'bg-rose-100 text-rose-700 border-rose-200', completado: 'bg-green-100 text-green-700 border-green-200', reservada: 'bg-amber-100 text-amber-700 border-amber-200' };
     const cls = map[estado] || 'bg-gray-100 text-gray-700 border-gray-200';
     const label = estado === 'confirmado' ? 'confirmada' : estado === 'cancelado' ? 'cancelada' : estado === 'completado' ? 'completada' : estado;
     return `<span class="inline-block text-xs font-semibold px-2 py-0.5 rounded border ${cls}">${label}</span>`;
@@ -46,7 +46,20 @@
         const citaId = n.data.cita_id || '';
         const fecha = n.data.fecha || '';
         const hora = n.data.hora || '';
-        bodyHtml = `<p class="text-gray-700 mt-1">Tu cita #${citaId} ha sido ${estadoPill(estado)}.<span class="ml-1 text-gray-500">${fecha && hora ? `Día ${fecha} a las ${hora}` : ''}</span></p>`;
+        let horaFormateada = hora;
+        if (hora) {
+          const [h, m] = hora.split(':');
+          if (!isNaN(h) && !isNaN(m)) {
+            const hours = parseInt(h, 10);
+            const minutes = parseInt(m, 10);
+            let suffix = 'AM';
+            let displayHour = hours % 12;
+            if (displayHour === 0) displayHour = 12;
+            if (hours >= 12) suffix = 'PM';
+            horaFormateada = `${displayHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${suffix}`;
+          }
+        }
+        bodyHtml = `<p class="text-gray-700 mt-1">Tu cita #${citaId} ha sido ${estadoPill(estado)}.<span class="ml-1 text-gray-500">${fecha && horaFormateada ? `Día ${fecha} a las ${horaFormateada}` : ''}</span></p>`;
       } else if (n.mensaje) {
         bodyHtml = `<p class="text-gray-600 mt-1">${n.mensaje}</p>`;
       }

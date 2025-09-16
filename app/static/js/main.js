@@ -233,6 +233,44 @@ async function cargarEstilosGaleria() {
   }
 }
 
+const SOCIAL_NETWORKS_CONFIG = {
+  instagram: {
+    icon: "fab fa-instagram",
+    baseUrl: "https://instagram.com/",
+  },
+  facebook: {
+    icon: "fab fa-facebook",
+    baseUrl: "https://facebook.com/",
+  },
+  x: {
+    icon: "fa-brands fa-x-twitter",
+    baseUrl: "https://x.com/",
+  },
+  twitter: {
+    icon: "fab fa-twitter",
+    baseUrl: "https://twitter.com/",
+  },
+  linkedin: {
+    icon: "fab fa-linkedin",
+    baseUrl: "https://linkedin.com/in/",
+  },
+  youtube: {
+    icon: "fab fa-youtube",
+    baseUrl: "https://youtube.com/@",
+  },
+  tiktok: {
+    icon: "fab fa-tiktok",
+    baseUrl: "https://tiktok.com/@",
+  },
+  whatsapp: {
+    icon: "fab fa-whatsapp",
+    buildUrl: (value) => {
+      const digits = value.replace(/\D/g, "");
+      return digits ? `https://wa.me/${digits}` : "";
+    },
+  },
+};
+
 // Función para cargar los barberos (administradores)
 async function cargarBarberos() {
   try {
@@ -285,6 +323,18 @@ async function cargarBarberos() {
       card.setAttribute("data-anim", "zoom-in");
       card.setAttribute("data-anim-delay", String(i * 90));
 
+      const redesNormalizadas = normalizarRedesSociales(
+        barbero.redes_sociales
+      );
+      const redesHtml = redesNormalizadas
+        .map((red) => {
+          const iconClass = obtenerIconoRedSocial(red.plataforma);
+          return `<a href="${red.url}" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-rose-600 transition-colors">
+                                        <i class="${iconClass} fa-lg"></i>
+                                    </a>`;
+        })
+        .join("");
+
       // HTML interno de la tarjeta
       const contenidoCard = `
                 <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
@@ -320,19 +370,9 @@ async function cargarBarberos() {
                         }
                         
                         ${
-                          barbero.redes_sociales &&
-                          barbero.redes_sociales.length > 0
+                          redesHtml
                             ? `<div class="flex space-x-4">
-                                ${barbero.redes_sociales
-                                  .map((red) => {
-                                    const iconClass = obtenerIconoRedSocial(
-                                      red.red_social
-                                    );
-                                    return `<a href="${red.enlace}" target="_blank" class="text-gray-600 hover:text-rose-600 transition-colors">
-                                        <i class="${iconClass} fa-lg"></i>
-                                    </a>`;
-                                  })
-                                  .join("")}
+                                ${redesHtml}
                               </div>`
                             : ""
                         }
@@ -361,18 +401,94 @@ async function cargarBarberos() {
 
 // Función auxiliar para obtener el icono correcto según la plataforma
 function obtenerIconoRedSocial(plataforma) {
-  const iconos = {
-    instagram: "fab fa-instagram",
-    facebook: "fab fa-facebook",
-    x: "fa-brands fa-x-twitter",
-    twitter: "fab fa-twitter",
-    linkedin: "fab fa-linkedin",
-    youtube: "fab fa-youtube",
-    tiktok: "fab fa-tiktok",
-    whatsapp: "fab fa-whatsapp",
-  };
+  const clave = (plataforma ?? "").toString().trim().toLowerCase();
 
-  return iconos[plataforma.toLowerCase()] || "fas fa-link";
+  if (!clave) {
+    return "fas fa-link";
+  }
+
+  const config = SOCIAL_NETWORKS_CONFIG[clave];
+  return (config && config.icon) || "fas fa-link";
+}
+
+function construirUrlRedSocial(plataforma, valor) {
+  const clave = (plataforma ?? "").toString().trim().toLowerCase();
+  const rawValor = (valor ?? "").toString().trim();
+
+  if (!clave || !rawValor) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(rawValor)) {
+    return rawValor;
+  }
+
+  const config = SOCIAL_NETWORKS_CONFIG[clave];
+
+  if (config && typeof config.buildUrl === "function") {
+    return config.buildUrl(rawValor);
+  }
+
+  if (config && config.baseUrl) {
+    const sanitized = rawValor.replace(/^@/, "");
+    return `${config.baseUrl}${sanitized}`;
+  }
+
+  if (/^[a-z]+:\/\//i.test(rawValor)) {
+    return rawValor;
+  }
+
+  const sanitized = rawValor.replace(/^@/, "");
+  return sanitized ? `https://${sanitized}` : "";
+}
+
+function normalizarRedesSociales(redes) {
+  if (typeof redes === "string") {
+    try {
+      const parsed = JSON.parse(redes);
+      if (Array.isArray(parsed)) {
+        redes = parsed;
+      }
+    } catch (e) {
+      redes = [];
+    }
+  }
+
+  if (!Array.isArray(redes)) {
+    return [];
+  }
+
+  return redes
+    .map((red) => {
+      if (!red || typeof red !== "object") {
+        return null;
+      }
+
+      const plataformaRaw =
+        red.red_social ||
+        red.platform ||
+        red.plataforma ||
+        red.nombre ||
+        "";
+      const valorRaw =
+        red.enlace ||
+        red.link ||
+        red.url ||
+        red.username ||
+        red.usuario ||
+        "";
+
+      const plataforma = plataformaRaw.toString().trim().toLowerCase();
+      const valor = valorRaw.toString().trim();
+      const url = construirUrlRedSocial(plataforma, valor);
+
+      if (!plataforma || !url) {
+        return null;
+      }
+
+      return { plataforma, url };
+    })
+    .filter(Boolean);
 }
 
 async function registrarVistaHome() {

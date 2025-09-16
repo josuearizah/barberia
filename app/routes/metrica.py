@@ -3,6 +3,7 @@ from sqlalchemy import func, cast, Float
 from app import db
 from app.models.usuario import Usuario
 from app.models.ingreso import Ingreso
+from app.models.cita import Cita
 from app.models.visita import VisitaPagina
 
 metrica_bp = Blueprint('metrica', __name__)
@@ -36,13 +37,21 @@ def metrica_dashboard():
         barbero_id = session.get('usuario_id') if session.get('rol') == 'admin' else None
 
         total_ingresos_q = db.session.query(func.coalesce(func.sum(cast(Ingreso.monto, Float)), 0.0))
+        total_citas_completadas_q = db.session.query(func.count(Cita.id))
+
         if barbero_id is not None and session.get('rol') == 'admin':
             total_ingresos_q = total_ingresos_q.filter(Ingreso.barbero_id == barbero_id)
+            total_citas_completadas_q = total_citas_completadas_q.filter(
+                Cita.barbero_id == barbero_id,
+                func.lower(Cita.estado) == 'completado'
+            )
         else:
-            # Si no hay barbero_id o no es admin, no exponemos ingresos de otros.
-            # Devolvemos 0 para evitar filtrado global no deseado.
+            # Si no hay barbero_id o no es admin, no exponemos datos de otros barberos.
             total_ingresos_q = total_ingresos_q.filter(False)
+            total_citas_completadas_q = total_citas_completadas_q.filter(False)
+
         total_ingresos = float(total_ingresos_q.scalar() or 0.0)
+        total_citas_completadas = int(total_citas_completadas_q.scalar() or 0)
 
         vistas_home = VisitaPagina.query.filter_by(ruta='/').first()
         total_vistas = int(vistas_home.contador) if vistas_home else 0
@@ -50,7 +59,8 @@ def metrica_dashboard():
         return jsonify({
             'total_clientes': int(total_clientes),
             'total_ingresos': total_ingresos,
-            'total_vistas': total_vistas
+            'total_vistas': total_vistas,
+            'total_citas_completadas': total_citas_completadas
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

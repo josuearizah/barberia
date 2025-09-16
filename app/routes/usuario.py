@@ -4,6 +4,9 @@ from app import db
 from app.models.usuario import Usuario
 from app.models.notificacion import Notificacion
 
+OWNER_ADMIN_ID = 3
+PROTECTED_CLIENT_ID = 6
+
 bp = Blueprint('usuario', __name__)
 
 # ========== REGISTRO ==========
@@ -90,7 +93,10 @@ def actualizar_usuario(id):
     usuario = Usuario.query.get_or_404(id)
     data = request.json
     if 'rol' in data:
-        usuario.rol = data['rol']
+        nuevo_rol = data['rol']
+        if id == OWNER_ADMIN_ID and nuevo_rol != usuario.rol:
+            return jsonify({'error': 'No se puede cambiar el rol del administrador principal'}), 400
+        usuario.rol = nuevo_rol
     db.session.commit()
     return jsonify({'success': True}), 200
 
@@ -99,6 +105,8 @@ def eliminar_usuario(id):
     if session.get('rol') != 'admin':
         return jsonify({'error': 'No autorizado'}), 403
     usuario = Usuario.query.get_or_404(id)
+    if id in (OWNER_ADMIN_ID, PROTECTED_CLIENT_ID):
+        return jsonify({'error': 'Este usuario está protegido y no puede eliminarse'}), 400
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({'success': True}), 200
