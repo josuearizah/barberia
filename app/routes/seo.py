@@ -54,7 +54,14 @@ def sitemap():
 
 
 @seo_bp.route('/googlee73b57cd67bfb3d7.html')
-def google_site_verification():
+def google_site_verification_1():
     """Serve Google Search Console verification file without storing it on disk."""
     content = "google-site-verification: googlee73b57cd67bfb3d7.html"
+    return Response(content, mimetype='text/plain')
+
+
+@seo_bp.route('/google6f369f2468fa7102.html')
+def google_site_verification_2():
+    """Serve additional Google verification file."""
+    content = "google-site-verification: google6f369f2468fa7102.html"
     return Response(content, mimetype='text/plain')
