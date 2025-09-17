@@ -4,6 +4,8 @@ from app.models.perfil import Perfil
 from app import db
 import json
 import re
+import os
+import cloudinary.uploader
 
 perfil_bp = Blueprint('perfil', __name__)
 
@@ -26,6 +28,21 @@ def _parse_redes(perfil: Perfil):
         except Exception:
             pass
     return redes
+
+
+def _extract_public_id(image_url: str) -> str:
+    if not image_url:
+        return None
+    try:
+        path = image_url.split('/upload/', 1)[1]
+        path = path.split('?', 1)[0]
+        if path.startswith('v') and '/' in path:
+            path = path.split('/', 1)[1]
+        if path.startswith('v') and path[1:].isdigit():
+            return None
+        return os.path.splitext(path)[0]
+    except Exception:
+        return None
 
 @perfil_bp.route('/perfil')
 def perfil():
@@ -92,7 +109,12 @@ def obtener_datos():
         'perfil': {
             'descripcion': perfil.descripcion if perfil else None,
             'imagen': perfil.imagen if perfil else None,
+            'profileImage': perfil.imagen if perfil else None,
             'redes_sociales': redes,
+        },
+        'profile': {
+            'name': f"{usuario.nombre} {usuario.apellido}".strip(),
+            'profileImage': perfil.imagen if perfil else None,
         }
     })
 
@@ -132,7 +154,63 @@ def guardar_perfil():
 
 @perfil_bp.route('/perfil/subir-imagen', methods=['POST'])
 def subir_imagen():
-    return jsonify({'success': False, 'message': 'No implementado'}), 501
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+
+    imagen = request.files.get('file')
+    if not imagen or not imagen.filename:
+        return jsonify({'success': False, 'message': 'Archivo no proporcionado'}), 400
+
+    extension = os.path.splitext(imagen.filename)[1].lower().lstrip('.')
+    if extension and extension not in {'jpg', 'jpeg', 'png', 'gif', 'webp'}:
+        return jsonify({'success': False, 'message': 'Formato de imagen no permitido'}), 400
+
+    try:
+        upload_result = cloudinary.uploader.upload(imagen, folder='perfil')
+        image_url = upload_result.get('secure_url')
+        if not image_url:
+            raise ValueError('No se recibio URL de la imagen')
+
+        perfil = Perfil.query.filter_by(usuario_id=session['usuario_id']).first()
+        if not perfil:
+            perfil = Perfil(usuario_id=session['usuario_id'])
+            db.session.add(perfil)
+
+        perfil.imagen = image_url
+        db.session.commit()
+
+        return jsonify({'success': True, 'image_url': image_url})
+    except Exception as exc:
+        current_app.logger.exception('Error al subir imagen de perfil: %s', exc)
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Error al subir imagen'}), 500
+
+@perfil_bp.route('/perfil/eliminar-imagen', methods=['POST'])
+def eliminar_imagen():
+    if 'usuario_id' not in session:
+        return jsonify({'success': False, 'message': 'No autorizado'}), 401
+
+    perfil = Perfil.query.filter_by(usuario_id=session['usuario_id']).first()
+    if not perfil or not perfil.imagen:
+        return jsonify({'success': True, 'image_url': None})
+
+    old_url = perfil.imagen
+    perfil.imagen = None
+    try:
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        current_app.logger.exception('Error al eliminar imagen de perfil: %s', exc)
+        return jsonify({'success': False, 'message': 'Error al eliminar imagen'}), 500
+
+    public_id = _extract_public_id(old_url)
+    if public_id:
+        try:
+            cloudinary.uploader.destroy(public_id)
+        except Exception as exc:
+            current_app.logger.warning('No se pudo eliminar imagen en Cloudinary: %s', exc)
+
+    return jsonify({'success': True, 'image_url': None})
 
 # -------- Seguridad: verificar, cambiar contraseña y eliminar cuenta --------
 

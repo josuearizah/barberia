@@ -43,9 +43,10 @@ function loadUserData() {
   fetch("/perfil/datos")
     .then((response) => response.json())
     .then((data) => {
-      if (data.success && data.profile) {
-        updateNavbarAvatar(data.profile.profileImage, `${data.profile.name}`);
-      }
+      if (!data.success) return;
+      const imageUrl = data.profile?.profileImage ?? data.perfil?.imagen ?? null;
+      const displayName = data.profile?.name ?? `${(data.usuario?.nombre || '').trim()} ${(data.usuario?.apellido || '').trim()}`.trim();
+      updateNavbarAvatar(imageUrl, displayName);
     })
     .catch((error) => {
       console.error("Error al cargar datos del usuario:", error);

@@ -27,9 +27,9 @@ def create_app():
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'josue091206@gmail.com')  # Usa variables de entorno si es posible
-    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'hohu nfab lxzg lvvg')  # O escribe directamente la contraseña de aplicación
-    app.config['MAIL_DEFAULT_SENDER'] = ('RG4LBarber', os.environ.get('MAIL_USERNAME', 'josue091206@gmail.com'))
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'rg4lbarbervelez@gmail.com')  # Usa variables de entorno si es posible
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'bvlf rkke kilc sbpi')  # O escribe directamente la contraseña de aplicación
+    app.config['MAIL_DEFAULT_SENDER'] = ('RG4LBarber', os.environ.get('MAIL_USERNAME', 'rg4lbarber@gmail.com'))
 
     db.init_app(app)
     mail.init_app(app)

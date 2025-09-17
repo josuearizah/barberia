@@ -220,6 +220,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800);
   }
 
+  async function removeProfileImageFromServer() {
+    const res = await fetch('/perfil/eliminar-imagen', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || 'Error al eliminar imagen');
+    }
+    return data;
+  }
+
   // Llamadas al backend
   async function loadUserData() {
     try {
@@ -231,7 +240,8 @@ document.addEventListener("DOMContentLoaded", () => {
       userProfile.apellido = data.usuario?.apellido || userProfile.apellido;
       userProfile.telefono = data.usuario?.telefono || userProfile.telefono;
       userProfile.descripcion = data.perfil?.descripcion || userProfile.descripcion;
-      userProfile.profileImage = data.perfil?.imagen || null;
+      const fetchedImage = data.profile?.profileImage ?? data.perfil?.imagen ?? null;
+      userProfile.profileImage = fetchedImage;
 
       userSocialNetworks = Array.isArray(data.perfil?.redes_sociales) ? data.perfil.redes_sociales : [];
 
@@ -564,20 +574,40 @@ document.addEventListener("DOMContentLoaded", () => {
   // Foto de perfil
   changePhotoBtn?.addEventListener("click", () => openModal(changePhotoModal));
   closePhotoModal?.addEventListener("click", () => closeModal(changePhotoModal));
-  keepInitialsBtn?.addEventListener("click", () => {
-    userProfile.profileImage = null;
-    updateAvatarUI(null);
-    autoSavePerfil();
-    showNotification("Se usarán las iniciales", "success");
-    closeModal(changePhotoModal);
+  keepInitialsBtn?.addEventListener("click", async () => {
+    try {
+      await removeProfileImageFromServer();
+      userProfile.profileImage = null;
+      updateAvatarUI(null);
+      document.dispatchEvent(new CustomEvent("profileImageUpdated", {
+        detail: {
+          imageUrl: null,
+          name: `${userProfile.nombre || ''} ${userProfile.apellido || ''}`.trim(),
+        },
+      }));
+      showNotification("Se usarán las iniciales", "success");
+      closeModal(changePhotoModal);
+    } catch (err) {
+      showNotification("Error al eliminar la imagen", "error");
+    }
   });
-  removePhotoBtn?.addEventListener("click", () => {
+  removePhotoBtn?.addEventListener("click", async () => {
     if (!confirm("¿Eliminar foto de perfil?")) return;
-    userProfile.profileImage = null;
-    updateAvatarUI(null);
-    autoSavePerfil();
-    showNotification("Foto de perfil eliminada", "success");
-    closeModal(changePhotoModal);
+    try {
+      await removeProfileImageFromServer();
+      userProfile.profileImage = null;
+      updateAvatarUI(null);
+      document.dispatchEvent(new CustomEvent("profileImageUpdated", {
+        detail: {
+          imageUrl: null,
+          name: `${userProfile.nombre || ''} ${userProfile.apellido || ''}`.trim(),
+        },
+      }));
+      showNotification("Foto de perfil eliminada", "success");
+      closeModal(changePhotoModal);
+    } catch (err) {
+      showNotification("Error al eliminar la imagen", "error");
+    }
   });
   uploadPhotoBtn?.addEventListener("click", () => photoInput?.click());
   photoInput?.addEventListener("change", async (e) => {
@@ -592,6 +622,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok && data.success && data.image_url) {
         userProfile.profileImage = data.image_url;
         updateAvatarUI(data.image_url);
+        document.dispatchEvent(new CustomEvent("profileImageUpdated", {
+          detail: {
+            imageUrl: data.image_url,
+            name: `${userProfile.nombre || ''} ${userProfile.apellido || ''}`.trim(),
+          },
+        }));
         autoSavePerfil();
         showNotification("Foto de perfil actualizada", "success");
         closeModal(changePhotoModal);
