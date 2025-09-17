@@ -9,6 +9,28 @@ const mobileAuthButtons = document.getElementById("mobile-auth-buttons");
 const mobileLinks = document.querySelectorAll(".mobile-link");
 
 let menuOpen = false;
+
+function setMenuState(open) {
+  menuOpen = open;
+  menuBtn.setAttribute("aria-expanded", String(open));
+  menuBtn.setAttribute("aria-label", open ? "Cerrar menú de navegación" : "Abrir menú de navegación");
+
+  mobileMenu.classList.toggle("translate-x-full", !open);
+  mobileMenu.classList.toggle("translate-x-0", open);
+  overlay.classList.toggle("hidden", !open);
+
+  if (open) {
+    bar1.classList.add("rotate-45", "translate-y-1.5");
+    bar2.classList.add("opacity-0");
+    bar3.classList.add("-rotate-45", "-translate-y-1.5");
+  } else {
+    bar1.classList.remove("rotate-45", "translate-y-1.5");
+    bar2.classList.remove("opacity-0");
+    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
+  }
+}
+
+setMenuState(false);
 const isLoggedIn = false; // Cambia a true para simular sesión iniciada
 
 // Mostrar botón Reservar si está logueado, sino Iniciar Sesión/Registrarse
@@ -110,39 +132,15 @@ document.addEventListener("profileImageUpdated", (event) => {
 });
 
 menuBtn.addEventListener("click", () => {
-  menuOpen = !menuOpen;
-  mobileMenu.classList.toggle("translate-x-full");
-  mobileMenu.classList.toggle("translate-x-0");
-  overlay.classList.toggle("hidden");
-  if (menuOpen) {
-    bar1.classList.add("rotate-45", "translate-y-1.5");
-    bar2.classList.add("opacity-0");
-    bar3.classList.add("-rotate-45", "-translate-y-1.5");
-  } else {
-    bar1.classList.remove("rotate-45", "translate-y-1.5");
-    bar2.classList.remove("opacity-0");
-    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
-  }
+  setMenuState(!menuOpen);
 });
 
 overlay.addEventListener("click", () => {
-  menuOpen = false;
-  mobileMenu.classList.add("translate-x-full");
-  mobileMenu.classList.remove("translate-x-0");
-  overlay.classList.add("hidden");
-  bar1.classList.remove("rotate-45", "translate-y-1.5");
-  bar2.classList.remove("opacity-0");
-  bar3.classList.remove("-rotate-45", "-translate-y-1.5");
+  setMenuState(false);
 });
 
 mobileLinks.forEach((link) => {
   link.addEventListener("click", () => {
-    menuOpen = false;
-    mobileMenu.classList.add("translate-x-full");
-    mobileMenu.classList.remove("translate-x-0");
-    overlay.classList.add("hidden");
-    bar1.classList.remove("rotate-45", "translate-y-1.5");
-    bar2.classList.remove("opacity-0");
-    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
+    setMenuState(false);
   });
 });

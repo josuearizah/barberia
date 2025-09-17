@@ -29,11 +29,10 @@
       class="w-full max-w-md mx-6 bg-gray-800 text-white shadow-lg rounded-lg p-6 mt-6 mb-8"
     >
       <div class="flex justify-center mb-4">
-        <img
-          src="{{ url_for('static', filename='img/logo2.png') }}"
-          alt="Logo Barbería"
-          class="h-16 w-auto object-contain p-0"
-        />
+        <picture class="block">
+          <source srcset="{{ url_for('static', filename='img/logo2-260.webp') }}" type="image/webp">
+          <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" width="260" height="260" class="h-16 w-auto object-contain p-0" loading="lazy">
+        </picture>
       </div>
       <h2 class="text-3xl font-bold text-center mb-8">Iniciar Sesión</h2>
 
