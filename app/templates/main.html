@@ -38,23 +38,16 @@
     ]
 } %}
 {% block title %}RG4LBarber | Barbería en Vélez, Santander{% endblock %}
-{% block head %}
-    {{ super() }}
-    <link rel="preload" as="image" href="{{ url_for('static', filename='img/logo2-420.webp') }}" imagesrcset="{{ url_for('static', filename='img/logo2-420.webp') }} 420w, {{ url_for('static', filename='img/logo2-840.webp') }} 840w, {{ url_for('static', filename='img/logo2-260.webp') }} 260w, {{ url_for('static', filename='img/logo2-520.webp') }} 520w" imagesizes="(min-width: 768px) 420px, 260px" fetchpriority="high" type="image/webp">
-    <link rel="preload" as="image" href="{{ url_for('static', filename='img/logo2.png') }}" imagesizes="(min-width: 768px) 420px, 260px" fetchpriority="high" type="image/png">
-{% endblock %}
-
-
 {% block content %}
 
 <!-- Hero Section -->
 <section id="inicio" class="hero-pattern text-white pt-16 relative overflow-hidden">
   <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-    <picture>
-      <source srcset="{{ url_for('static', filename='img/logo2-420.webp') }} 1x, {{ url_for('static', filename='img/logo2-840.webp') }} 2x" media="(min-width: 768px)" type="image/webp">
-      <source srcset="{{ url_for('static', filename='img/logo2-260.webp') }} 1x, {{ url_for('static', filename='img/logo2-520.webp') }} 2x" type="image/webp">
-      <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo RG4LBarber" width="420" height="420" class="w-[260px] md:w-[420px] opacity-60" fetchpriority="high" decoding="async">
-    </picture>
+    <img
+      src="{{ url_for('static', filename='img/logo2.png') }}"
+      alt="Logo RG4LBarber"
+      class="w-[260px] md:w-[420px] opacity-60"
+    />
   </div>
   <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/60 pointer-events-none"></div>
   <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col items-center relative z-10">
@@ -372,7 +365,6 @@
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           class="w-full h-full min-h-[400px]"
-          title="Mapa de la barbería RG4L en Google Maps"
         >
         </iframe>
       </div>

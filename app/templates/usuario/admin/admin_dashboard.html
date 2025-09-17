@@ -85,10 +85,7 @@
     <div class="flex flex-col h-full">
       <div class="px-6 pt-4 flex justify-between items-center mb-1">
         <a class="flex items-center space-x-2 rounded-md text-xl font-semibold" href="{{ url_for('auth.dashboard') }}" aria-label="Logo">
-          <picture class="block">
-            <source srcset="{{ url_for('static', filename='img/logo2-260.webp') }} 1x, {{ url_for('static', filename='img/logo2-520.webp') }} 2x" type="image/webp">
-            <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" width="160" height="160" class="h-10 w-auto object-contain hover:scale-110 transition-transform duration-200" loading="lazy">
-          </picture>
+          <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" class="h-10 w-auto object-contain hover:scale-110 transition-transform duration-200" />
           <span class="sidebar-text">
             <span class="text-white">RG4L</span><span class="text-red-600">BARBER</span>
           </span>

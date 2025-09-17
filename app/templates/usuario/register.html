@@ -29,10 +29,11 @@
       class="w-full max-w-md sm:mx-auto md:mx-auto lg:mx-auto xl:mx-auto mx-6 bg-gray-800 text-white shadow-lg rounded-lg p-6 mt-8 mb-8"
     >
       <div class="flex justify-center mb-4">
-        <picture class="block">
-          <source srcset="{{ url_for('static', filename='img/logo2-260.webp') }} 1x, {{ url_for('static', filename='img/logo2-520.webp') }} 2x" type="image/webp">
-          <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" width="260" height="260" class="h-16 w-auto object-contain p-0" loading="lazy">
-        </picture>
+        <img
+          src="{{ url_for('static', filename='img/logo2.png') }}"
+          alt="Logo Barbería"
+          class="h-16 w-auto object-contain p-0"
+        />
       </div>
       <h2 class="text-3xl font-bold text-center mb-8">Crear Cuenta</h2>
 

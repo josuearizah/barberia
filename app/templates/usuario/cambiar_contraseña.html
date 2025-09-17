@@ -7,10 +7,11 @@ RG4LBarber{% endblock %} {% block content %}
     class="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-lg shadow-lg text-white"
   >
     <div class="flex justify-center">
-      <picture class="block">
-        <source srcset="{{ url_for('static', filename='img/logo2-260.webp') }} 1x, {{ url_for('static', filename='img/logo2-520.webp') }} 2x" type="image/webp">
-        <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Barbería" width="260" height="260" class="h-16 w-auto object-contain p-0" loading="lazy">
-      </picture>
+      <img
+        src="{{ url_for('static', filename='img/logo2.png') }}"
+        alt="Logo Barbería"
+        class="h-16 w-auto object-contain p-0"
+      />
     </div>
     <h2 class="mt-6 text-center text-2xl font-bold">Restablecer Contraseña</h2>
 

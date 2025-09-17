@@ -69,24 +69,15 @@
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo2.png') }}">
 
-    <!-- Tailwind CDN solo aqui -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- Tailwind CDN solo aquí -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/reservar.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/scroll-anim.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
-    <script src="https://cdn.tailwindcss.com" defer></script>
-
-    <link rel="preload" href="{{ url_for('static', filename='css/scroll-anim.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-
-    <noscript>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/scroll-anim.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap">
-    </noscript>
     {% block head %}{% endblock %}
 </head>
 <!-- base.html -->
@@ -100,9 +91,8 @@
 
     {% include 'components/footer.html' %}
 
-    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/reservar.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/navbar.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='js/scroll-anim.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scroll-anim.js') }}"></script>
+
 </body>
 </html>

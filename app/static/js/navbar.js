@@ -9,44 +9,12 @@ const mobileAuthButtons = document.getElementById("mobile-auth-buttons");
 const mobileLinks = document.querySelectorAll(".mobile-link");
 
 let menuOpen = false;
-
-function setMenuState(open) {
-  if (!menuBtn || !mobileMenu || !overlay || !bar1 || !bar2 || !bar3) {
-    return;
-  }
-
-  menuOpen = open;
-  menuBtn.setAttribute("aria-expanded", String(open));
-  menuBtn.setAttribute("aria-label", open ? "Cerrar menu de navegacion" : "Abrir menu de navegacion");
-
-  mobileMenu.classList.toggle("translate-x-full", !open);
-  mobileMenu.classList.toggle("translate-x-0", open);
-  overlay.classList.toggle("hidden", !open);
-
-  if (open) {
-    bar1.classList.add("rotate-45", "translate-y-1.5");
-    bar2.classList.add("opacity-0");
-    bar3.classList.add("-rotate-45", "-translate-y-1.5");
-  } else {
-    bar1.classList.remove("rotate-45", "translate-y-1.5");
-    bar2.classList.remove("opacity-0");
-    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
-  }
-}
-
-setMenuState(false);
-
-const rawAuthState = (document.body && document.body.getAttribute("data-usuario-logueado")) || "false";
-const isLoggedIn = rawAuthState.toString().toLowerCase() === "true";
+const isLoggedIn = false; // Cambia a true para simular sesión iniciada
 
 // Mostrar botón Reservar si está logueado, sino Iniciar Sesión/Registrarse
 if (isLoggedIn) {
-  if (authButtons) {
-    authButtons.innerHTML = `<a href="/reservar" class="bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-md text-white font-medium transition text-sm">Reservar</a>`;
-  }
-  if (mobileAuthButtons) {
-    mobileAuthButtons.innerHTML = `<a href="/reservar" class="block bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-md text-white font-medium text-center transition">Reservar</a>`;
-  }
+  authButtons.innerHTML = `<a href="/reservar" class="bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-md text-white font-medium transition text-sm">Reservar</a>`;
+  mobileAuthButtons.innerHTML = `<a href="/reservar" class="block bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-md text-white font-medium text-center transition">Reservar</a>`;
 }
 
 // Función para actualizar los avatares del navbar
@@ -85,9 +53,7 @@ function loadUserData() {
 }
 
 // Inicializar el avatar al cargar la página
-if (isLoggedIn) {
-  loadUserData();
-}
+loadUserData();
 
 // Notifications: SSE stream + fallback count poll
 function updateNotifBadges(count) {
@@ -134,17 +100,8 @@ function startSSE() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (isLoggedIn) {
-    const initSSE = () => startSSE();
-
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(initSSE, { timeout: 2000 });
-    } else {
-      setTimeout(initSSE, 1200);
-    }
-  } else {
-    updateNotifBadges(0);
-  }
+  // Solo iniciar si hay sesión (el backend retornará 401 si no)
+  startSSE();
 });
 
 // Listener para actualizar el avatar cuando se cambia en perfil.js
@@ -152,19 +109,40 @@ document.addEventListener("profileImageUpdated", (event) => {
   updateNavbarAvatar(event.detail.imageUrl, event.detail.name);
 });
 
-if (menuBtn && mobileMenu && overlay && bar1 && bar2 && bar3) {
-  menuBtn.addEventListener("click", () => {
-    setMenuState(!menuOpen);
-  });
+menuBtn.addEventListener("click", () => {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle("translate-x-full");
+  mobileMenu.classList.toggle("translate-x-0");
+  overlay.classList.toggle("hidden");
+  if (menuOpen) {
+    bar1.classList.add("rotate-45", "translate-y-1.5");
+    bar2.classList.add("opacity-0");
+    bar3.classList.add("-rotate-45", "-translate-y-1.5");
+  } else {
+    bar1.classList.remove("rotate-45", "translate-y-1.5");
+    bar2.classList.remove("opacity-0");
+    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
+  }
+});
 
-  overlay.addEventListener("click", () => {
-    setMenuState(false);
-  });
+overlay.addEventListener("click", () => {
+  menuOpen = false;
+  mobileMenu.classList.add("translate-x-full");
+  mobileMenu.classList.remove("translate-x-0");
+  overlay.classList.add("hidden");
+  bar1.classList.remove("rotate-45", "translate-y-1.5");
+  bar2.classList.remove("opacity-0");
+  bar3.classList.remove("-rotate-45", "-translate-y-1.5");
+});
 
-  mobileLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      setMenuState(false);
-    });
+mobileLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    menuOpen = false;
+    mobileMenu.classList.add("translate-x-full");
+    mobileMenu.classList.remove("translate-x-0");
+    overlay.classList.add("hidden");
+    bar1.classList.remove("rotate-45", "translate-y-1.5");
+    bar2.classList.remove("opacity-0");
+    bar3.classList.remove("-rotate-45", "-translate-y-1.5");
   });
-}
-
+});

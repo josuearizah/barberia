@@ -9,45 +9,6 @@ function verificarYReservar() {
   }
 }
 
-const CLOUDINARY_UPLOAD_SEGMENT = "/upload/";
-const FALLBACK_IMAGEN = "https://via.placeholder.com/300x200?text=Imagen+no+disponible";
-const PLACEHOLDER_IMAGEN = "https://via.placeholder.com/300x200?text=Sin+imagen";
-
-function obtenerImagenOptimizada(url, width = 400) {
-  if (!url) {
-    return { src: "", srcset: "" };
-  }
-
-  const usaCloudinary =
-    url.includes("res.cloudinary.com") &&
-    url.includes(CLOUDINARY_UPLOAD_SEGMENT);
-  if (!usaCloudinary) {
-    return { src: url, srcset: "" };
-  }
-
-  const parts = url.split(CLOUDINARY_UPLOAD_SEGMENT);
-  if (parts.length < 2) {
-    return { src: url, srcset: "" };
-  }
-
-  const [prefix, ...rest] = parts;
-  const suffix = rest.join(CLOUDINARY_UPLOAD_SEGMENT);
-  if (!suffix) {
-    return { src: url, srcset: "" };
-  }
-
-  const normalizedWidth = Math.max(1, Math.round(width || 1));
-  const buildUrl = (params) =>
-    `${prefix}${CLOUDINARY_UPLOAD_SEGMENT}${params}/${suffix}`;
-  const baseUrl = buildUrl(`f_auto,q_auto,w_${normalizedWidth}`);
-  const retinaUrl = buildUrl(`f_auto,q_auto,w_${normalizedWidth * 2}`);
-
-  return {
-    src: baseUrl,
-    srcset: `${baseUrl} 1x, ${retinaUrl} 2x`,
-  };
-}
-
 async function cargarServicios() {
   try {
     const response = await fetch("/api/servicios");
@@ -117,16 +78,6 @@ async function cargarServicios() {
         }
       }
 
-      const optimizedImagen = obtenerImagenOptimizada(s.imagen_url, 560);
-      const imagenSrc = (optimizedImagen && optimizedImagen.src) || s.imagen_url || FALLBACK_IMAGEN;
-      const imagenSrcset =
-        optimizedImagen && optimizedImagen.srcset
-          ? ` srcset="${optimizedImagen.srcset}"`
-          : "";
-      const imagenHtml = s.imagen_url
-        ? `<img src="${imagenSrc}"${imagenSrcset} alt="${s.nombre}" class="h-full w-full object-cover" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${FALLBACK_IMAGEN}';">`
-        : '<i class="fas fa-cut text-6xl text-rose-600"></i>';
-
       const div = document.createElement("div");
       div.className = cardClass;
       div.setAttribute("data-anim", "fade-up");
@@ -136,7 +87,11 @@ async function cargarServicios() {
       // HTML del servicio con o sin descuento
       div.innerHTML = `
                 <div class="h-56 bg-gray-800 flex items-center justify-center">
-                    ${imagenHtml}
+                    ${
+                      s.imagen_url
+                        ? `<img src="${s.imagen_url}" alt="${s.nombre}" class="h-full w-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Imagen+no+disponible';">`
+                        : '<i class="fas fa-cut text-6xl text-rose-600"></i>'
+                    }
                 </div>
                 
                 ${
@@ -222,12 +177,7 @@ async function cargarEstilosGaleria() {
     // Generar cards para estilos reales
     for (let i = 0; i < estilosMostrados.length; i++) {
       const e = estilosMostrados[i];
-      const optimizedImagen = e.imagen_url ? obtenerImagenOptimizada(e.imagen_url, 480) : null;
-      const imagenSrc = (optimizedImagen && optimizedImagen.src) || e.imagen_url || PLACEHOLDER_IMAGEN;
-      const imagenSrcset =
-        optimizedImagen && optimizedImagen.srcset
-          ? ` srcset="${optimizedImagen.srcset}"`
-          : "";
+      const img = e.imagen_url || 'https://via.placeholder.com/300x200?text=Sin+imagen';
       const catLabel = {
         corte: 'Corte',
         barba: 'Barba',
@@ -238,7 +188,7 @@ async function cargarEstilosGaleria() {
       items.push(`
         <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition" data-anim="fade-up" data-anim-delay="${i*80}" data-anim-distance="28">
           <div class="relative h-[200px] md:h-[250px] bg-gray-700 overflow-hidden flex items-center justify-center">
-            <img src="${imagenSrc}"${imagenSrcset} alt="${e.nombre}" class="max-w-full max-h-full object-contain object-center" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${PLACEHOLDER_IMAGEN}';">
+            <img src="${img}" alt="${e.nombre}" class="max-w-full max-h-full object-contain object-center" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Sin+imagen';">
           </div>
           <div class="p-2 min-h-[60px] flex items-center bg-gray-800 text-white">
             <div class="flex items-center justify-between w-full">
@@ -363,18 +313,6 @@ async function cargarBarberos() {
 
     // Crear las tarjetas para cada barbero
     barberos.forEach((barbero, i) => {
-      const optimizedBarberoImagen = barbero.imagen
-        ? obtenerImagenOptimizada(barbero.imagen, 640)
-        : null;
-      const barberoImagenSrc =
-        (optimizedBarberoImagen && optimizedBarberoImagen.src) ||
-        barbero.imagen ||
-        PLACEHOLDER_IMAGEN;
-      const barberoImagenSrcset =
-        optimizedBarberoImagen && optimizedBarberoImagen.srcset
-          ? ` srcset="${optimizedBarberoImagen.srcset}"`
-          : "";
-
       const card = document.createElement("div");
 
       // Si solo hay un barbero, centrarlo con ancho máximo
@@ -404,7 +342,7 @@ async function cargarBarberos() {
                         <div class="h-64 bg-gray-200 relative">
                             ${
                               barbero.imagen
-                                ? `<img src="${barberoImagenSrc}"${barberoImagenSrcset} alt="${barbero.nombre}" class="w-full h-full object-cover" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${PLACEHOLDER_IMAGEN}';">`
+                                ? `<img src="${barbero.imagen}" alt="${barbero.nombre}" class="w-full h-full object-cover">`
                                 : `<div class="bg-gray-700 h-full w-full flex items-center justify-center">
                                     <span class="text-4xl font-bold text-white">${barbero.nombre.charAt(
                                       0
