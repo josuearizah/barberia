@@ -133,9 +133,31 @@ def reservar_cita():
                 nombre_cliente = None
                 telefono_cliente = None
 
-            # Crear la cita con el servicio principal
             hora_reserva = (request.form['time'] or '').strip()
             hora_legible = _to_12h(hora_reserva).upper() if hora_reserva else hora_reserva
+
+            if not hora_reserva:
+                raise ValueError("La hora seleccionada no es válida")
+
+            conflicto = Cita.query.filter(
+                Cita.barbero_id == barbero_id,
+                Cita.fecha_cita == fecha,
+                Cita.hora == hora_reserva,
+                Cita.estado != 'cancelado'
+            ).first()
+
+            if conflicto:
+                mensaje_conflicto = (
+                    "El barbero seleccionado ya tiene una cita programada para esa fecha y hora. "
+                    "Por favor elige otro horario o barbero."
+                )
+                return render_template(
+                    'cita/reservar.html',
+                    barberos=barberos,
+                    servicios=servicios,
+                    exito=False,
+                    error_message=mensaje_conflicto
+                )
 
             cita = Cita(
                 fecha_cita=fecha,
