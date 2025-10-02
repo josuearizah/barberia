@@ -177,51 +177,64 @@ async function cargarEstilosGaleria() {
     // Generar cards para estilos reales
     for (let i = 0; i < estilosMostrados.length; i++) {
       const e = estilosMostrados[i];
-      const img = e.imagen_url || 'https://via.placeholder.com/300x200?text=Sin+imagen';
-      const catLabel = {
-        corte: 'Corte',
-        barba: 'Barba',
-        lineas: 'Líneas',
-        disenos: 'Diseños'
-      }[e.categoria] || e.categoria;
+      const img =
+        e.imagen_url || "https://via.placeholder.com/300x200?text=Sin+imagen";
+      const catLabel =
+        {
+          corte: "Corte",
+          barba: "Barba",
+          lineas: "Líneas",
+          disenos: "Diseños",
+        }[e.categoria] || e.categoria;
 
       items.push(`
-        <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition" data-anim="fade-up" data-anim-delay="${i*80}" data-anim-distance="28">
-          <div class="relative h-[200px] md:h-[250px] bg-gray-700 overflow-hidden flex items-center justify-center">
-            <img src="${img}" alt="${e.nombre}" class="max-w-full max-h-full object-contain object-center" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=Sin+imagen';">
-          </div>
-          <div class="p-2 min-h-[60px] flex items-center bg-gray-800 text-white">
-            <div class="flex items-center justify-between w-full">
-              <h3 class="font-semibold truncate">${e.nombre}</h3>
-              <span class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-200 border border-gray-500">${catLabel}</span>
+        <div class="flex" data-anim="fade-up" data-anim-delay="${
+          i * 80
+        }" data-anim-distance="28">
+          <article class="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition w-full">
+            <div class="relative bg-gray-800" style="aspect-ratio: 3 / 2;">
+              <img src="${img}" alt="${
+        e.nombre
+      }" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/900x600?text=Sin+imagen';">
             </div>
-          </div>
-        </article>
+            <div class="px-3 py-1.5 sm:py-2 flex items-center bg-gray-900 text-white/90 leading-tight">
+              <div class="flex items-center justify-between w-full gap-2 sm:gap-3">
+                <h3 class="font-semibold text-sm sm:text-base truncate">${
+                  e.nombre
+                }</h3>
+                <span class="text-[0.65rem] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full bg-gray-700 text-gray-100 border border-gray-600 whitespace-nowrap">${catLabel}</span>
+              </div>
+            </div>
+          </article>
+        </div>
       `);
     }
 
     // Agregar placeholders para completar hasta 8 items - CORREGIDO
     for (let i = estilosMostrados.length; i < totalItems; i++) {
-        items.push(`
-            <article class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-sm" data-anim="fade-up" data-anim-delay="${i*80}" data-anim-distance="28">
-            <div class="relative h-[200px] md:h-[250px] bg-gray-700">
-                <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                <rect width="100" height="100" fill="#374151"></rect>
-                <circle cx="50" cy="35" r="20" fill="#6b7280"></circle>
-                <rect x="30" y="60" width="40" height="30" fill="#4b5563"></rect>
-                </svg>
-                <!-- Eliminado el texto duplicado aquí -->
-            </div>
-            <div class="p-2 min-h-[60px] flex items-center bg-gray-800 text-white">
-                <div class="flex items-center justify-between w-full">
-                <h3 class="font-semibold truncate">Próximamente</h3>
-                <span class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-200 border border-gray-500">N/A</span>
+      items.push(`
+            <div class="flex" data-anim="fade-up" data-anim-delay="${
+              i * 80
+            }" data-anim-distance="28">
+              <article class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow-sm w-full">
+                <div class="relative bg-gray-700" style="aspect-ratio: 3 / 2;">
+                    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+                    <rect width="100" height="100" fill="#374151"></rect>
+                    <circle cx="50" cy="35" r="20" fill="#6b7280"></circle>
+                    <rect x="30" y="60" width="40" height="30" fill="#4b5563"></rect>
+                    </svg>
                 </div>
+                <div class="px-3 py-1.5 sm:py-2 flex items-center bg-gray-900 text-white/80 leading-tight">
+                  <div class="flex items-center justify-between w-full gap-2 sm:gap-3">
+                    <h3 class="font-semibold text-sm sm:text-base truncate">Próximamente</h3>
+                    <span class="text-[0.65rem] sm:text-xs px-2 py-0.5 sm:py-1 rounded-full bg-gray-700 text-gray-100 border border-gray-600 whitespace-nowrap">N/A</span>
+                  </div>
+                </div>
+              </article>
             </div>
-            </article>
         `);
     }
-    grid.innerHTML = items.join('');
+    grid.innerHTML = items.join("");
   } catch (err) {
     const grid = document.querySelector(".estilos-grid");
     if (grid) {
@@ -323,9 +336,7 @@ async function cargarBarberos() {
       card.setAttribute("data-anim", "zoom-in");
       card.setAttribute("data-anim-delay", String(i * 90));
 
-      const redesNormalizadas = normalizarRedesSociales(
-        barbero.redes_sociales
-      );
+      const redesNormalizadas = normalizarRedesSociales(barbero.redes_sociales);
       const redesHtml = redesNormalizadas
         .map((red) => {
           const iconClass = obtenerIconoRedSocial(red.plataforma);
@@ -465,18 +476,9 @@ function normalizarRedesSociales(redes) {
       }
 
       const plataformaRaw =
-        red.red_social ||
-        red.platform ||
-        red.plataforma ||
-        red.nombre ||
-        "";
+        red.red_social || red.platform || red.plataforma || red.nombre || "";
       const valorRaw =
-        red.enlace ||
-        red.link ||
-        red.url ||
-        red.username ||
-        red.usuario ||
-        "";
+        red.enlace || red.link || red.url || red.username || red.usuario || "";
 
       const plataforma = plataformaRaw.toString().trim().toLowerCase();
       const valor = valorRaw.toString().trim();
