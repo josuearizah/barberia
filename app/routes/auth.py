@@ -5,6 +5,7 @@ from app.models.usuario import Usuario
 from app.models.cita import Cita
 from app.models.estilo import Estilo
 from app.models.servicio import Servicio
+from app.routes.cita import _annotate_client_sequences
 from datetime import datetime, timedelta
 import re
 import random
@@ -67,10 +68,12 @@ def citas():
     usuario_id = session.get('usuario_id')
 
     if rol == 'admin':
-        citas = Cita.query.filter_by(barbero_id=usuario_id).all()
+        citas = Cita.query.filter_by(barbero_id=usuario_id).order_by(Cita.fecha_creacion.asc(), Cita.id.asc()).all()
+        _annotate_client_sequences(citas)
         return render_template('usuario/admin/admin_dashboard.html', citas=citas)
     else:
-        citas = Cita.query.filter_by(usuario_id=usuario_id).all()
+        citas = Cita.query.filter_by(usuario_id=usuario_id).order_by(Cita.fecha_creacion.asc(), Cita.id.asc()).all()
+        _annotate_client_sequences(citas)
         return render_template('usuario/cliente/cliente_dashboard.html', citas=citas)
 
 # Añadir esta función en app/routes/auth.py, junto a las demás rutas

@@ -55,6 +55,31 @@ def _precio_con_descuento(servicio, fecha_cita):
         
     return precio
 
+# === Función utilitaria solicitada por auth.py ===
+def _annotate_client_sequences(citas):
+    """Anota cada objeto Cita con contadores auxiliares por cliente.
+
+    Añade atributos dinámicos (no persistentes en DB):
+      - cliente_orden: número incremental de la cita para ese usuario (usuario_id) en la lista recibida.
+      - cliente_dia_orden: número incremental de la cita de ese usuario en ese día específico.
+    Si algo falla, se ignora silenciosamente para no romper la vista.
+    """
+    try:
+        from collections import defaultdict
+        total_por_usuario = defaultdict(int)
+        total_por_usuario_dia = defaultdict(int)
+        for c in citas or []:
+            uid = getattr(c, 'usuario_id', None)
+            fecha = getattr(c, 'fecha_cita', None)
+            total_por_usuario[uid] += 1
+            setattr(c, 'cliente_orden', total_por_usuario[uid])
+            key_dia = (uid, fecha)
+            total_por_usuario_dia[key_dia] += 1
+            setattr(c, 'cliente_dia_orden', total_por_usuario_dia[key_dia])
+    except Exception:
+        # Fallback silencioso: no es crítico si falla
+        pass
+
 @cita_bp.route('/reservar_cita', methods=['GET', 'POST'])
 def reservar_cita():
     # [código sin cambios]

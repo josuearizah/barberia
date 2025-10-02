@@ -190,89 +190,186 @@
       <div class="w-24 h-1 bg-rose-600 mx-auto"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Testimonial 1 -->
-      <div
-        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
-        data-anim="flip-left"
-      >
-        <div class="flex items-center mb-4">
-          <div
-            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
-          >
-            <span class="text-xl font-bold">JL</span>
+    <style>
+      @keyframes testimonial-marquee {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+    </style>
+    <div class="relative -mx-4 md:-mx-8">
+      <div class="absolute inset-y-0 left-0 w-16 pointer-events-none bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent"></div>
+      <div class="absolute inset-y-0 right-0 w-16 pointer-events-none bg-gradient-to-l from-gray-900 via-gray-900/80 to-transparent"></div>
+      <div class="overflow-hidden">
+        <div class="flex gap-6 min-w-max" style="animation: testimonial-marquee 42s linear infinite; will-change: transform;">
+          <div class="flex gap-6">
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">JL</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Juan López</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "El mejor lugar para un corte de pelo en la ciudad. Lemus siempre entiende exactamente lo que quiero y el ambiente es muy acogedor."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">RM</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Roberto Martínez</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "El afeitado tradicional es una experiencia que todo hombre debería probar. Profesionales de primera y productos de calidad."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">FG</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Fernando García</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "Llevo a mi hijo de 8 años y siempre sale contento. El personal es muy amable y paciente con los niños. Totalmente recomendable."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">SH</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Sergio Herrera</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "Pedí un arreglo completo antes de una sesión y quedé impresionado. Puntuales y detallistas en cada servicio."
+              </p>
+            </article>
           </div>
-          <div>
-            <h4 class="font-bold">Juan López</h4>
-            <div class="flex text-yellow-400">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
+          <div class="flex gap-6">
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">JL</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Juan López</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "El mejor lugar para un corte de pelo en la ciudad. Lemus siempre entiende exactamente lo que quiero y el ambiente es muy acogedor."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">RM</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Roberto Martínez</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "El afeitado tradicional es una experiencia que todo hombre debería probar. Profesionales de primera y productos de calidad."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">FG</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Fernando García</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "Llevo a mi hijo de 8 años y siempre sale contento. El personal es muy amable y paciente con los niños. Totalmente recomendable."
+              </p>
+            </article>
+            <article class="testimonial-card bg-gray-800/90 p-6 rounded-lg shadow-lg w-[300px] md:w-[380px] flex-shrink-0">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center mr-4">
+                  <span class="text-xl font-bold">SH</span>
+                </div>
+                <div>
+                  <h4 class="font-bold">Sergio Herrera</h4>
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-gray-300">
+                "Pedí un arreglo completo antes de una sesión y quedé impresionado. Puntuales y detallistas en cada servicio."
+              </p>
+            </article>
           </div>
         </div>
-        <p class="text-gray-300">
-          "El mejor lugar para un corte de pelo en la ciudad. Carlos siempre
-          entiende exactamente lo que quiero y el ambiente es muy acogedor."
-        </p>
-      </div>
-
-      <!-- Testimonial 2 -->
-      <div
-        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
-        data-anim="zoom-in"
-      >
-        <div class="flex items-center mb-4">
-          <div
-            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
-          >
-            <span class="text-xl font-bold">RM</span>
-          </div>
-          <div>
-            <h4 class="font-bold">Roberto Martínez</h4>
-            <div class="flex text-yellow-400">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star-half-alt"></i>
-            </div>
-          </div>
-        </div>
-        <p class="text-gray-300">
-          "El afeitado tradicional es una experiencia que todo hombre debería
-          probar. Profesionales de primera y productos de calidad."
-        </p>
-      </div>
-
-      <!-- Testimonial 3 -->
-      <div
-        class="testimonial-card bg-gray-800 p-6 rounded-lg shadow-lg"
-        data-anim="flip-right"
-      >
-        <div class="flex items-center mb-4">
-          <div
-            class="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center mr-4"
-          >
-            <span class="text-xl font-bold">FG</span>
-          </div>
-          <div>
-            <h4 class="font-bold">Fernando García</h4>
-            <div class="flex text-yellow-400">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
-          </div>
-        </div>
-        <p class="text-gray-300">
-          "Llevo a mi hijo de 8 años y siempre sale contento. El personal es muy
-          amable y paciente con los niños. Totalmente recomendable."
-        </p>
       </div>
     </div>
   </div>
@@ -292,7 +389,7 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
       <!-- Información de Contacto -->
       <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full">
         <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
@@ -310,7 +407,7 @@
 
           <div class="flex items-start">
             <div class="text-rose-600 mr-4 mt-1">
-              <i class="fas fa-phone-alt text-xl"></i>
+              <i class="fa-solid fa-phone text-lg"></i>
             </div>
             <div>
               <h4 class="font-bold text-lg">Teléfono</h4>
@@ -324,10 +421,29 @@
             </div>
             <div>
               <h4 class="font-bold text-lg">Horario</h4>
-              <p class="text-gray-600">
-                Lunes a Sábado: 9:00 am - 8:00 pm<br />
-                Domingo: Cerrado
-              </p>
+              <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 text-gray-600">
+                <div class="rounded-lg p-5 shadow-md flex flex-col gap-3">
+                  <span class="flex items-center gap-2 text-base font-semibold text-gray-800">
+                    Lunes a sábado
+                  </span>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="inline-flex items-center gap-2 bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-sm font-medium">
+                      9:00 am - 12:00 pm
+                    </span>
+                    <span class="inline-flex items-center gap-2 bg-gray-900 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      2:00 pm - 8:00 pm
+                    </span>
+                  </div>
+                </div>
+                <div class="rounded-lg p-5 shadow-md flex flex-col gap-3">
+                  <span class="flex items-center gap-2 text-base font-semibold text-gray-800">
+                    Domingo
+                  </span>
+                  <span class="inline-flex items-center gap-2 text-sm font-medium text-rose-600 bg-rose-50 px-3 py-1 rounded-full">
+                    Cerrado
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -352,12 +468,26 @@
         </div>
       </div>
 
+      <!-- Video -->
+      <div class="bg-gray-50 p-8 rounded-lg shadow-md h-full flex items-center justify-center">
+        <div class="w-full max-w-sm bg-black/80 rounded-lg overflow-hidden" style="aspect-ratio: 2 / 3;">
+          <video
+            class="w-full h-full object-cover"
+            src="{{ url_for('static', filename='video/rg4lbarber.mp4') }}"
+            autoplay
+            muted
+            loop
+            playsinline
+          ></video>
+        </div>
+      </div>
+
       <!-- Mapa -->
       <div
         class="rounded-lg overflow-hidden shadow-md border border-gray-200 h-full"
       >
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5901.908324851737!2d-73.67227827882506!3d6.013697037811205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f16!3m3!1m2!1s0x8e41f1ea738158ed%3A0x9fe1dd7c301fb684!2sRG4L%20barber!5e0!3m2!1ses-419!2sco!4v1753115825401!5m2!1ses-419!2sco"
           width="100%"
           height="100%"
           style="border: 0"

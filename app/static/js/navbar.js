@@ -7,6 +7,35 @@ const bar3 = document.getElementById("bar3");
 const authButtons = document.getElementById("auth-buttons");
 const mobileAuthButtons = document.getElementById("mobile-auth-buttons");
 const mobileLinks = document.querySelectorAll(".mobile-link");
+const sectionLinks = document.querySelectorAll('a[href*="#"]');
+
+sectionLinks.forEach((link) => {
+  link.addEventListener('click', (event) => {
+    let url;
+    try {
+      url = new URL(link.getAttribute('href'), window.location.href);
+    } catch (err) {
+      return;
+    }
+
+    const hash = url.hash;
+    if (!hash || hash === '#' || url.pathname !== window.location.pathname) {
+      return;
+    }
+
+    const targetId = hash.slice(1);
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) {
+      return;
+    }
+
+    event.preventDefault();
+    const nav = document.querySelector('nav');
+    const offset = nav ? nav.offsetHeight : 0;
+    const top = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+  });
+});
 
 let menuOpen = false;
 const isLoggedIn = false; // Cambia a true para simular sesión iniciada
@@ -18,21 +47,40 @@ if (isLoggedIn) {
 }
 
 // Función para actualizar los avatares del navbar
+function deriveInitials(name, fallback = '') {
+  if (!name) return fallback;
+  const letters = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() || '');
+  const combined = letters.join('').slice(0, 2);
+  return combined || fallback;
+}
+
 function updateNavbarAvatar(imageUrl = null, name = null) {
-  const navbarAvatars = document.querySelectorAll(".navbar-avatar");
+  const navbarAvatars = document.querySelectorAll('.navbar-avatar');
+  const computedInitials = deriveInitials(name, null);
+
   navbarAvatars.forEach((avatar) => {
+    const initialsEl = avatar.querySelector('.navbar-avatar-initials');
+    const fallbackInitials = avatar.dataset.initials || initialsEl?.textContent || '';
+
     if (imageUrl) {
       avatar.style.backgroundImage = `url(${imageUrl})`;
-      avatar.style.backgroundSize = "cover";
-      avatar.style.backgroundPosition = "center";
-      avatar.textContent = "";
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+      avatar.classList.add('navbar-avatar--with-image');
+      if (initialsEl) initialsEl.textContent = '';
     } else {
-      avatar.style.backgroundImage = "";
-      avatar.style.backgroundSize = "";
-      avatar.style.backgroundPosition = "";
-      if (name) {
-        const nameParts = name.split(" ");
-        avatar.textContent = (nameParts[0]?.[0] || "").toUpperCase() + (nameParts[1]?.[0] || "").toUpperCase();
+      avatar.style.backgroundImage = '';
+      avatar.style.backgroundSize = '';
+      avatar.style.backgroundPosition = '';
+      avatar.classList.remove('navbar-avatar--with-image');
+      if (initialsEl) {
+        const value = computedInitials || fallbackInitials;
+        initialsEl.textContent = value;
+        avatar.dataset.initials = value || avatar.dataset.initials || '';
       }
     }
   });
@@ -58,15 +106,26 @@ loadUserData();
 
 // Notifications: SSE stream + fallback count poll
 function updateNotifBadges(count) {
-  const el1 = document.getElementById('notif-count');
-  const el2 = document.getElementById('notif-count-menu');
-  const el3 = document.getElementById('notif-count-avatar');
-  const el4 = document.getElementById('notif-count-mobile');
-  [el1, el2, el3, el4].forEach((el) => {
-    if (!el) return;
-    el.textContent = String(count);
-    el.classList.toggle('hidden', !count);
-  });
+  const ids = [
+    'notif-count',
+    'notif-count-menu',
+    'notif-count-avatar',
+    'notif-count-mobile',
+    'notif-count-hamburger'
+  ];
+
+  const displayValue = count > 99 ? '99+' : String(count);
+  ids
+    .map((id) => document.getElementById(id))
+    .filter(Boolean)
+    .forEach((el) => {
+      el.textContent = displayValue;
+      if (count) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+    });
 }
 
 async function fetchNotifCountOnce() {

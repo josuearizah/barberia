@@ -20,7 +20,7 @@
         <tbody class="bg-gray-800 divide-y divide-gray-700" id="citas-table-body">
           {% for cita in citas %}
           <tr class="{% if cita.estado == 'completado' %}bg-gray-950 opacity-70{% endif %}">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">{{ cita.client_sequence or loop.index }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
               {{ cita.nombre_cliente or (cita.usuario.nombre ~ ' ' ~ cita.usuario.apellido) }}
             </td>
@@ -48,7 +48,7 @@
               {% if cita.estado != 'completado' %}
               <button class="editar-cita text-blue-400 hover:text-blue-300 mr-3" 
                       data-cita-id="{{ cita.id }}" 
-                      data-client-cita-id="{{ cita.id }}"
+                      data-client-cita-id="{{ cita.client_sequence or loop.index }}"
                       data-barbero-id="{{ cita.barbero_id }}"
                       data-fecha-cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}"
                       data-hora="{{ cita.hora }}"
@@ -61,7 +61,7 @@
               </button>
               <button class="eliminar-cita text-red-400 hover:text-red-300" 
                       data-cita-id="{{ cita.id }}" 
-                      data-client-cita-id="{{ cita.id }}"
+                      data-client-cita-id="{{ cita.client_sequence or loop.index }}"
                       title="Eliminar">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v12a2 2 0 01-2 2H8a2 2 0 01-2-2V7h12z"/>

@@ -356,4 +356,45 @@
 </div>
 {% endif %}
 
+{% if session.get('usuario_id') != usuario.id %}
+<script>
+  (function () {
+    const baseUrls = {
+      instagram: 'https://instagram.com/',
+      facebook: 'https://facebook.com/',
+      x: 'https://x.com/',
+      twitter: 'https://twitter.com/',
+      linkedin: 'https://linkedin.com/in/',
+      youtube: 'https://youtube.com/@',
+      tiktok: 'https://tiktok.com/@',
+      whatsapp: 'https://wa.me/'
+    };
+
+    if (!window.openSocialLink) {
+      window.openSocialLink = function (platform, username) {
+        platform = (platform || '').toLowerCase();
+        username = (username || '').trim();
+        const base = baseUrls[platform] || '';
+        let url = '';
+
+        if (/^https?:\/\//i.test(username)) {
+          url = username;
+        } else if (platform === 'whatsapp') {
+          const num = username.replace(/\D/g, '');
+          if (num) {
+            url = baseUrls.whatsapp + num;
+          }
+        } else if (base) {
+          url = base + username.replace(/^@/, '');
+        }
+
+        if (url) {
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      };
+    }
+  })();
+</script>
+{% endif %}
+
 {% endblock %}

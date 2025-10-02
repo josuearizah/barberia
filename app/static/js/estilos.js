@@ -105,6 +105,7 @@ async function cargarEstilos() {
 }
 
 // Añadir estilo
+
 document.getElementById('btn-abrir-modal-estilo')?.addEventListener('click', () => abrir('modal-estilo'));
 document.getElementById('cerrar-modal-estilo')?.addEventListener('click', () => cerrar('modal-estilo'));
 document.querySelectorAll('.btn-cerrar-add').forEach(b => b.addEventListener('click', () => cerrar('modal-estilo')));

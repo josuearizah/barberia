@@ -50,6 +50,16 @@ def create_app():
     # Crear tablas en la base de datos
     with app.app_context():
         db.create_all()
+        # Verificación opcional de encoding para evitar mojibake (solo Postgres)
+        try:
+            from sqlalchemy import text
+            res = db.session.execute(text("SHOW client_encoding"))
+            enc = res.scalar()
+            if enc and enc.upper() != 'UTF8':
+                print(f"ADVERTENCIA: client_encoding={enc}. Se recomienda UTF8 para evitar caracteres extraños.")
+        except Exception as _e:
+            # No es crítico si falla (p.ej. SQLite)
+            pass
 
     # Registrar blueprints
     from app.routes import auth, usuario, cita, servicio, estilo, perfil, historial, ingreso, metrica  # Añade servicios
