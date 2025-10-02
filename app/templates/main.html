@@ -636,12 +636,18 @@ Vélez, Santander{% endblock %} {% block content %}
             >
               <video
                 class="w-full h-full object-cover transition duration-700 ease-out transform group-hover:scale-105"
-                src="{{ url_for('static', filename='video/rg4lbarber.mp4') }}"
                 autoplay
                 muted
                 loop
                 playsinline
-              ></video>
+                preload="metadata"
+              >
+                <source
+                  src="https://res.cloudinary.com/drs5tsewg/video/upload/v1759419825/rg4lbarber_lswrne.mp4"
+                  type="video/mp4"
+                />
+                Tu navegador no soporta video HTML5.
+              </video>
               <div
                 class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none"
               ></div>
