@@ -6,12 +6,14 @@ from app import db
 from datetime import datetime, timedelta
 import json
 
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
 historial_bp = Blueprint('historial', __name__)
 
 @historial_bp.route('/admin/historial')
 def admin_historial():
     """Página de historial para administradores"""
-    if 'usuario_id' not in session or session.get('rol') != 'admin':
+    if 'usuario_id' not in session or session.get('rol') not in ADMIN_ROLES:
         return redirect(url_for('auth.login'))
     
     return render_template('usuario/admin/historial.html')
@@ -39,7 +41,7 @@ def obtener_historial():
         # Construir la consulta base para la tabla de historial
         query = HistorialCita.query
         
-        if usuario.rol == 'admin':
+        if usuario.rol in Usuario.ROLES_ADMINISTRATIVOS:
             # Para admins, mostrar solo sus propias citas como barbero
             query = query.filter_by(barbero_id=usuario_id)
         else:
@@ -51,7 +53,7 @@ def obtener_historial():
         
         # Si no hay resultados en el historial y el usuario es un cliente, 
         # verificar si hay citas completadas que aún no están en el historial
-        if len(historial) == 0 and usuario.rol != 'admin':
+        if len(historial) == 0 and usuario.rol not in Usuario.ROLES_ADMINISTRATIVOS:
             # Buscar citas completadas del usuario que no estén en el historial
             citas_completadas = Cita.query.filter_by(
                 usuario_id=usuario_id,
@@ -79,7 +81,7 @@ def obtener_historial():
                 historial = query.order_by(HistorialCita.fecha_cita.desc(), HistorialCita.hora.desc()).all()
         
         # Igual para administradores, buscar citas completadas que no estén en historial
-        if len(historial) == 0 and usuario.rol == 'admin':
+        if len(historial) == 0 and usuario.rol in Usuario.ROLES_ADMINISTRATIVOS:
             # Buscar citas completadas donde el usuario es el barbero
             citas_completadas = Cita.query.filter_by(
                 barbero_id=usuario_id,

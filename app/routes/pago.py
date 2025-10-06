@@ -7,6 +7,34 @@ from app.models.pago import Pago
 from decimal import Decimal
 
 pago_bp = Blueprint('pago', __name__)
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
+
+
+
+def _obtener_transferido_servicios(cita, cache):
+    if not cita:
+        return Decimal('0.00')
+
+    total = Decimal('0.00')
+    servicio_ids = []
+    if getattr(cita, 'servicio_id', None):
+        servicio_ids.append(cita.servicio_id)
+    if getattr(cita, 'servicio_adicional_id', None):
+        servicio_ids.append(cita.servicio_adicional_id)
+
+    for servicio_id in servicio_ids:
+        if servicio_id not in cache:
+            servicio = Servicio.query.get(servicio_id)
+            valor = getattr(servicio, 'transferido', None) if servicio else None
+            try:
+                cache[servicio_id] = Decimal(valor or 0).quantize(Decimal('0.01'))
+            except Exception:
+                cache[servicio_id] = Decimal('0.00')
+        total += cache[servicio_id]
+
+    return total
+
 
 
 def _precio_con_descuento(servicio, fecha_cita):
@@ -35,7 +63,7 @@ def _precio_con_descuento(servicio, fecha_cita):
 def crear_pago():
     """Registra información de pago de una cita. No procesa cobros, solo guarda el resumen."""
     try:
-        if 'usuario_id' not in session or session.get('rol') != 'admin':
+        if 'usuario_id' not in session or session.get('rol') not in ADMIN_ROLES:
             return jsonify({'error': 'No autorizado'}), 403
 
         data = request.get_json() or {}
@@ -119,9 +147,11 @@ def crear_pago():
 def listar_pagos():
     """Lista pagos del barbero autenticado (admin) con detalles básicos."""
     try:
-        if 'usuario_id' not in session or session.get('rol') != 'admin':
+        if 'usuario_id' not in session or session.get('rol') not in ADMIN_ROLES:
             return jsonify({'error': 'No autorizado'}), 403
         barbero_id = session['usuario_id']
+        rol_usuario = session.get('rol')
+        cache = {}
 
         pagos = (
             db.session.query(Pago, Cita, Usuario)
@@ -134,6 +164,17 @@ def listar_pagos():
 
         out = []
         for pago, cita, cliente in pagos:
+            total_decimal = Decimal(pago.total or 0).quantize(Decimal('0.01'))
+            transferido_total = _obtener_transferido_servicios(cita, cache)
+            if rol_usuario == Usuario.ROL_SUPERADMIN:
+                transferido_visible = Decimal('0.00')
+            else:
+                transferido_visible = transferido_total
+            saldo_barbero = (total_decimal - transferido_visible)
+            if saldo_barbero < Decimal('0.00'):
+                saldo_barbero = Decimal('0.00')
+            saldo_barbero = saldo_barbero.quantize(Decimal('0.01'))
+
             out.append({
                 'id': pago.id,
                 'fecha_registro': pago.fecha_registro.strftime('%Y-%m-%d %H:%M:%S'),
@@ -144,20 +185,20 @@ def listar_pagos():
                 'metodo': pago.metodo,
                 'subtotal': float(pago.subtotal or 0),
                 'descuento': float(pago.descuento or 0),
-                'total': float(pago.total or 0),
+                'total': float(total_decimal),
                 'monto_recibido': float(pago.monto_recibido) if pago.monto_recibido is not None else None,
-                'saldo': float(pago.saldo) if pago.saldo is not None else None
+                'saldo': float(pago.saldo) if pago.saldo is not None else None,
+                'transferido': float(transferido_visible),
+                'transferido_servicios': float(transferido_total),
+                'saldo_barbero': float(saldo_barbero)
             })
 
         return jsonify(out), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-@pago_bp.route('/api/pagos/<int:pago_id>', methods=['PUT'])
 def actualizar_pago(pago_id):
     try:
-        if 'usuario_id' not in session or session.get('rol') != 'admin':
+        if 'usuario_id' not in session or session.get('rol') not in ADMIN_ROLES:
             return jsonify({'error': 'No autorizado'}), 403
         pago = Pago.query.get_or_404(pago_id)
         if pago.barbero_id != session['usuario_id']:
@@ -187,7 +228,7 @@ def actualizar_pago(pago_id):
 @pago_bp.route('/api/pagos/<int:pago_id>', methods=['DELETE'])
 def eliminar_pago(pago_id):
     try:
-        if 'usuario_id' not in session or session.get('rol') != 'admin':
+        if 'usuario_id' not in session or session.get('rol') not in ADMIN_ROLES:
             return jsonify({'error': 'No autorizado'}), 403
         pago = Pago.query.get_or_404(pago_id)
         if pago.barbero_id != session['usuario_id']:
@@ -206,6 +247,7 @@ def listar_pagos_cliente():
         if 'usuario_id' not in session or session.get('rol') != 'cliente':
             return jsonify({'error': 'No autorizado'}), 403
         cliente_id = session['usuario_id']
+        cache = {}
 
         pagos = (
             db.session.query(Pago, Cita, Usuario)
@@ -218,6 +260,13 @@ def listar_pagos_cliente():
 
         out = []
         for pago, cita, barbero in pagos:
+            total_decimal = Decimal(pago.total or 0).quantize(Decimal('0.01'))
+            transferido_total = _obtener_transferido_servicios(cita, cache)
+            saldo_barbero = (total_decimal - transferido_total)
+            if saldo_barbero < Decimal('0.00'):
+                saldo_barbero = Decimal('0.00')
+            saldo_barbero = saldo_barbero.quantize(Decimal('0.01'))
+
             out.append({
                 'id': pago.id,
                 'fecha_registro': pago.fecha_registro.strftime('%Y-%m-%d %H:%M:%S'),
@@ -228,9 +277,11 @@ def listar_pagos_cliente():
                 'metodo': pago.metodo,
                 'subtotal': float(pago.subtotal or 0),
                 'descuento': float(pago.descuento or 0),
-                'total': float(pago.total or 0),
+                'total': float(total_decimal),
                 'monto_recibido': float(pago.monto_recibido) if pago.monto_recibido is not None else None,
-                'saldo': float(pago.saldo) if pago.saldo is not None else None
+                'saldo': float(pago.saldo) if pago.saldo is not None else None,
+                'transferido': float(transferido_total),
+                'saldo_barbero': float(saldo_barbero)
             })
 
         return jsonify(out), 200

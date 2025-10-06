@@ -38,9 +38,11 @@ function cerrar(id) {
     dom.addBtn = document.getElementById('btn-abrir-modal-servicio');
     dom.addCloseButtons = Array.from(document.querySelectorAll('.btn-cerrar-add'));
     dom.newForm = document.getElementById('form-servicio-nuevo');
+    dom.newTransferInput = document.getElementById('nuevo-transferido');
 
     dom.editModal = document.getElementById('modal-editar-servicio');
     dom.editForm = document.getElementById('form-servicio-editar');
+    dom.editTransferInput = document.getElementById('edit-transferido');
     dom.editCloseButtons = Array.from(document.querySelectorAll('.cerrar-modal-editar'));
     dom.previewWrapper = document.getElementById('preview-imagen-actual');
     dom.previewImage = document.getElementById('img-actual');
@@ -53,7 +55,6 @@ function cerrar(id) {
     dom.discountForm = document.getElementById('form-descuento');
     dom.discountCloseButtons = [
       document.getElementById('cerrar-modal-descuento'),
-      document.getElementById('cerrar-modal-descuento-btn'),
     ].filter(Boolean);
     dom.addDiscountBtn = document.getElementById('abrir-modal-descuento-nuevo');
     dom.editDiscountBtn = document.getElementById('abrir-modal-descuento-editar');
@@ -71,7 +72,7 @@ function cerrar(id) {
     dom.tbody.innerHTML = '';
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 8;
+    td.colSpan = 9;
     td.className = 'px-6 py-4 text-center ' + className;
     td.textContent = text;
     tr.appendChild(td);
@@ -85,6 +86,9 @@ function cerrar(id) {
 
     dom.addBtn.addEventListener('click', () => {
       dom.newForm.reset();
+      if (dom.newTransferInput) {
+        dom.newTransferInput.value = '';
+      }
       const fields = [
         'nuevo-descuento-tipo',
         'nuevo-descuento-valor',
@@ -123,7 +127,7 @@ function cerrar(id) {
           alert(result.error || 'Error al crear servicio');
           return;
         }
-        alert('¡Servicio añadido correctamente!');
+        alert('Servicio agregado correctamente!');
         cerrar('modal-servicio');
         await cargarServicios();
       } catch (error) {
@@ -162,7 +166,7 @@ function cerrar(id) {
           alert(result.error || 'Error al actualizar servicio');
           return;
         }
-        alert('¡Servicio actualizado correctamente!');
+        alert('Servicio actualizado correctamente!');
         cerrar('modal-editar-servicio');
         await cargarServicios();
       } catch (error) {
@@ -203,7 +207,7 @@ function cerrar(id) {
           alert(result.error || 'Error al eliminar servicio');
           return;
         }
-        alert('¡Servicio eliminado correctamente!');
+        alert('Servicio eliminado correctamente!');
         cerrar('modal-eliminar-servicio');
         await cargarServicios();
       } catch (error) {
@@ -407,20 +411,20 @@ function cerrar(id) {
       tr.dataset.id = servicio.id;
 
       const idCell = document.createElement('td');
-      idCell.className = 'px-4 py-3 text-sm text-gray-300';
+      idCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-300';
       idCell.textContent = servicio.id;
 
       const nombreCell = document.createElement('td');
-      nombreCell.className = 'px-4 py-3 text-sm text-gray-100 font-semibold';
+      nombreCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-100 font-semibold';
       nombreCell.textContent = servicio.nombre || '';
 
       const imagenCell = document.createElement('td');
-      imagenCell.className = 'px-4 py-3 text-sm text-gray-200';
+      imagenCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-200';
       if (servicio.imagen_url) {
         const img = document.createElement('img');
         img.src = servicio.imagen_url;
         img.alt = servicio.nombre || 'Servicio';
-        img.className = 'h-16 w-16 object-cover rounded border border-gray-600';
+        img.className = 'servicio-thumb h-12 w-12 object-contain rounded-md border border-gray-700';
         imagenCell.appendChild(img);
       } else {
         const span = document.createElement('span');
@@ -431,18 +435,27 @@ function cerrar(id) {
 
       const descripcionCell = document.createElement('td');
       descripcionCell.className = 'px-4 py-3 text-sm text-gray-200 max-w-xs';
-      descripcionCell.textContent = servicio.descripcion || '—';
+      descripcionCell.textContent = servicio.descripcion || '--';
 
       const precioCell = document.createElement('td');
-      precioCell.className = 'px-4 py-3 text-sm text-gray-200';
+      precioCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-200';
       precioCell.textContent = formatCurrency(servicio.precio);
 
       const duracionCell = document.createElement('td');
-      duracionCell.className = 'px-4 py-3 text-sm text-gray-200';
+      duracionCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-200';
       duracionCell.textContent = servicio.duracion_minutos || 0;
 
+      const transferidoCell = document.createElement('td');
+      transferidoCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-200';
+      if (servicio.transferido !== undefined && servicio.transferido !== null) {
+        transferidoCell.textContent = formatCurrency(servicio.transferido);
+      } else {
+        transferidoCell.textContent = '--';
+        transferidoCell.classList.add('text-gray-500');
+      }
+
       const descuentoCell = document.createElement('td');
-      descuentoCell.className = 'px-4 py-3 text-sm text-gray-200';
+      descuentoCell.className = 'px-4 py-3 whitespace-nowrap text-sm text-gray-200';
       if (servicio.descuento) {
         const descuentoWrapper = document.createElement('div');
         descuentoWrapper.className = 'flex items-center gap-2 text-gray-100';
@@ -465,7 +478,7 @@ function cerrar(id) {
 
         const separatorSpan = document.createElement('span');
         separatorSpan.className = 'text-gray-400';
-        separatorSpan.textContent = '→';
+        separatorSpan.textContent = String.fromCharCode(0x2192);
 
         const finalSpan = document.createElement('span');
         finalSpan.className = 'font-semibold';
@@ -484,7 +497,7 @@ function cerrar(id) {
       }
 
       const accionesCell = document.createElement('td');
-      accionesCell.className = 'px-4 py-3 text-center text-sm text-gray-200';
+      accionesCell.className = 'px-4 py-3 whitespace-nowrap text-center text-sm text-gray-200';
       const accionesWrapper = document.createElement('div');
       accionesWrapper.className = 'flex justify-center gap-2';
 
@@ -512,6 +525,7 @@ function cerrar(id) {
       tr.appendChild(descripcionCell);
       tr.appendChild(precioCell);
       tr.appendChild(duracionCell);
+      tr.appendChild(transferidoCell);
       tr.appendChild(descuentoCell);
       tr.appendChild(accionesCell);
 
@@ -531,12 +545,20 @@ function cerrar(id) {
     const descripcionInput = document.getElementById('edit-descripcion');
     const precioInput = document.getElementById('edit-precio');
     const duracionInput = document.getElementById('edit-duracion');
+    const transferidoInput = dom.editTransferInput || document.getElementById('edit-transferido');
 
     if (idInput) idInput.value = servicio.id;
     if (nombreInput) nombreInput.value = servicio.nombre || '';
     if (descripcionInput) descripcionInput.value = servicio.descripcion || '';
     if (precioInput) precioInput.value = servicio.precio || '';
     if (duracionInput) duracionInput.value = servicio.duracion_minutos || '';
+    if (transferidoInput) {
+      if (servicio.transferido !== undefined && servicio.transferido !== null) {
+        transferidoInput.value = Number(servicio.transferido);
+      } else {
+        transferidoInput.value = '';
+      }
+    }
 
     if (dom.previewWrapper && dom.previewImage) {
       if (servicio.imagen_url) {
@@ -604,3 +626,6 @@ function cerrar(id) {
     cargarServicios();
   });
 })();
+
+
+

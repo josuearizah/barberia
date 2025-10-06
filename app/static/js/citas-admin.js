@@ -6,7 +6,7 @@ function cerrar(id) { document.getElementById(id)?.classList.add('hidden'); }
 async function cargarCitas() {
     try {
         const tbody = document.getElementById('citas-table-body');
-        // Si no existe tbody dinámico, no recargar (usa HTML del servidor)
+        // Si no existe tbody dinÃ¡mico, no recargar (usa HTML del servidor)
         if (!tbody) return;
         const response = await fetch('/api/citas');
         const citas = await response.json();
@@ -115,7 +115,7 @@ document.getElementById('form-cita-editar')?.addEventListener('submit', async e 
         });
         const result = await response.json();
         if (response.ok) {
-            alert('¡Cita actualizada correctamente!');
+            alert('Â¡Cita actualizada correctamente!');
             cerrar('modal-editar-cita');
             cargarCitas();
         } else {
@@ -139,7 +139,7 @@ document.getElementById('form-cita-eliminar')?.addEventListener('submit', async 
         });
         const result = await response.json();
         if (response.ok) {
-            alert('¡Cita eliminada correctamente!');
+            alert('Â¡Cita eliminada correctamente!');
             cerrar('modal-eliminar-cita');
             cargarCitas();
         } else {
@@ -150,7 +150,7 @@ document.getElementById('form-cita-eliminar')?.addEventListener('submit', async 
     }
 });
 
-// Restricciones para el calendario: solo lunes a viernes, mínimo hoy, máximo hoy + 1 mes
+// Restricciones para el calendario: solo lunes a viernes, mÃ­nimo hoy, mÃ¡ximo hoy + 1 mes
 function setupDateRestrictions() {
     const dateInput = document.getElementById('edit-fecha_cita');
     if (dateInput) {
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let searchTerm = '';
         let filterStatus = '';
         let filterDate = '';
-        let orderByDateDesc = true; // Default: Más reciente primero
+        let orderByDateDesc = true; // Default: MÃ¡s reciente primero
 
         function updateCount() {
             const visibleRows = Array.from(tbody.querySelectorAll('tr:not(.hidden)')).filter(tr => !tr.querySelector('td[colspan]'));
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Order toggle
         orderToggle?.addEventListener('click', () => {
             orderByDateDesc = !orderByDateDesc;
-            orderToggle.querySelector('span').textContent = orderByDateDesc ? 'Más reciente primero' : 'Más antiguo primero';
+            orderToggle.querySelector('span').textContent = orderByDateDesc ? 'MÃ¡s reciente primero' : 'MÃ¡s antiguo primero';
             orderIcon.innerHTML = orderByDateDesc ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>' : '<path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>';
             applyFiltersAndSort();
         });
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const elSubtotal = document.getElementById('pago-subtotal');
             const elDesc = document.getElementById('pago-descuento');
             const elTotal = document.getElementById('pago-total');
-            const inputRecibido = document.getElementById('pago-recibido');
+            const elTransferido = document.getElementById('pago-transferido');
             const elSaldo = document.getElementById('pago-saldo');
 
             elCliente.textContent = `${data.cliente?.nombre || ''} ${data.cliente?.apellido || ''}`.trim() || '-';
@@ -464,17 +464,16 @@ document.addEventListener('DOMContentLoaded', () => {
             elSubtotal.textContent = formatear(data.subtotal);
             elDesc.textContent = `-${formatear(data.descuento_total)}`;
             elTotal.textContent = formatear(data.total);
-            inputRecibido.value = '';
-            elSaldo.textContent = `Saldo: ${formatear(data.total)}`;
+            if (elTransferido) {
+                elTransferido.value = formatear(data.transferido);
+            }
+            if (elSaldo) {
+                const saldoValor = Object.prototype.hasOwnProperty.call(data, 'saldo') ? data.saldo : data.total;
+                elSaldo.textContent = `Saldo: ${formatear(saldoValor)}`;
+            }
 
             modal.classList.remove('hidden');
 
-            function actualizarSaldo() {
-                const recibido = Number((inputRecibido.value || '').replace(',', '.')) || 0;
-                const saldo = Math.max(0, pagoContext.total - recibido);
-                elSaldo.textContent = `Saldo: ${formatear(saldo)}`;
-            }
-            inputRecibido.oninput = actualizarSaldo;
         }
 
         async function completarCita(citaId, select) {
@@ -506,8 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             async function crearPagoSiNecesario() {
                 if (lastPagoId) return lastPagoId;
                 const metodo = document.getElementById('pago-metodo')?.value || 'efectivo';
-                const recibidoStr = document.getElementById('pago-recibido')?.value || '';
-                const recibido = recibidoStr ? Number(recibidoStr.replace(',', '.')) : null;
+                const recibido = null;
                 const resPago = await fetch('/api/pagos', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ cita_id: pagoContext.citaId, metodo, monto_recibido: recibido })
@@ -545,8 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     // Registrar pago informativo antes de completar
                     const metodo = document.getElementById('pago-metodo')?.value || 'efectivo';
-                    const recibidoStr = document.getElementById('pago-recibido')?.value || '';
-                    const recibido = recibidoStr ? Number(recibidoStr.replace(',', '.')) : null;
+                    const recibido = null;
                     try {
                         const resPago = await fetch('/api/pagos', {
                             method: 'POST',
@@ -567,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Completar cita
                     await completarCita(pagoContext.citaId, pagoContext.select);
                     cerrarModal();
-                    // Notificación simple
+                    // NotificaciÃ³n simple
                     alert('Cita completada y pago registrado.');
                 } catch (err) {
                     alert(`Error al completar: ${err.message}`);

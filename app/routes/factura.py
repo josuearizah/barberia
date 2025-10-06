@@ -8,6 +8,8 @@ from app.models.servicio import Servicio
 from app.routes.cita import _precio_con_descuento
 from datetime import datetime
 
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
 factura_bp = Blueprint('factura', __name__)
 
 
@@ -26,7 +28,7 @@ def descargar_factura(pago_id):
     # Solo barbero dueño del pago o cliente dueño
     uid = session['usuario_id']
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         if pago.barbero_id != uid:
             return jsonify({'error': 'No autorizado'}), 403
     else:

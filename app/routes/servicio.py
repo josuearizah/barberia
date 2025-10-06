@@ -29,6 +29,8 @@ def procesar_fecha(fecha_str):
                 print(f"No se pudo procesar la fecha: {fecha_str}")
                 return None
 
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
 servicios_bp = Blueprint('servicios', __name__)
 
 @servicios_bp.route('/api/servicios', methods=['GET'])
@@ -47,6 +49,7 @@ def listar_servicios():
                     'duracion': s.duracion.strftime('%H:%M'),
                     'duracion_minutos': s.duracion.hour * 60 + s.duracion.minute,
                     'imagen_url': s.imagen_url,
+                    'transferido': float(s.transferido) if s.transferido is not None else None,
                     'descuento': None  # Por defecto no hay descuento
                 }
                 
@@ -77,7 +80,7 @@ def listar_servicios():
 
 @servicios_bp.route('/api/servicios', methods=['POST'])
 def crear_servicio():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'Acceso no autorizado'}), 403
     try:
         data = request.form
@@ -92,12 +95,22 @@ def crear_servicio():
         minutos = duracion_minutos % 60
         duracion = time(hour=horas, minute=minutos)
 
+        transferido_val = 0
+        if session.get('rol') == Usuario.ROL_SUPERADMIN:
+            transferido_raw = data.get('transferido')
+            if transferido_raw not in (None, ''):
+                try:
+                    transferido_val = float(transferido_raw)
+                except (TypeError, ValueError):
+                    transferido_val = 0
+
         servicio = Servicio(
             nombre=data['nombre'],
             descripcion=data.get('descripcion', ''),
             precio=float(data['precio']),
             duracion=duracion,
-            imagen_url=imagen_url
+            imagen_url=imagen_url,
+            transferido=transferido_val
         )
         db.session.add(servicio)
         db.session.commit()  # Commit primero para obtener el ID del servicio
@@ -150,7 +163,7 @@ def crear_servicio():
 
 @servicios_bp.route('/api/servicios/<int:id>', methods=['PUT'])
 def actualizar_servicio(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'Acceso no autorizado'}), 403
     try:
         servicio = Servicio.query.get_or_404(id)
@@ -165,6 +178,15 @@ def actualizar_servicio(id):
         horas = duracion_minutos // 60
         minutos = duracion_minutos % 60
         servicio.duracion = time(hour=horas, minute=minutos)
+        if session.get('rol') == Usuario.ROL_SUPERADMIN:
+            transferido_raw = data.get('transferido')
+            if transferido_raw not in (None, ''):
+                try:
+                    servicio.transferido = float(transferido_raw)
+                except (TypeError, ValueError):
+                    pass
+            else:
+                servicio.transferido = 0
 
         if imagen:
             if servicio.imagen_url:
@@ -207,7 +229,7 @@ def actualizar_servicio(id):
                     db.session.add(nuevo_descuento)
                     # Notificar a clientes que hay un nuevo descuento
                     try:
-                        clientes = Usuario.query.filter(Usuario.rol != 'admin').all()
+                        clientes = Usuario.query.filter(Usuario.rol.notin_(Usuario.ROLES_ADMINISTRATIVOS)).all()
                         for u in clientes:
                             n = Notificacion(
                                 usuario_id=u.id,
@@ -239,7 +261,7 @@ def actualizar_servicio(id):
 
 @servicios_bp.route('/api/servicios/<int:id>', methods=['DELETE'])
 def eliminar_servicio(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'Acceso no autorizado'}), 403
     try:
         # Primero verificamos si hay citas que usan este servicio

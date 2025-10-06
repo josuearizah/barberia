@@ -86,7 +86,8 @@ def reservar_cita():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
 
-    barberos = Usuario.query.filter_by(rol='admin').all()
+    # Incluir tanto admins como superadmins como barberos seleccionables
+    barberos = Usuario.query.filter(Usuario.rol.in_(['admin', 'superadmin'])).all()
     servicios = Servicio.query.order_by(Servicio.nombre.asc()).all()
 
     if request.method == 'POST' and len(servicios) == 0:
@@ -102,7 +103,8 @@ def reservar_cita():
             fecha = datetime.strptime(request.form['date'], '%Y-%m-%d').date()
 
             barbero_id = int(request.form['barber'])
-            barbero = Usuario.query.filter_by(id=barbero_id, rol='admin').first()
+            # Validar que el barbero sea admin o superadmin
+            barbero = Usuario.query.filter(Usuario.id==barbero_id, Usuario.rol.in_(['admin','superadmin'])).first()
             if not barbero:
                 raise ValueError("El barbero seleccionado no es válido")
 
@@ -483,6 +485,18 @@ def resumen_cita(cita_id):
         descuento_total = (desc_p + desc_a).quantize(Decimal('0.01'))
         total = (final_p + final_a).quantize(Decimal('0.01'))
 
+        transferido_p = Decimal(getattr(sp, 'transferido', 0) or 0).quantize(Decimal('0.01')) if sp else Decimal('0.00')
+        transferido_a = Decimal(getattr(sa, 'transferido', 0) or 0).quantize(Decimal('0.01')) if sa else Decimal('0.00')
+        transferido_total = (transferido_p + transferido_a).quantize(Decimal('0.01'))
+
+        rol_actual = session.get('rol')
+        if rol_actual == Usuario.ROL_SUPERADMIN:
+            transferido_visible = Decimal('0.00')
+        else:
+            transferido_visible = transferido_total
+
+        saldo_barbero = max(Decimal('0.00'), (total - transferido_visible)).quantize(Decimal('0.01'))
+
         return jsonify({
             'cita_id': cita.id,
             'cliente': {
@@ -514,7 +528,11 @@ def resumen_cita(cita_id):
             }] if sa else []),
             'subtotal': float(subtotal),
             'descuento_total': float(descuento_total),
-            'total': float(total)
+            'total': float(total),
+            'transferido': float(transferido_visible),
+            'transferido_servicios': float(transferido_total),
+            'saldo': float(saldo_barbero),
+            'rol_usuario': rol_actual
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

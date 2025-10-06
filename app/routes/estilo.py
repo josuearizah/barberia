@@ -5,6 +5,8 @@ from app.models.usuario import Usuario
 from app.models.notificacion import Notificacion
 import cloudinary.uploader
 
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
 estilos_bp = Blueprint('estilos', __name__)
 
 # Página pública de estilos
@@ -27,7 +29,7 @@ def listar_estilos():
 # Crear estilo
 @estilos_bp.route('/api/estilos', methods=['POST'])
 def crear_estilo():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'Acceso no autorizado'}), 403
     try:
         data = request.form
@@ -46,7 +48,7 @@ def crear_estilo():
         db.session.commit()
         # Notificar a clientes sobre nuevo estilo
         try:
-            clientes = Usuario.query.filter(Usuario.rol != 'admin').all()
+            clientes = Usuario.query.filter(Usuario.rol.notin_(Usuario.ROLES_ADMINISTRATIVOS)).all()
             for u in clientes:
                 n = Notificacion(
                     usuario_id=u.id,
@@ -68,7 +70,7 @@ def crear_estilo():
 # Actualizar estilo
 @estilos_bp.route('/api/estilos/<int:id>', methods=['PUT'])
 def actualizar_estilo(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'Acceso no autorizado'}), 403
     try:
         estilo = Estilo.query.get_or_404(id)
@@ -93,7 +95,7 @@ def actualizar_estilo(id):
 # Eliminar estilo
 @estilos_bp.route('/api/estilos/<int:id>', methods=['DELETE'])
 def eliminar_estilo(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error':'Acceso no autorizado'}),403
     try:
         estilo = Estilo.query.get_or_404(id)
@@ -107,7 +109,7 @@ def eliminar_estilo(id):
 # Cambiar activo
 @estilos_bp.route('/api/estilos/<int:id>/activo', methods=['PATCH'])
 def toggle_activo_estilo(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error':'Acceso no autorizado'}),403
     estilo = Estilo.query.get_or_404(id)
     data = request.get_json(force=True) or {}

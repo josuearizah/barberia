@@ -1,92 +1,105 @@
-document.addEventListener("DOMContentLoaded", () => {
-  let usuarios = []
-  let orderAsc = true // Más viejo primero (ID ascendente)
-  let currentOpenPopover = null // Track currently open popover
+﻿document.addEventListener("DOMContentLoaded", () => {
+  let usuarios = [];
+  let orderAsc = true; // MÃ¡s viejo primero (ID ascendente)
+  let currentOpenPopover = null; // Track currently open popover
 
-  const searchInput = document.getElementById("search-input")
-  const orderToggle = document.getElementById("order-toggle")
-  const orderIcon = document.getElementById("order-icon")
-  const tableBody = document.getElementById("clientes-table-body")
-  const totalClientes = document.getElementById("total-clientes")
+  const searchInput = document.getElementById("search-input");
+  const orderToggle = document.getElementById("order-toggle");
+  const orderIcon = document.getElementById("order-icon");
+  const tableBody = document.getElementById("clientes-table-body");
+  const totalClientes = document.getElementById("total-clientes");
 
-  const modalRol = document.getElementById("modal-cambio-rol")
-  const modalRolMensaje = document.getElementById("modal-rol-mensaje")
-  const cancelRol = document.getElementById("cancel-rol")
-  const confirmRol = document.getElementById("confirm-rol")
+  const modalRol = document.getElementById("modal-cambio-rol");
+  const modalRolMensaje = document.getElementById("modal-rol-mensaje");
+  const cancelRol = document.getElementById("cancel-rol");
+  const confirmRol = document.getElementById("confirm-rol");
 
-  const modalEliminar = document.getElementById("modal-eliminar")
-  const modalEliminarMensaje = document.getElementById("modal-eliminar-mensaje")
-  const cancelEliminar = document.getElementById("cancel-eliminar")
-  const confirmEliminar = document.getElementById("confirm-eliminar")
+  const modalEliminar = document.getElementById("modal-eliminar");
+  const modalEliminarMensaje = document.getElementById(
+    "modal-eliminar-mensaje"
+  );
+  const cancelEliminar = document.getElementById("cancel-eliminar");
+  const confirmEliminar = document.getElementById("confirm-eliminar");
 
-  let currentUserId = null
-  let currentAction = null
+  let currentUserId = null;
+  let currentAction = null;
+  const ROLE_LABELS = {
+    superadmin: "Superadmin",
+    admin: "Administrador",
+    cliente: "Cliente",
+  };
 
   function closeAllPopovers() {
     document.querySelectorAll(".popover").forEach((popover) => {
-      popover.classList.add("hidden")
-    })
-    currentOpenPopover = null
+      popover.classList.add("hidden");
+    });
+    currentOpenPopover = null;
   }
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".popover-toggle") && !e.target.closest(".popover")) {
-      closeAllPopovers()
+      closeAllPopovers();
     }
-  })
+  });
 
   async function cargarUsuarios() {
     try {
-      const response = await fetch("/api/usuarios")
-      usuarios = await response.json()
-      totalClientes.textContent = usuarios.length
-      renderTable()
+      const response = await fetch("/api/usuarios");
+      usuarios = await response.json();
+      totalClientes.textContent = usuarios.length;
+      renderTable();
     } catch (error) {
-      console.error("Error al cargar usuarios:", error)
+      console.error("Error al cargar usuarios:", error);
       tableBody.innerHTML =
-        '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Error al cargar usuarios.</td></tr>'
+        '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">Error al cargar usuarios.</td></tr>';
     }
   }
 
   function renderTable() {
-    tableBody.innerHTML = ""
+    tableBody.innerHTML = "";
     let filteredUsuarios = usuarios.filter((user) => {
-      const searchTerm = searchInput.value.toLowerCase()
+      const searchTerm = searchInput.value.toLowerCase();
       return (
         `${user.nombre} ${user.apellido}`.toLowerCase().includes(searchTerm) ||
         user.telefono.toLowerCase().includes(searchTerm) ||
         user.correo.toLowerCase().includes(searchTerm)
-      )
-    })
+      );
+    });
 
-    // Separar admins y clientes
-    const admins = filteredUsuarios.filter((u) => u.rol === "admin")
-    const clientes = filteredUsuarios.filter((u) => u.rol === "cliente")
+    // Separar por roles
+    const superadmins = filteredUsuarios.filter((u) => u.rol === "superadmin");
+    const admins = filteredUsuarios.filter((u) => u.rol === "admin");
+    const clientes = filteredUsuarios.filter((u) => u.rol === "cliente");
 
     // Ordenar cada grupo por ID asc/desc
-    const sortFn = (a, b) => (orderAsc ? a.id - b.id : b.id - a.id)
-    admins.sort(sortFn)
-    clientes.sort(sortFn)
+    const sortFn = (a, b) => (orderAsc ? a.id - b.id : b.id - a.id);
+    superadmins.sort(sortFn);
+    admins.sort(sortFn);
+    clientes.sort(sortFn);
 
-    filteredUsuarios = [...admins, ...clientes]
+    filteredUsuarios = [...superadmins, ...admins, ...clientes];
 
     if (filteredUsuarios.length === 0) {
       tableBody.innerHTML =
-        '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">No hay clientes registrados.</td></tr>'
-      return
+        '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-400">No hay clientes registrados.</td></tr>';
+      return;
     }
 
     filteredUsuarios.forEach((user) => {
-      const tr = document.createElement("tr")
-      const userId = Number(user.id)
-      const isProtectedAdmin = userId === 3
-      const isProtectedClient = userId === 6
-      let accionesHtml = ''
-      if (isProtectedAdmin) {
-        accionesHtml = '<span class="text-xs text-gray-400">Administrador protegido</span>'
+      const tr = document.createElement("tr");
+      const userId = Number(user.id);
+      const isSuperadmin = user.rol === "superadmin";
+      const isProtectedClient = userId === 6;
+      let accionesHtml = "";
+      const roleLabel = ROLE_LABELS[user.rol] || user.rol;
+      if (isSuperadmin) {
+        accionesHtml = '<span class="text-xs text-gray-400">Superadmin</span>';
       } else if (isProtectedClient) {
-        accionesHtml = '<span class="text-xs text-gray-400">Cliente principal</span>'
+        accionesHtml =
+          '<span class="text-xs text-gray-400">Cliente protegido</span>';
       } else {
+        const nextRole = user.rol === "admin" ? "cliente" : "admin";
+        const changeLabel = `Cambiar a ${ROLE_LABELS[nextRole] || nextRole}`;
         accionesHtml = `
           <button class="popover-toggle text-gray-400 hover:text-gray-300 p-1 rounded-lg hover:bg-gray-700 transition-colors" data-user-id="${user.id}">
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -100,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <svg class="w-4 h-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                   </svg>
-                  <span>${user.rol === "admin" ? "Cambiar a Cliente" : "Cambiar a Admin"}</span>
+                  <span>${changeLabel}</span>
                 </button>
               </li>
               <li>
@@ -113,88 +126,95 @@ document.addEventListener("DOMContentLoaded", () => {
               </li>
             </ul>
           </div>
-        `
+        `;
       }
+      // Enlace al perfil para el nombre (similar a citas)
+      const nombreLink = `<a href="/perfil/${user.id}" class="text-gray-200 underline hover:text-gray-400">${user.nombre} ${user.apellido}</a>`;
       tr.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.nombre} ${user.apellido}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${nombreLink}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.telefono}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.correo}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.rol}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${roleLabel}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-center relative">${accionesHtml}</td>
-      `
-      tableBody.appendChild(tr)
-    })
+      `;
+      tableBody.appendChild(tr);
+    });
 
-    // Configurar popovers inteligentes que se adaptan a su posición
+    // Configurar popovers inteligentes que se adaptan a su posiciÃ³n
     document.querySelectorAll(".popover-toggle").forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        e.stopPropagation()
-        const popover = e.target.closest(".popover-toggle").nextElementSibling
+        e.stopPropagation();
+        const popover = e.target.closest(".popover-toggle").nextElementSibling;
 
         // Close current popover if different from clicked one
         if (currentOpenPopover && currentOpenPopover !== popover) {
-          currentOpenPopover.classList.add("hidden")
+          currentOpenPopover.classList.add("hidden");
         }
 
         // Si vamos a mostrar el popover, calcular si hay suficiente espacio abajo
         if (popover.classList.contains("hidden")) {
           // Obtener posiciones y dimensiones relevantes
-          const btnRect = btn.getBoundingClientRect()
-          const tableContainer = document.querySelector('.overflow-x-auto')
-          const tableContainerRect = tableContainer.getBoundingClientRect()
-          
-          // Espacio disponible debajo del botón dentro del contenedor
-          const spaceBelow = tableContainerRect.bottom - btnRect.bottom
-          // Altura estimada del popover (podría ser más preciso si conocemos la altura exacta)
-          const popoverHeight = 120 // altura aproximada en px
-          
+          const btnRect = btn.getBoundingClientRect();
+          const tableContainer = document.querySelector(".overflow-x-auto");
+          const tableContainerRect = tableContainer.getBoundingClientRect();
+
+          // Espacio disponible debajo del botÃ³n dentro del contenedor
+          const spaceBelow = tableContainerRect.bottom - btnRect.bottom;
+          // Altura estimada del popover (podrÃ­a ser mÃ¡s preciso si conocemos la altura exacta)
+          const popoverHeight = 120; // altura aproximada en px
+
           // Quitar clases y estilos anteriores
-          popover.classList.remove("top-full", "bottom-full")
-          popover.style.removeProperty("top")
-          popover.style.removeProperty("bottom")
-          
+          popover.classList.remove("top-full", "bottom-full");
+          popover.style.removeProperty("top");
+          popover.style.removeProperty("bottom");
+
           // Si no hay suficiente espacio abajo, mostrar arriba
           if (spaceBelow < popoverHeight) {
-            popover.style.bottom = "100%" // Coloca el popover arriba del botón
-            popover.style.top = "auto"
-            popover.classList.add("mb-1") // Margen para separación
+            popover.style.bottom = "100%"; // Coloca el popover arriba del botÃ³n
+            popover.style.top = "auto";
+            popover.classList.add("mb-1"); // Margen para separaciÃ³n
           } else {
-            popover.style.top = "100%" // Coloca el popover debajo del botón (por defecto)
-            popover.style.bottom = "auto"
-            popover.classList.add("mt-1") // Margen para separación
+            popover.style.top = "100%"; // Coloca el popover debajo del botÃ³n (por defecto)
+            popover.style.bottom = "auto";
+            popover.classList.add("mt-1"); // Margen para separaciÃ³n
           }
         }
 
         // Toggle clicked popover
-        popover.classList.toggle("hidden")
-        currentOpenPopover = popover.classList.contains("hidden") ? null : popover
-      })
-    })
+        popover.classList.toggle("hidden");
+        currentOpenPopover = popover.classList.contains("hidden")
+          ? null
+          : popover;
+      });
+    });
 
     // Eventos para cambio de rol
     document.querySelectorAll(".cambio-rol").forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        currentUserId = e.target.closest("button").dataset.userId
-        currentAction = "rol"
-        const user = usuarios.find((u) => u.id == currentUserId)
-        modalRolMensaje.textContent = `¿Estás seguro de cambiar el rol de ${user.nombre} ${user.apellido} a ${user.rol === "admin" ? "Cliente" : "Admin"}?`
-        modalRol.classList.remove("hidden")
-        closeAllPopovers() // Close popover when opening modal
-      })
-    })
+        currentUserId = e.target.closest("button").dataset.userId;
+        currentAction = "rol";
+        const user = usuarios.find((u) => u.id == currentUserId);
+        const nextRole = user.rol === "admin" ? "cliente" : "admin";
+        modalRolMensaje.textContent = `¿Estás seguro de cambiar el rol de ${
+          user.nombre
+        } ${user.apellido} a ${ROLE_LABELS[nextRole] || nextRole}?`;
+        modalRol.classList.remove("hidden");
+        closeAllPopovers(); // Close popover when opening modal
+      });
+    });
 
     // Eventos para eliminar
     document.querySelectorAll(".eliminar").forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        currentUserId = e.target.closest("button").dataset.userId
-        currentAction = "eliminar"
-        const user = usuarios.find((u) => u.id == currentUserId)
-        modalEliminarMensaje.textContent = `¿Estás seguro de eliminar a ${user.nombre} ${user.apellido}? Esta acción no se puede deshacer.`
-        modalEliminar.classList.remove("hidden")
-        closeAllPopovers() // Close popover when opening modal
-      })
-    })
+        currentUserId = e.target.closest("button").dataset.userId;
+        currentAction = "eliminar";
+        const user = usuarios.find((u) => u.id == currentUserId);
+        modalEliminarMensaje.textContent = `Â¿EstÃ¡s seguro de eliminar a ${user.nombre} ${user.apellido}? Esta acciÃ³n no se puede deshacer.`;
+        modalEliminar.classList.remove("hidden");
+        closeAllPopovers(); // Close popover when opening modal
+      });
+    });
   }
 
   async function actualizarUsuario(id, datos) {
@@ -203,16 +223,16 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),
-      })
-      const result = await response.json().catch(() => ({}))
+      });
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        await cargarUsuarios()
+        await cargarUsuarios();
       } else {
-        alert(result.error || "Error al actualizar usuario")
+        alert(result.error || "Error al actualizar usuario");
       }
     } catch (error) {
-      console.error("Error:", error)
-      alert("Error al actualizar usuario")
+      console.error("Error:", error);
+      alert("Error al actualizar usuario");
     }
   }
 
@@ -220,55 +240,57 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch(`/api/usuarios/${id}`, {
         method: "DELETE",
-      })
-      const result = await response.json().catch(() => ({}))
+      });
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        await cargarUsuarios()
+        await cargarUsuarios();
       } else {
-        alert(result.error || "Error al eliminar usuario")
+        alert(result.error || "Error al eliminar usuario");
       }
     } catch (error) {
-      console.error("Error:", error)
-      alert("Error al eliminar usuario")
+      console.error("Error:", error);
+      alert("Error al eliminar usuario");
     }
   }
 
   // Eventos de modales
-  cancelRol.addEventListener("click", () => modalRol.classList.add("hidden"))
+  cancelRol.addEventListener("click", () => modalRol.classList.add("hidden"));
   confirmRol.addEventListener("click", () => {
     if (currentAction === "rol") {
-      const user = usuarios.find((u) => u.id == currentUserId)
-      const nuevoRol = user.rol === "admin" ? "cliente" : "admin"
-      actualizarUsuario(currentUserId, { rol: nuevoRol })
+      const user = usuarios.find((u) => u.id == currentUserId);
+      const nextRole = user.rol === "admin" ? "cliente" : "admin";
+      actualizarUsuario(currentUserId, { rol: nextRole });
     }
-    modalRol.classList.add("hidden")
-  })
+    modalRol.classList.add("hidden");
+  });
 
-  cancelEliminar.addEventListener("click", () => modalEliminar.classList.add("hidden"))
+  cancelEliminar.addEventListener("click", () =>
+    modalEliminar.classList.add("hidden")
+  );
   confirmEliminar.addEventListener("click", () => {
     if (currentAction === "eliminar") {
-      eliminarUsuario(currentUserId)
+      eliminarUsuario(currentUserId);
     }
-    modalEliminar.classList.add("hidden")
-  })
+    modalEliminar.classList.add("hidden");
+  });
 
   // Buscador
-  searchInput.addEventListener("input", renderTable)
+  searchInput.addEventListener("input", renderTable);
 
   // Filtro de orden
   orderToggle.addEventListener("click", () => {
-    orderAsc = !orderAsc
+    orderAsc = !orderAsc;
     orderIcon.innerHTML = orderAsc
       ? `<path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4"/>`
-      : `<path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>`
+      : `<path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l4 4m-4-4l-4 4"/>`;
     orderToggle.innerHTML = `
       <svg id="order-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         ${orderIcon.innerHTML}
       </svg>
-      ${orderAsc ? "Más viejo primero" : "Más reciente primero"}
-    `
-    renderTable()
-  })
+      ${orderAsc ? "MÃ¡s viejo primero" : "MÃ¡s reciente primero"}
+    `;
+    renderTable();
+  });
 
-  cargarUsuarios()
-})
+  cargarUsuarios();
+});

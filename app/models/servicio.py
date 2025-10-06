@@ -9,6 +9,7 @@ class Servicio(db.Model):
     precio = db.Column(db.Numeric(10, 2), nullable=False)
     duracion = db.Column(db.Time, nullable=False)
     imagen_url = db.Column(db.String(255), nullable=True)  # URL de la imagen en la nube
+    transferido = db.Column(db.Numeric(10, 2), nullable=True, default=0)
 
     # Relaciones
     citas = db.relationship('Cita', back_populates='servicio', foreign_keys='Cita.servicio_id', lazy=True)

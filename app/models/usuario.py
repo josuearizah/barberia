@@ -12,7 +12,12 @@ class Usuario(db.Model, UserMixin):
     correo = db.Column(db.String(100), unique=True, nullable=False)
     # Sube el tamaño para hashes largos (scrypt/bcrypt/PBKDF2)
     contrasena = db.Column(db.String(255), nullable=False)
-    rol = db.Column(db.String(20), nullable=False, default='cliente')  # 'admin' o 'cliente'
+    ROL_CLIENTE = 'cliente'
+    ROL_ADMIN = 'admin'
+    ROL_SUPERADMIN = 'superadmin'
+    ROLES_ADMINISTRATIVOS = (ROL_ADMIN, ROL_SUPERADMIN)
+
+    rol = db.Column(db.String(20), nullable=False, default=ROL_CLIENTE)  # 'admin', 'superadmin' o 'cliente'
     # Añade estos campos a la clase Usuario (dentro de la definición de la clase)
     reset_codigo = db.Column(db.String(6), nullable=True)
     reset_expiracion = db.Column(db.DateTime, nullable=True)
@@ -26,8 +31,11 @@ class Usuario(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.contrasena, password)
 
+    def es_superadmin(self):
+        return self.rol == self.ROL_SUPERADMIN
+
     def es_admin(self):
-        return self.rol == 'admin'
+        return self.rol in self.ROLES_ADMINISTRATIVOS
 
     def es_cliente(self):
-        return self.rol == 'cliente'
+        return self.rol == self.ROL_CLIENTE

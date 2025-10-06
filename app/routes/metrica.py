@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, session
+﻿from flask import Blueprint, jsonify, request, session
 from sqlalchemy import func, cast, Float
 from app import db
 from app.models.usuario import Usuario
 from app.models.ingreso import Ingreso
 from app.models.cita import Cita
 from app.models.visita import VisitaPagina
+
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
 
 metrica_bp = Blueprint('metrica', __name__)
 
@@ -32,14 +34,14 @@ def metrica_dashboard():
             .filter(func.lower(Usuario.rol) == 'cliente').scalar() or 0
 
         # Ingresos por barbero (aislado por cuenta)
-        # Si hay un barbero autenticado (rol 'admin'), filtramos SIEMPRE por su propio usuario_id.
-        # Ignoramos cualquier barbero_id externo para evitar fugas de información.
-        barbero_id = session.get('usuario_id') if session.get('rol') == 'admin' else None
+        # Si hay un barbero autenticado (rol administrativo), filtramos SIEMPRE por su propio usuario_id.
+        # Ignoramos cualquier barbero_id externo para evitar fugas de informaciÃ³n.
+        barbero_id = session.get('usuario_id') if session.get('rol') in ADMIN_ROLES else None
 
         total_ingresos_q = db.session.query(func.coalesce(func.sum(cast(Ingreso.monto, Float)), 0.0))
         total_citas_completadas_q = db.session.query(func.count(Cita.id))
 
-        if barbero_id is not None and session.get('rol') == 'admin':
+        if barbero_id is not None and session.get('rol') in ADMIN_ROLES:
             total_ingresos_q = total_ingresos_q.filter(Ingreso.barbero_id == barbero_id)
             total_citas_completadas_q = total_citas_completadas_q.filter(
                 Cita.barbero_id == barbero_id,
@@ -64,3 +66,4 @@ def metrica_dashboard():
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+

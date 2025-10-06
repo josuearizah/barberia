@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const rangoBotones = document.querySelectorAll(".rango-btn");
   const ingresosTotalesEl = document.getElementById("ingresos-totales");
+  const transferidoEl = document.getElementById("ingresos-transferido");
+  const netoEl = document.getElementById("ingresos-neto");
+  // citasCompletadasEl ya no es métrica principal; mantener referencia defensiva
   const citasCompletadasEl = document.getElementById("citas-completadas");
   let tendenciaChart, distribucionChart;
   let rangoActual = "dia";
@@ -102,13 +105,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         fechaInicio
       )}&fecha_fin=${encodeURIComponent(fechaFin)}`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
+      if (!response.ok) {
+        const detalle = data && (data.detalle || data.error);
+        throw new Error(
+          detalle ? `${response.status}: ${detalle}` : `HTTP ${response.status}`
+        );
+      }
 
-      ingresosTotalesEl.textContent = `$${parseFloat(data.total || 0).toFixed(
-        2
-      )}`;
-      citasCompletadasEl.textContent = data.citas_completadas || 0;
+      const totalNum = parseFloat(data.total || 0);
+      const transferidoNum = parseFloat(data.transferido || 0); // ya firmado según rol
+      const netoNum = parseFloat(data.neto || 0);
+
+      ingresosTotalesEl.textContent = `$${totalNum.toFixed(2)}`;
+      if (transferidoEl) {
+        const esNeg = transferidoNum < 0;
+        transferidoEl.textContent = `${
+          transferidoNum < 0 ? "-" : "+"
+        }$${Math.abs(transferidoNum).toFixed(2)}`;
+        transferidoEl.classList.remove("text-green-400", "text-rose-400");
+        transferidoEl.classList.add(esNeg ? "text-rose-400" : "text-green-400");
+      }
+      if (netoEl) {
+        netoEl.textContent = `$${netoNum.toFixed(2)}`;
+      }
+      if (citasCompletadasEl) {
+        citasCompletadasEl.textContent = data.citas_completadas || 0;
+      }
 
       const ingresos = Array.isArray(data.ingresos) ? data.ingresos : [];
       const labels = [];
@@ -289,7 +312,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("Error al cargar datos:", error);
       mostrarError(
-        "Error al cargar los datos. Verifica la conexión o los datos en la base."
+        `Error al cargar los datos: ${
+          error.message || "Verifica la conexión o los datos en la base."
+        }`
       );
     }
   }

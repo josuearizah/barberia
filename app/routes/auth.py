@@ -12,6 +12,8 @@ import random
 import string
 
 
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
+
 bp = Blueprint('auth', __name__)
 
 # ========== LOGIN ==========
@@ -47,7 +49,7 @@ def index():
 def dashboard():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
-    if session.get('rol') == 'admin':
+    if session.get('rol') in ADMIN_ROLES:
         servicios = Servicio.query.all()
         return render_template('usuario/admin/admin_dashboard.html', servicios=servicios)
     return render_template('usuario/cliente/cliente_dashboard.html')
@@ -67,7 +69,7 @@ def citas():
     rol = session.get('rol')
     usuario_id = session.get('usuario_id')
 
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         citas = Cita.query.filter_by(barbero_id=usuario_id).order_by(Cita.fecha_creacion.asc(), Cita.id.asc()).all()
         _annotate_client_sequences(citas)
         return render_template('usuario/admin/admin_dashboard.html', citas=citas)
@@ -83,13 +85,13 @@ def calendario():
         return redirect(url_for('auth.login'))
     
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')
 
 @bp.route('/servicios')
 def servicios():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('auth.index'))
     servicios = Servicio.query.all()
@@ -97,7 +99,7 @@ def servicios():
 
 @bp.route('/admin/estilos')
 def estilos():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('auth.index'))
     estilos = Estilo.query.all()
@@ -105,7 +107,7 @@ def estilos():
 
 @bp.route('/clientes')
 def clientes():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         flash('Acceso no autorizado.', 'error')
         return redirect(url_for('auth.index'))
     return render_template('usuario/admin/admin_dashboard.html')
@@ -115,7 +117,7 @@ def historial():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')
 
@@ -124,7 +126,7 @@ def ingresos():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')
 
@@ -133,7 +135,7 @@ def pagos():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     # Por ahora no hay vista de pagos para cliente
     return render_template('usuario/cliente/cliente_dashboard.html')
@@ -147,7 +149,7 @@ def configuracion():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')
 
@@ -447,6 +449,6 @@ def finanzas():
     if 'usuario_id' not in session:
         return redirect(url_for('auth.login'))
     rol = session.get('rol')
-    if rol == 'admin':
+    if rol in ADMIN_ROLES:
         return render_template('usuario/admin/admin_dashboard.html')
     return render_template('usuario/cliente/cliente_dashboard.html')

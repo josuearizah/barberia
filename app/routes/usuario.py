@@ -1,11 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+﻿from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 import re
 from app import db
 from app.models.usuario import Usuario
 from app.models.notificacion import Notificacion
 
-OWNER_ADMIN_ID = 3
 PROTECTED_CLIENT_ID = 6
+
+ADMIN_ROLES = {Usuario.ROL_ADMIN, Usuario.ROL_SUPERADMIN}
 
 bp = Blueprint('usuario', __name__)
 
@@ -22,16 +23,16 @@ def register():
         try:
             usuario_existente = Usuario.query.filter_by(correo=correo).first()
             if usuario_existente:
-                flash('El correo ya está registrado.', 'error')
+                flash('El correo ya estÃ¡ registrado.', 'error')
                 return render_template('usuario/register.html')
         except Exception as e:
             print("Error al buscar el correo:", e)
             flash('Error interno al validar el usuario.', 'error')
             return render_template('usuario/register.html')
 
-        # Validar complejidad de contraseña
+        # Validar complejidad de contraseÃ±a
         if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', (contrasena or '')):
-            flash('La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula', 'error')
+            flash('La contraseÃ±a debe tener mÃ­nimo 8 caracteres, 1 nÃºmero y 1 mayÃºscula', 'error')
             return render_template('usuario/register.html')
 
         try:
@@ -46,12 +47,12 @@ def register():
             db.session.commit()
             # Notificar a administradores sobre nuevo registro
             try:
-                admins = Usuario.query.filter_by(rol='admin').all()
+                admins = Usuario.query.filter(Usuario.rol.in_(Usuario.ROLES_ADMINISTRATIVOS)).all()
                 for a in admins:
                     n = Notificacion(
                         usuario_id=a.id,
                         titulo='Nuevo usuario registrado',
-                        mensaje=f"Se registró {nombre} {apellido}",
+                        mensaje=f"Se registrÃ³ {nombre} {apellido}",
                         tipo='usuario',
                         prioridad='baja',
                         data={"url": "/clientes"}
@@ -61,7 +62,7 @@ def register():
             except Exception:
                 db.session.rollback()
 
-            flash('Registro exitoso. Ya puedes iniciar sesión.', 'success')
+            flash('Registro exitoso. Ya puedes iniciar sesiÃ³n.', 'success')
             return redirect(url_for('auth.login'))
 
         except Exception as e:
@@ -74,7 +75,7 @@ def register():
 
 @bp.route('/api/usuarios', methods=['GET'])
 def obtener_usuarios():
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'No autorizado'}), 403
     usuarios = Usuario.query.all()
     return jsonify([{
@@ -88,30 +89,31 @@ def obtener_usuarios():
 
 @bp.route('/api/usuarios/<int:id>', methods=['PUT'])
 def actualizar_usuario(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'No autorizado'}), 403
     usuario = Usuario.query.get_or_404(id)
-    data = request.json
+    data = request.json or {}
     if 'rol' in data:
         nuevo_rol = data['rol']
-        if id == OWNER_ADMIN_ID and nuevo_rol != usuario.rol:
-            return jsonify({'error': 'No se puede cambiar el rol del administrador principal'}), 400
+        roles_validos = {Usuario.ROL_CLIENTE, *Usuario.ROLES_ADMINISTRATIVOS}
+        if nuevo_rol not in roles_validos:
+            return jsonify({'error': 'Rol no válido'}), 400
+        if usuario.es_superadmin() and nuevo_rol != usuario.rol:
+            return jsonify({'error': 'No se puede cambiar el rol del superadministrador'}), 400
         usuario.rol = nuevo_rol
     db.session.commit()
     return jsonify({'success': True}), 200
 
 @bp.route('/api/usuarios/<int:id>', methods=['DELETE'])
 def eliminar_usuario(id):
-    if session.get('rol') != 'admin':
+    if session.get('rol') not in ADMIN_ROLES:
         return jsonify({'error': 'No autorizado'}), 403
     usuario = Usuario.query.get_or_404(id)
-    if id in (OWNER_ADMIN_ID, PROTECTED_CLIENT_ID):
+    if usuario.es_superadmin() or id == PROTECTED_CLIENT_ID:
         return jsonify({'error': 'Este usuario está protegido y no puede eliminarse'}), 400
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({'success': True}), 200
-
-# Añade esta nueva ruta al final del archivo
 
 @bp.route('/api/barberos', methods=['GET'])
 def obtener_barberos():
@@ -119,8 +121,8 @@ def obtener_barberos():
         from app.models.perfil import Perfil
         import json
         
-        # Obtener usuarios con rol de admin que actuarán como barberos
-        barberos = Usuario.query.filter_by(rol='admin').all()
+        # Obtener usuarios con rol de admin que actuarÃ¡n como barberos
+        barberos = Usuario.query.filter(Usuario.rol.in_(Usuario.ROLES_ADMINISTRATIVOS)).all()
         
         resultado = []
         for barbero in barberos:
@@ -133,7 +135,7 @@ def obtener_barberos():
                 try:
                     redes_sociales = json.loads(perfil.redes_sociales)
                 except:
-                    # Si hay un error al parsear el JSON, dejamos la lista vacía
+                    # Si hay un error al parsear el JSON, dejamos la lista vacÃ­a
                     pass
             
             # Crear objeto con los datos del barbero
@@ -151,3 +153,8 @@ def obtener_barberos():
     except Exception as e:
         print("Error al obtener barberos:", e)
         return jsonify({'error': str(e)}), 500
+
+
+
+
+

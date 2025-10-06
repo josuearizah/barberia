@@ -146,8 +146,57 @@ def obtener_ingresos():
         distribucion_rows = dq.group_by(Servicio.nombre).order_by(func.sum(Ingreso.monto).desc()).all()
         distribucion = [{'servicio_nombre': r.servicio_nombre, 'monto': float(r.monto or 0)} for r in distribucion_rows]
 
+    # NUEVA LÓGICA:
+    # - Para admin: transferido = suma de Servicio.transferido (sus servicios) con signo negativo; neto = total - transferido_abs
+    # - Para superadmin: transferido = suma de Servicio.transferido de TODOS los demás barberos (positivo); neto = total + transferido
+    #   (el superadmin NO transfiere sobre sus propios servicios).
+    # (Se usa la importación superior de Servicio; no re-importar dentro de la función para evitar UnboundLocalError.)
+        rol_usuario = session.get('rol')
+
+        transferido_signed = 0.0
+        neto = total
+
+        if rol_usuario == 'admin':
+            # Sumar transferido por cada ingreso del propio barbero (ignorar NULL -> 0)
+            admin_comm_q = (
+                db.session.query(func.coalesce(func.sum(Servicio.transferido), 0.0))
+                .select_from(Ingreso)
+                .join(Servicio, Servicio.id == Ingreso.servicio_id)
+                .join(Cita, Ingreso.cita_id == Cita.id)
+                .filter(Ingreso.barbero_id == barbero_id)
+            )
+            if fi_date:
+                admin_comm_q = admin_comm_q.filter(Cita.fecha_cita >= fi_date)
+            if ff_date:
+                admin_comm_q = admin_comm_q.filter(Cita.fecha_cita <= ff_date)
+            transferido_abs = float(admin_comm_q.scalar() or 0.0)
+            transferido_signed = -abs(transferido_abs)  # negativo para el admin
+            neto = total - abs(transferido_abs)
+        elif rol_usuario == 'superadmin':
+            # Sumar transferidos de otros barberos (excluyendo al propio superadmin)
+            super_comm_q = (
+                db.session.query(func.coalesce(func.sum(Servicio.transferido), 0.0))
+                .select_from(Ingreso)
+                .join(Servicio, Servicio.id == Ingreso.servicio_id)
+                .join(Cita, Ingreso.cita_id == Cita.id)
+                .filter(Ingreso.barbero_id != barbero_id)
+            )
+            if fi_date:
+                super_comm_q = super_comm_q.filter(Cita.fecha_cita >= fi_date)
+            if ff_date:
+                super_comm_q = super_comm_q.filter(Cita.fecha_cita <= ff_date)
+            transferido_received = float(super_comm_q.scalar() or 0.0)
+            transferido_signed = abs(transferido_received)  # positivo
+            neto = total + abs(transferido_received)
+        else:
+            # Cliente: no aplica transferencias
+            transferido_signed = 0.0
+            neto = total
+
         return jsonify({
             'total': total,
+            'transferido': transferido_signed,
+            'neto': neto,
             'citas_completadas': citas_completadas,  # ahora es por cita, no por ingreso
             'ingresos': ingresos_list,
             'tendencia': tendencia,
