@@ -8,6 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 import re
 from app.models.notificacion import Notificacion
+from sqlalchemy import func
 
 cita_bp = Blueprint('cita', __name__)
 
@@ -79,6 +80,24 @@ def _annotate_client_sequences(citas):
     except Exception:
         # Fallback silencioso: no es crítico si falla
         pass
+
+
+
+def _client_sequence_for_cita(cita):
+    """Devuelve el numero secuencial de la cita para el cliente."""
+    if not cita or not getattr(cita, 'usuario_id', None):
+        return None
+    try:
+        return (
+            db.session.query(func.count(Cita.id))
+            .filter(
+                Cita.usuario_id == cita.usuario_id,
+                Cita.fecha_creacion <= cita.fecha_creacion
+            )
+            .scalar()
+        )
+    except Exception:
+        return None
 
 @cita_bp.route('/reservar_cita', methods=['GET', 'POST'])
 def reservar_cita():
@@ -341,7 +360,7 @@ def actualizar_estado_cita(cita_id):
         
         # Verificar permisos y validaciones
         usuario_id = session['usuario_id']
-        if session.get('rol') != 'admin' and cita.usuario_id != usuario_id:
+        if session.get('rol') not in Usuario.ROLES_ADMINISTRATIVOS and cita.usuario_id != usuario_id:
             return jsonify({'error': 'No autorizado para modificar esta cita'}), 403
         
         if cita.estado == 'completado' and nuevo_estado != 'completado':
@@ -410,15 +429,24 @@ def actualizar_estado_cita(cita_id):
                     'completado': 'completada con éxito'
                 }.get(nuevo_estado, nuevo_estado)
                 hora12 = _to_12h(cita.hora)
-                tit = f"Tu cita #{cita.id}"
-                msg = f"Tu cita #{cita.id} ha sido {estado_lbl}. Día {cita.fecha_cita} a las {hora12}."
+                client_sequence = _client_sequence_for_cita(cita)
+                display_id = client_sequence or cita.id
+                tit = f"Tu cita #{display_id}"
+                msg = f"Tu cita #{display_id} ha sido {estado_lbl}. Dia {cita.fecha_cita} a las {hora12}."
                 n = Notificacion(
                     usuario_id=cita.usuario_id,
                     titulo=tit,
                     mensaje=msg,
                     tipo='cita',
                     prioridad='alta' if nuevo_estado in ['confirmado','cancelado'] else 'media',
-                    data={"url": "/citas", "estado": nuevo_estado, "cita_id": cita.id, "fecha": str(cita.fecha_cita), "hora": hora12}
+                    data={
+                        "url": "/citas",
+                        "estado": nuevo_estado,
+                        "cita_id": cita.id,
+                        "client_sequence": client_sequence,
+                        "fecha": str(cita.fecha_cita),
+                        "hora": hora12
+                    }
                 )
                 db.session.add(n)
                 db.session.commit()
@@ -454,8 +482,8 @@ def resumen_cita(cita_id):
         usuario_id = session['usuario_id']
 
         # Permisos: barbero de la cita o cliente dueño de la cita
-        if session.get('rol') == 'admin':
-            if cita.barbero_id != usuario_id:
+        if session.get('rol') in Usuario.ROLES_ADMINISTRATIVOS:
+            if cita.barbero_id != usuario_id and session.get('rol') != Usuario.ROL_SUPERADMIN:
                 return jsonify({'error': 'No autorizado'}), 403
         else:
             if cita.usuario_id != usuario_id:

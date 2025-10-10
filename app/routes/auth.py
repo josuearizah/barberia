@@ -30,7 +30,7 @@ def login():
             session['nombre'] = usuario.nombre
             session['apellido'] = usuario.apellido
             session['correo'] = usuario.correo 
-            session['telefono'] = usuario.telefono
+            session['telefono'] = usuario.telefono or ''
             session['rol'] = usuario.rol
             flash('Inicio de sesión exitoso', 'success')
             return redirect(url_for('auth.index'))
@@ -428,8 +428,8 @@ def completar_reset():
         return jsonify({'error': 'Sesión expirada. Inicia el proceso nuevamente.'}), 400
     
     # Validar complejidad de contraseña
-    if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', password or ''):
-        return jsonify({'error': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
+    if not password or len(password) < 8:
+        return jsonify({'error': 'La contraseña debe tener mínimo 8 caracteres'}), 400
 
     # Cambiar contraseña
     usuario.set_password(password)

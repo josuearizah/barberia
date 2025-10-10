@@ -8,7 +8,7 @@ class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     apellido = db.Column(db.String(50), nullable=False)
-    telefono = db.Column(db.String(20), nullable=False)
+    telefono = db.Column(db.String(20), nullable=True)
     correo = db.Column(db.String(100), unique=True, nullable=False)
     # Sube el tamaño para hashes largos (scrypt/bcrypt/PBKDF2)
     contrasena = db.Column(db.String(255), nullable=False)

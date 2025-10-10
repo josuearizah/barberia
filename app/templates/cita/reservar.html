@@ -21,7 +21,7 @@
                     
                     <div>
                         <label for="phone" class="block text-gray-700 font-medium mb-2">Teléfono</label>
-                        <input type="tel" id="phone" name="phone" value="{{ session['telefono'] }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500" required>
+                        <input type="tel" id="phone" name="phone" value="{{ session.get('telefono', '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500">
                     </div>
                     
                     <div>

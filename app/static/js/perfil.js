@@ -238,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       userProfile.nombre = data.usuario?.nombre || userProfile.nombre;
       userProfile.apellido = data.usuario?.apellido || userProfile.apellido;
-      userProfile.telefono = data.usuario?.telefono || userProfile.telefono;
+      userProfile.telefono = data.usuario && data.usuario.telefono != null ? data.usuario.telefono : null;
       userProfile.descripcion = data.perfil?.descripcion || userProfile.descripcion;
       const fetchedImage = data.profile?.profileImage ?? data.perfil?.imagen ?? null;
       userProfile.profileImage = fetchedImage;
@@ -279,8 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // NOTA: No bloquea el envío. Para ACTIVAR validación fuerte, descomenta el bloque indicado en handleChangePasswordSubmit
   const pwRules = {
     min8: { label: "Mínimo 8 caracteres", test: (v) => v.length >= 8 },
-    number: { label: "Al menos 1 número", test: (v) => /\d/.test(v) },
-    upper: { label: "Al menos 1 mayúscula", test: (v) => /[A-Z]/.test(v) },
   };
   let pwRulesEls = null;
 
@@ -361,7 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ----------------- Cambiar contraseña (sin bloquear por reglas visuales) -----------------
   function validateNewPasswordForSubmit(pw) {
-    return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(pw);
+    return typeof pw === 'string' && pw.length >= 8;
   }
 
   if (changePasswordBtn) {
@@ -447,8 +445,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!/^(?=.*[A-Z])(?=.*\d).{8,}$/.test(next)) {
-      showNotification("La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula", "error");
+    if (next.length < 8) {
+      showNotification("La contraseña debe tener mínimo 8 caracteres", "error");
       return;
     }
 
@@ -549,6 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nombre = (document.getElementById("edit-name")?.value || "").trim();
     const apellido = (document.getElementById("edit-lastname")?.value || "").trim();
     const telefono = (document.getElementById("edit-phone")?.value || "").trim();
+    const normalizedPhone = telefono || null;
     const descripcion = (document.getElementById("edit-description")?.value || "").trim();
 
     if (!nombre || !apellido) {
@@ -556,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    userProfile = { ...userProfile, nombre, apellido, telefono, descripcion };
+    userProfile = { ...userProfile, nombre, apellido, telefono: normalizedPhone, descripcion };
 
     try {
       await savePerfil();

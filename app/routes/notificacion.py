@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, session, Response, stream_with_context, render_template
+from flask import Blueprint, request, jsonify, session, Response, stream_with_context, render_template, current_app
 from datetime import datetime
-from time import sleep
+from time import sleep, monotonic
+from sqlalchemy import func, case
 from app import db
 from app.models.notificacion import Notificacion
 import json
@@ -69,24 +70,66 @@ def marcar_todas_leidas():
     return jsonify({'success': True})
 
 
+
+
 @notificacion_bp.route('/api/notificaciones/sse')
 def sse_notificaciones():
     uid = _require_login()
     if not uid:
         return jsonify({'error': 'No autenticado'}), 401
 
+    def _fetch_snapshot():
+        unread_expr = func.coalesce(func.sum(case((Notificacion.leida.is_(False), 1), else_=0)), 0)
+        stats = db.session.query(
+            unread_expr.label('unread_count'),
+            func.max(Notificacion.id),
+            func.max(func.coalesce(Notificacion.leida_en, Notificacion.creada_en)),
+            func.max(Notificacion.creada_en)
+        ).filter(Notificacion.usuario_id == uid).one()
+
+        unread_count, latest_id, last_activity, latest_created = stats
+        return {
+            'count': int(unread_count or 0),
+            'latest_id': int(latest_id or 0),
+            'last_activity': last_activity.isoformat() if last_activity else None,
+            'latest_created': latest_created.isoformat() if latest_created else None
+        }
+
     def event_stream():
-        # Envío inicial
-        count = Notificacion.query.filter_by(usuario_id=uid, leida=False).count()
-        yield f"event: init\ndata: {{\"count\": {count}}}\n\n"
-        # Mantener viva la conexión y enviar conteo cada 20s
-        while True:
-            sleep(20)
-            try:
-                count = Notificacion.query.filter_by(usuario_id=uid, leida=False).count()
-                yield f"event: tick\ndata: {{\"count\": {count}}}\n\n"
-            except Exception:
-                break
+        last_payload = None
+        last_heartbeat = monotonic()
+        check_interval = 2
+        heartbeat_interval = 15
+
+        try:
+            payload = _fetch_snapshot()
+        except Exception as exc:
+            current_app.logger.exception('Error obteniendo snapshot inicial de notificaciones', exc_info=exc)
+            return
+
+        try:
+            yield f"retry: 5000\nid: {payload['latest_id']}\nevent: update\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+            last_payload = payload
+            last_heartbeat = monotonic()
+
+            while True:
+                sleep(check_interval)
+                try:
+                    payload = _fetch_snapshot()
+                    if payload != last_payload:
+                        yield f"id: {payload['latest_id']}\nevent: update\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+                        last_payload = payload
+                        last_heartbeat = monotonic()
+                    elif monotonic() - last_heartbeat >= heartbeat_interval:
+                        yield f": heartbeat {datetime.utcnow().isoformat()}\n\n"
+                        last_heartbeat = monotonic()
+                except GeneratorExit:
+                    break
+                except Exception as exc:
+                    current_app.logger.exception('Error transmitiendo notificaciones SSE', exc_info=exc)
+                    break
+        finally:
+            db.session.remove()
 
     headers = {
         'Content-Type': 'text/event-stream',

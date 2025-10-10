@@ -1,8 +1,13 @@
-function verificarYReservar() {
+function verificarYReservar(serviceId = null) {
   const usuarioLogueado =
     document.body.getAttribute("data-usuario-logueado") === "True";
   if (usuarioLogueado) {
-    window.location.href = "/reservar_cita";
+    let destino = "/reservar_cita";
+    if (serviceId) {
+      const params = new URLSearchParams({ service_id: serviceId });
+      destino = `${destino}?${params.toString()}`;
+    }
+    window.location.href = destino;
   } else {
     alert("Debe iniciar sesión para reservar una cita");
     window.location.href = "/login";
@@ -60,7 +65,7 @@ async function cargarServicios() {
 
       // Definir clases condicionales
       let cardClass =
-        "service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 relative";
+        "service-card bg-gray-50 rounded-lg overflow-hidden shadow-md transition duration-300 relative cursor-pointer transform hover:-translate-y-1 hover:shadow-xl";
 
       if (tieneDescuento) {
         // Añadir clase de animación para servicios con descuento
@@ -131,6 +136,17 @@ async function cargarServicios() {
                     </div>
                 </div>
             `;
+      const handleCardActivation = () => verificarYReservar(s.id);
+      div.addEventListener("click", handleCardActivation);
+      div.addEventListener("keydown", (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleCardActivation();
+        }
+      });
+      div.setAttribute('role', 'link');
+      div.setAttribute('tabindex', '0');
+      div.setAttribute('aria-label', `Reservar ${s.nombre}`);
       grid.appendChild(div);
     });
 

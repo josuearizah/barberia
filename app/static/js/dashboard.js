@@ -178,32 +178,139 @@ document.addEventListener('DOMContentLoaded', function () {
     console.error('Error inicializando dashboard:', e);
   }
 
-  // Notificaciones: SSE para el contador en admin dashboard (header icon)
+  // Notificaciones: badges sincronizados con eventos globales
   function updateAdminBadge(count) {
     const ids = ['admin-notif-count', 'client-notif-count'];
     ids.forEach((id) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.textContent = String(count || 0);
-      el.classList.toggle('hidden', !count);
+      const numeric = Number(count);
+      const safeCount = Number.isFinite(numeric) ? Math.max(Math.trunc(numeric), 0) : 0;
+      el.textContent = safeCount || 0;
+      el.classList.toggle('hidden', safeCount === 0);
     });
   }
-  try {
-    const es = new EventSource('/api/notificaciones/sse');
-    es.addEventListener('init', (e) => {
-      try { const d = JSON.parse(e.data); updateAdminBadge(d.count || 0); } catch {}
-    });
-    es.addEventListener('tick', (e) => {
-      try { const d = JSON.parse(e.data); updateAdminBadge(d.count || 0); } catch {}
-    });
-    es.onerror = () => {
-      es.close();
-      (async function poll(){
-        try { const r = await fetch('/api/notificaciones/unread_count'); const j = await r.json(); updateAdminBadge(j.count || 0); } catch {}
-        setTimeout(poll, 30000);
-      })();
+
+  function normalizeSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== 'object') {
+      return null;
+    }
+    const previous = window.__lastNotificationSnapshot || {};
+    const countValue = Number(snapshot.count);
+    const latestProvided = Object.prototype.hasOwnProperty.call(snapshot, 'latest_id') ? Number(snapshot.latest_id) : Number(previous.latest_id);
+    const lastActivityProvided = Object.prototype.hasOwnProperty.call(snapshot, 'last_activity') ? snapshot.last_activity : previous.last_activity;
+    const latestCreatedProvided = Object.prototype.hasOwnProperty.call(snapshot, 'latest_created') ? snapshot.latest_created : previous.latest_created;
+
+    return {
+      count: Number.isFinite(countValue) ? Math.max(Math.trunc(countValue), 0) : 0,
+      latest_id: Number.isFinite(latestProvided) ? Math.max(Math.trunc(latestProvided), 0) : 0,
+      last_activity: lastActivityProvided || null,
+      latest_created: latestCreatedProvided || null
     };
-  } catch (e) {}
+  }
+
+  function applySnapshot(snapshot) {
+    const detail = normalizeSnapshot(snapshot);
+    if (!detail) {
+      updateAdminBadge(0);
+      return;
+    }
+    updateAdminBadge(detail.count);
+    window.__lastNotificationSnapshot = {
+      ...(window.__lastNotificationSnapshot || {}),
+      ...detail
+    };
+  }
+
+  document.addEventListener('notifications:update', (event) => {
+    applySnapshot(event.detail);
+  });
+
+  if (window.__lastNotificationSnapshot) {
+    applySnapshot(window.__lastNotificationSnapshot);
+  }
+
+  let adminPollTimerId = null;
+  let adminSseSource = null;
+
+  function stopAdminPolling() {
+    if (adminPollTimerId !== null) {
+      clearTimeout(adminPollTimerId);
+      adminPollTimerId = null;
+    }
+  }
+
+  async function pollAdminSnapshot() {
+    try {
+      const res = await fetch('/api/notificaciones/unread_count', { credentials: 'same-origin' });
+      if (!res.ok) {
+        throw new Error('Solicitud fallida');
+      }
+      const data = await res.json();
+      applySnapshot({ count: data.count || 0 });
+    } catch (error) {
+      console.error('Error al consultar notificaciones (poll)', error);
+    }
+  }
+
+  function startAdminPolling(intervalMs = 15000) {
+    if (adminPollTimerId !== null) {
+      return;
+    }
+    const poll = async () => {
+      await pollAdminSnapshot();
+      adminPollTimerId = setTimeout(poll, intervalMs);
+    };
+    poll();
+  }
+
+  function startAdminSse() {
+    if (typeof EventSource === 'undefined') {
+      startAdminPolling();
+      return;
+    }
+    if (adminSseSource) {
+      return;
+    }
+
+    try {
+      const es = new EventSource('/api/notificaciones/sse');
+      adminSseSource = es;
+      if (!window.__notificationsSseActive) {
+        window.__notificationsSseActive = 'dashboard';
+      }
+
+      es.addEventListener('update', (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          applySnapshot(data);
+          stopAdminPolling();
+        } catch (error) {
+          console.error('Error procesando notificaciones SSE (dashboard)', error);
+        }
+      });
+
+      es.onerror = () => {
+        es.close();
+        adminSseSource = null;
+        if (window.__notificationsSseActive === 'dashboard') {
+          window.__notificationsSseActive = null;
+        }
+        startAdminPolling();
+      };
+    } catch (error) {
+      adminSseSource = null;
+      if (window.__notificationsSseActive === 'dashboard') {
+        window.__notificationsSseActive = null;
+      }
+      startAdminPolling();
+    }
+  }
+
+  startAdminPolling();
+  if (!window.__notificationsSseActive) {
+    startAdminSse();
+  }
 });
 
 async function cargarMetricasDashboard() {

@@ -23,13 +23,73 @@ content %}
 </section>
 
 <script>
+  const NAV_BADGE_IDS = [
+    "notif-count",
+    "notif-count-menu",
+    "notif-count-avatar",
+    "notif-count-mobile",
+    "notif-count-hamburger"
+  ];
+  let notificationsRefreshScheduled = false;
+  let lastSnapshotSignature = null;
+
+  function snapshotSignature(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") return null;
+    const previous = window.__lastNotificationSnapshot || {};
+    const countValue = Number(snapshot.count);
+    const safeCount = Number.isFinite(countValue) ? Math.max(Math.trunc(countValue), 0) : 0;
+    const latestSource = Object.prototype.hasOwnProperty.call(snapshot, "latest_id")
+      ? snapshot.latest_id
+      : previous.latest_id;
+    const latestNumeric = Number(latestSource);
+    const safeLatestId = Number.isFinite(latestNumeric) ? Math.max(Math.trunc(latestNumeric), 0) : 0;
+    const lastActivitySource = Object.prototype.hasOwnProperty.call(snapshot, "last_activity")
+      ? snapshot.last_activity
+      : previous.last_activity;
+    const lastActivity = lastActivitySource || "";
+    return `${safeCount}|${safeLatestId}|${lastActivity}`;
+  }
+
+  function publishSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") return;
+    try {
+      document.dispatchEvent(new CustomEvent("notifications:update", { detail: snapshot }));
+    } catch (error) {
+      // Silenciar fallos del bridge de eventos
+    }
+  }
+
+  const initialSnapshot = window.__lastNotificationSnapshot || null;
+  if (initialSnapshot) {
+    lastSnapshotSignature = snapshotSignature(initialSnapshot);
+  }
+
+  function scheduleRefreshFromSnapshot(snapshot) {
+    const signature = snapshotSignature(snapshot);
+    if (signature && signature === lastSnapshotSignature) {
+      return;
+    }
+    if (notificationsRefreshScheduled) {
+      return;
+    }
+    notificationsRefreshScheduled = true;
+    setTimeout(() => {
+      notificationsRefreshScheduled = false;
+      fetchNotifs();
+    }, 150);
+  }
+
+  document.addEventListener("notifications:update", (event) => {
+    scheduleRefreshFromSnapshot(event.detail || null);
+  });
+
   function estadoPill(estado) {
     if (!estado) return "";
     const map = {
       confirmado: "bg-blue-100 text-blue-700 border-blue-200",
       cancelado: "bg-rose-100 text-rose-700 border-rose-200",
       completado: "bg-green-100 text-green-700 border-green-200",
-      reservada: "bg-amber-100 text-amber-700 border-amber-200",
+      reservada: "bg-amber-100 text-amber-700 border-amber-200"
     };
     const cls = map[estado] || "bg-gray-100 text-gray-700 border-gray-200";
     const label =
@@ -59,21 +119,62 @@ content %}
       .padStart(2, "0")} ${sufijo}`;
   }
 
+  function updateNavCounters(count) {
+    const numericValue = Number(count);
+    const safeCount = Number.isFinite(numericValue) ? Math.max(Math.trunc(numericValue), 0) : 0;
+
+    if (typeof updateNotifBadges === "function") {
+      updateNotifBadges(safeCount);
+    } else {
+      const displayValue = safeCount > 99 ? "99+" : String(safeCount);
+      NAV_BADGE_IDS.map((id) => document.getElementById(id))
+        .filter(Boolean)
+        .forEach((el) => {
+          el.textContent = displayValue;
+          el.classList.toggle("hidden", safeCount === 0);
+        });
+    }
+
+    if (window.__lastNotificationSnapshot) {
+      window.__lastNotificationSnapshot = {
+        ...window.__lastNotificationSnapshot,
+        count: safeCount
+      };
+    } else {
+      window.__lastNotificationSnapshot = {
+        count: safeCount,
+        latest_id: 0,
+        last_activity: null,
+        latest_created: null
+      };
+    }
+  }
+
   async function fetchNotifs() {
     const list = document.getElementById("notif-list");
     const summary = document.getElementById("notif-summary");
     try {
-      const res = await fetch("/api/notificaciones?limit=50");
+      const res = await fetch("/api/notificaciones?limit=50", { credentials: "same-origin" });
       if (!res.ok) throw new Error("No se pudo obtener notificaciones");
       const data = await res.json();
-      if (!Array.isArray(data)) throw new Error("Respuesta inválida");
+      if (!Array.isArray(data)) throw new Error("Respuesta invalida");
 
       const unreadCount = data.filter((n) => !n.leida).length;
       summary.textContent = `${unreadCount} sin leer, ${data.length} totales`;
+      updateNavCounters(unreadCount);
 
       if (data.length === 0) {
         list.innerHTML =
           '<div class="p-4 bg-gray-50 text-gray-600 rounded">No tienes notificaciones.</div>';
+        const snapshot = {
+          count: unreadCount,
+          latest_id: (window.__lastNotificationSnapshot && window.__lastNotificationSnapshot.latest_id) || 0,
+          last_activity: (window.__lastNotificationSnapshot && window.__lastNotificationSnapshot.last_activity) || null,
+          latest_created: (window.__lastNotificationSnapshot && window.__lastNotificationSnapshot.latest_created) || null
+        };
+        window.__lastNotificationSnapshot = snapshot;
+        lastSnapshotSignature = snapshotSignature(snapshot);
+        publishSnapshot(snapshot);
         return;
       }
 
@@ -92,9 +193,9 @@ content %}
             const citaLabel = citaId ? `Tu cita #${citaId}` : "Tu cita";
             const fechaHoraTexto =
               fecha && horaFormateada
-                ? `Día ${fecha} a las ${horaFormateada}`
+                ? `Dia ${fecha} a las ${horaFormateada}`
                 : fecha
-                ? `Día ${fecha}`
+                ? `Dia ${fecha}`
                 : horaFormateada
                 ? `A las ${horaFormateada}`
                 : "";
@@ -121,7 +222,7 @@ content %}
           <div>
             <h3 class="font-semibold ${
               n.leida ? "text-gray-800" : "text-gray-900"
-            }">${n.titulo || "Notificación"}</h3>
+            }">${n.titulo || "Notificacion"}</h3>
             ${bodyHtml}
             ${linkHtml}
           </div>
@@ -129,7 +230,7 @@ content %}
             ${
               n.leida
                 ? ""
-                : `<button data-id="${n.id}" class="mark-one text-xs px-2 py-1 bg-gray-800 text-white rounded">Marcar leída</button>`
+                : `<button data-id="${n.id}" class="mark-one text-xs px-2 py-1 bg-gray-800 text-white rounded">Marcar leida</button>`
             }
           </div>
         </div>
@@ -140,11 +241,29 @@ content %}
       document.querySelectorAll(".mark-one").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
-          await fetch(`/api/notificaciones/${id}/leida`, { method: "POST" });
+          try {
+            await fetch(`/api/notificaciones/${id}/leida`, { method: "POST", credentials: "same-origin" });
+          } catch (error) {
+            console.error("Error al marcar notificacion", error);
+          }
           fetchNotifs();
-          updateNavCounters();
         });
       });
+
+      const latestNotification = data[0] || null;
+      const previousSnapshot = window.__lastNotificationSnapshot || {};
+      const snapshot = {
+        count: unreadCount,
+        latest_id: (latestNotification && latestNotification.id) ?? previousSnapshot.latest_id ?? 0,
+        last_activity:
+          (latestNotification && (latestNotification.leida_en || latestNotification.creada_en)) ??
+          previousSnapshot.last_activity ??
+          null,
+        latest_created: (latestNotification && latestNotification.creada_en) ?? previousSnapshot.latest_created ?? null
+      };
+      window.__lastNotificationSnapshot = snapshot;
+      lastSnapshotSignature = snapshotSignature(snapshot);
+      publishSnapshot(snapshot);
     } catch (error) {
       console.error("Error al cargar notificaciones", error);
       summary.textContent = "No se pudieron cargar las notificaciones";
@@ -154,37 +273,17 @@ content %}
   }
 
   async function markAll() {
-    await fetch("/api/notificaciones/leidas_todas", { method: "POST" });
-    fetchNotifs();
-    updateNavCounters();
-  }
-
-  async function updateNavCounters() {
     try {
-      const res = await fetch("/api/notificaciones/unread_count");
-      if (!res.ok) return;
-      const data = await res.json();
-      const c = data.count || 0;
-      const ids = [
-        "notif-count",
-        "notif-count-menu",
-        "notif-count-avatar",
-        "notif-count-mobile",
-      ];
-      ids.forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = c;
-        el.classList.toggle("hidden", c === 0);
-      });
+      await fetch("/api/notificaciones/leidas_todas", { method: "POST", credentials: "same-origin" });
     } catch (error) {
-      console.error("Error al actualizar contadores", error);
+      console.error("Error al marcar todas las notificaciones", error);
     }
+    fetchNotifs();
   }
 
   document.getElementById("mark-all").addEventListener("click", markAll);
   fetchNotifs();
 
-  // (Push eliminado) Solo in-app
 </script>
 {% endblock %}
+

@@ -1,5 +1,4 @@
-﻿from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
-import re
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app import db
 from app.models.usuario import Usuario
 from app.models.notificacion import Notificacion
@@ -16,23 +15,23 @@ def register():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         apellido = request.form.get('apellido')
-        telefono = request.form.get('telefono')
+        telefono = (request.form.get('telefono') or '').strip() or None
         correo = request.form.get('correo')
         contrasena = request.form.get('contrasena')
 
         try:
             usuario_existente = Usuario.query.filter_by(correo=correo).first()
             if usuario_existente:
-                flash('El correo ya estÃ¡ registrado.', 'error')
+                flash('El correo ya estÃÂ¡ registrado.', 'error')
                 return render_template('usuario/register.html')
         except Exception as e:
             print("Error al buscar el correo:", e)
             flash('Error interno al validar el usuario.', 'error')
             return render_template('usuario/register.html')
 
-        # Validar complejidad de contraseÃ±a
-        if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', (contrasena or '')):
-            flash('La contraseÃ±a debe tener mÃ­nimo 8 caracteres, 1 nÃºmero y 1 mayÃºscula', 'error')
+        # Validar longitud minima
+        if len((contrasena or '')) < 8:
+            flash('La contraseña debe tener minimo 8 caracteres', 'error')
             return render_template('usuario/register.html')
 
         try:
@@ -52,7 +51,7 @@ def register():
                     n = Notificacion(
                         usuario_id=a.id,
                         titulo='Nuevo usuario registrado',
-                        mensaje=f"Se registrÃ³ {nombre} {apellido}",
+                        mensaje=f"Se registrÃÂ³ {nombre} {apellido}",
                         tipo='usuario',
                         prioridad='baja',
                         data={"url": "/clientes"}
@@ -62,7 +61,7 @@ def register():
             except Exception:
                 db.session.rollback()
 
-            flash('Registro exitoso. Ya puedes iniciar sesiÃ³n.', 'success')
+            flash('Registro exitoso. Ya puedes iniciar sesiÃÂ³n.', 'success')
             return redirect(url_for('auth.login'))
 
         except Exception as e:
@@ -97,7 +96,7 @@ def actualizar_usuario(id):
         nuevo_rol = data['rol']
         roles_validos = {Usuario.ROL_CLIENTE, *Usuario.ROLES_ADMINISTRATIVOS}
         if nuevo_rol not in roles_validos:
-            return jsonify({'error': 'Rol no válido'}), 400
+            return jsonify({'error': 'Rol no vÃ¡lido'}), 400
         if usuario.es_superadmin() and nuevo_rol != usuario.rol:
             return jsonify({'error': 'No se puede cambiar el rol del superadministrador'}), 400
         usuario.rol = nuevo_rol
@@ -110,7 +109,7 @@ def eliminar_usuario(id):
         return jsonify({'error': 'No autorizado'}), 403
     usuario = Usuario.query.get_or_404(id)
     if usuario.es_superadmin() or id == PROTECTED_CLIENT_ID:
-        return jsonify({'error': 'Este usuario está protegido y no puede eliminarse'}), 400
+        return jsonify({'error': 'Este usuario estÃ¡ protegido y no puede eliminarse'}), 400
     db.session.delete(usuario)
     db.session.commit()
     return jsonify({'success': True}), 200
@@ -121,7 +120,7 @@ def obtener_barberos():
         from app.models.perfil import Perfil
         import json
         
-        # Obtener usuarios con rol de admin que actuarÃ¡n como barberos
+        # Obtener usuarios con rol de admin que actuarÃÂ¡n como barberos
         barberos = Usuario.query.filter(Usuario.rol.in_(Usuario.ROLES_ADMINISTRATIVOS)).all()
         
         resultado = []
@@ -135,7 +134,7 @@ def obtener_barberos():
                 try:
                     redes_sociales = json.loads(perfil.redes_sociales)
                 except:
-                    # Si hay un error al parsear el JSON, dejamos la lista vacÃ­a
+                    # Si hay un error al parsear el JSON, dejamos la lista vacÃa
                     pass
             
             # Crear objeto con los datos del barbero

@@ -61,7 +61,7 @@
       const searchTerm = searchInput.value.toLowerCase();
       return (
         `${user.nombre} ${user.apellido}`.toLowerCase().includes(searchTerm) ||
-        user.telefono.toLowerCase().includes(searchTerm) ||
+        (user.telefono || '').toLowerCase().includes(searchTerm) ||
         user.correo.toLowerCase().includes(searchTerm)
       );
     });
@@ -133,7 +133,7 @@
       tr.innerHTML = `
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${nombreLink}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.telefono}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.telefono ? user.telefono : '-'}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${user.correo}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">${roleLabel}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-center relative">${accionesHtml}</td>

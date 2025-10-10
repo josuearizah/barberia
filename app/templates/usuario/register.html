@@ -89,14 +89,14 @@
         </div>
         <div>
           <label for="telefono" class="block text-sm font-normal text-gray-300"
-            >Teléfono</label
+            >Teléfono <span class="text-xs text-gray-400">(opcional)</span></label
           >
           <input
             type="text"
             id="telefono"
             name="telefono"
-            required
             class="w-full mt-1 px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500 focus:bg-transparent"
+            placeholder="Ej. +57 300 000 0000"
           />
         </div>
         <div>
@@ -178,9 +178,7 @@
             formSelector: 'form',
             submitSelector: 'button[type="submit"]',
             ui: {
-              minLengthId: 'reg-pwd-min-length',
-              uppercaseId: 'reg-pwd-uppercase',
-              numberId: 'reg-pwd-number'
+              minLengthId: 'reg-pwd-min-length'
             }
           });
         }

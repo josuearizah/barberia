@@ -3,7 +3,6 @@ from app.models.usuario import Usuario
 from app.models.perfil import Perfil
 from app import db
 import json
-import re
 import os
 import cloudinary.uploader
 
@@ -129,7 +128,8 @@ def guardar_perfil():
     data = request.get_json() or {}
     usuario.nombre = data.get('nombre', usuario.nombre)
     usuario.apellido = data.get('apellido', usuario.apellido)
-    usuario.telefono = data.get('telefono', usuario.telefono)
+    telefono = (data.get('telefono') or '').strip()
+    usuario.telefono = telefono or None
 
     perfil = Perfil.query.filter_by(usuario_id=usuario.id).first()
     if not perfil:
@@ -265,14 +265,9 @@ def cambiar_contrasena():
     if new_password != confirm_password:
         return jsonify({'success': False, 'message': 'Las contraseñas no coinciden'}), 400
 
-    # Validación fuerte (desactivar por ahora; activar cuando lo requieras):
-    # import re
-    # if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', new_password):
-    #     return jsonify({'success': False, 'message': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
-    
-    # Validación fuerte unificada
-    if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', new_password):
-        return jsonify({'success': False, 'message': 'La contraseña debe tener mínimo 8 caracteres, 1 número y 1 mayúscula'}), 400
+    # Validación mínima
+    if len(new_password) < 8:
+        return jsonify({'success': False, 'message': 'La contraseña debe tener mínimo 8 caracteres'}), 400
 
     usuario.set_password(new_password)
     db.session.commit()

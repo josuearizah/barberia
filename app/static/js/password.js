@@ -203,8 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Elementos de validación
         const pwdMinLength = document.getElementById('pwd-min-length');
-        const pwdUppercase = document.getElementById('pwd-uppercase');
-        const pwdNumber = document.getElementById('pwd-number');
         const pwdMatch = document.getElementById('pwd-match');
         
         // Contenedor de reglas (oculto por defecto)
@@ -223,27 +221,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = newPassword.value;
             const confirmPwd = confirmPassword.value;
             
-            // Validar longitud mínima
+            // Validar longitud m�nima
             if (password.length >= 8) {
                 pwdMinLength.classList.replace('text-gray-400', 'text-green-400');
             } else {
                 pwdMinLength.classList.replace('text-green-400', 'text-gray-400');
             }
-            
-            // Validar mayúscula
-            if (/[A-Z]/.test(password)) {
-                pwdUppercase.classList.replace('text-gray-400', 'text-green-400');
-            } else {
-                pwdUppercase.classList.replace('text-green-400', 'text-gray-400');
-            }
-            
-            // Validar número
-            if (/[0-9]/.test(password)) {
-                pwdNumber.classList.replace('text-gray-400', 'text-green-400');
-            } else {
-                pwdNumber.classList.replace('text-green-400', 'text-gray-400');
-            }
-            
+
             // Validar coincidencia
             if (password && confirmPwd && password === confirmPwd) {
                 pwdMatch.classList.replace('text-gray-400', 'text-green-400');
@@ -252,12 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Habilitar/deshabilitar botón según validación
-            btnCambiar.disabled = !(
-                password.length >= 8 && 
-                /[A-Z]/.test(password) && 
-                /[0-9]/.test(password) && 
-                password === confirmPwd
-            );
+            btnCambiar.disabled = !(password.length >= 8 && password === confirmPwd);
             
             if (btnCambiar.disabled) {
                 btnCambiar.classList.add('opacity-50', 'cursor-not-allowed');

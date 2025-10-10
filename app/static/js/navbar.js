@@ -105,7 +105,20 @@ function loadUserData() {
 loadUserData();
 
 // Notifications: SSE stream + fallback count poll
+let notifFallbackIntervalId = null;
+let notifReconnectTimerId = null;
+let notifEventSource = null;
+let lastBroadcastSignature = null;
+let lastSnapshotDetail = null;
+if (typeof window !== 'undefined' && typeof window.__notificationsSseActive === 'undefined') {
+  window.__notificationsSseActive = null;
+}
+
+
 function updateNotifBadges(count) {
+  const numericValue = Number(count);
+  const safeCount = Number.isFinite(numericValue) ? Math.max(Math.trunc(numericValue), 0) : 0;
+
   const ids = [
     'notif-count',
     'notif-count-menu',
@@ -114,54 +127,152 @@ function updateNotifBadges(count) {
     'notif-count-hamburger'
   ];
 
-  const displayValue = count > 99 ? '99+' : String(count);
+  const displayValue = safeCount > 99 ? '99+' : String(safeCount);
   ids
     .map((id) => document.getElementById(id))
     .filter(Boolean)
     .forEach((el) => {
       el.textContent = displayValue;
-      if (count) {
-        el.classList.remove('hidden');
-      } else {
-        el.classList.add('hidden');
-      }
+      el.classList.toggle('hidden', safeCount === 0);
     });
+
+  return safeCount;
+}
+
+function stopFallbackPolling() {
+  if (notifFallbackIntervalId !== null) {
+    clearInterval(notifFallbackIntervalId);
+    notifFallbackIntervalId = null;
+  }
+}
+
+function startFallbackPolling() {
+  if (notifFallbackIntervalId !== null) {
+    return;
+  }
+  fetchNotifCountOnce();
+  notifFallbackIntervalId = setInterval(fetchNotifCountOnce, 10000);
+}
+
+function scheduleSseReconnect(delayMs = 30000) {
+  if (notifReconnectTimerId !== null) {
+    return;
+  }
+  notifReconnectTimerId = setTimeout(() => {
+    notifReconnectTimerId = null;
+    startSSE();
+  }, delayMs);
+}
+
+function broadcastNotifUpdate(snapshot) {
+  if (!snapshot || typeof snapshot !== 'object') {
+    return;
+  }
+  const detail = {
+    count: snapshot.count,
+    latest_id: snapshot.latest_id ?? 0,
+    last_activity: snapshot.last_activity ?? null,
+    latest_created: snapshot.latest_created ?? null
+  };
+  const signature = [detail.count, detail.latest_id, detail.last_activity ?? ''].join('|');
+  if (signature === lastBroadcastSignature) {
+    return;
+  }
+  lastBroadcastSignature = signature;
+  lastSnapshotDetail = detail;
+  window.__lastNotificationSnapshot = detail;
+  document.dispatchEvent(new CustomEvent('notifications:update', { detail }));
+}
+
+function handleNotifSnapshot(snapshot) {
+  if (!snapshot || typeof snapshot !== 'object') {
+    return;
+  }
+
+  const countNumeric = Number(snapshot.count);
+  const safeCount = Number.isFinite(countNumeric) ? Math.max(Math.trunc(countNumeric), 0) : 0;
+  const latestNumeric = Number(snapshot.latest_id);
+  const safeLatestId = Number.isFinite(latestNumeric) ? Math.max(Math.trunc(latestNumeric), 0) : 0;
+
+  const detail = {
+    count: safeCount,
+    latest_id: safeLatestId,
+    last_activity: snapshot.last_activity || null,
+    latest_created: snapshot.latest_created || null
+  };
+
+  updateNotifBadges(detail.count);
+  broadcastNotifUpdate(detail);
 }
 
 async function fetchNotifCountOnce() {
   try {
-    const res = await fetch('/api/notificaciones/unread_count');
+    const res = await fetch('/api/notificaciones/unread_count', { credentials: 'same-origin' });
+    if (!res.ok) {
+      throw new Error('Solicitud fallida');
+    }
     const data = await res.json();
-    updateNotifBadges(data.count || 0);
-  } catch (e) {
-    // ignore
+    const fallbackDetail = {
+      count: Number.isFinite(Number(data.count)) ? Math.max(Number(data.count), 0) : 0,
+      latest_id: lastSnapshotDetail?.latest_id ?? 0,
+      last_activity: lastSnapshotDetail?.last_activity ?? null,
+      latest_created: lastSnapshotDetail?.latest_created ?? null
+    };
+    handleNotifSnapshot(fallbackDetail);
+  } catch (error) {
+    console.error('Error al obtener conteo de notificaciones', error);
   }
 }
 
 function startSSE() {
+  if (typeof EventSource === 'undefined') {
+    startFallbackPolling();
+    return;
+  }
+
   try {
+    if (notifEventSource) {
+      notifEventSource.close();
+      notifEventSource = null;
+    }
+
     const es = new EventSource('/api/notificaciones/sse');
-    es.addEventListener('init', (e) => {
-      try { const d = JSON.parse(e.data); updateNotifBadges(d.count || 0); } catch {}
+    notifEventSource = es;
+    window.__notificationsSseActive = 'navbar';
+
+    es.addEventListener('update', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        handleNotifSnapshot(data);
+        stopFallbackPolling();
+      } catch (err) {
+        console.error('Error procesando notificaciones SSE', err);
+      }
     });
-    es.addEventListener('tick', (e) => {
-      try { const d = JSON.parse(e.data); updateNotifBadges(d.count || 0); } catch {}
-    });
+
     es.onerror = () => {
       es.close();
-      // fallback polling cada 30s
-      fetchNotifCountOnce();
-      setInterval(fetchNotifCountOnce, 30000);
+      notifEventSource = null;
+      if (window.__notificationsSseActive === 'navbar') {
+        window.__notificationsSseActive = null;
+      }
+      startFallbackPolling();
+      scheduleSseReconnect();
     };
-  } catch (e) {
-    fetchNotifCountOnce();
-    setInterval(fetchNotifCountOnce, 30000);
+  } catch (error) {
+    notifEventSource = null;
+    if (window.__notificationsSseActive === 'navbar') {
+      window.__notificationsSseActive = null;
+    }
+    startFallbackPolling();
+    scheduleSseReconnect();
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // Solo iniciar si hay sesión (el backend retornará 401 si no)
   startSSE();
+  fetchNotifCountOnce();
 });
 
 // Listener para actualizar el avatar cuando se cambia en perfil.js
@@ -206,3 +317,4 @@ mobileLinks.forEach((link) => {
     bar3.classList.remove("-rotate-45", "-translate-y-1.5");
   });
 });
+

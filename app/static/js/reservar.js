@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Referencias a elementos del DOM para servicios adicionales
     const primaryServiceSelect = document.getElementById('service_id');
     const addServiceBtn = document.getElementById('add-service-btn');
+    const params = new URLSearchParams(window.location.search);
+    const preselectedServiceId = params.get('service_id');
     const addServiceBtnContainer = document.getElementById('add-service-btn-container');
     const secondServiceContainer = document.getElementById('second-service-container');
     const secondServiceSelect = document.getElementById('second_service_id');
@@ -52,8 +54,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Lógica para servicios adicionales
     if (primaryServiceSelect) {
+        if (preselectedServiceId) {
+            const optionExists = Array.from(primaryServiceSelect.options).some((option) => option.value === preselectedServiceId);
+            if (optionExists) {
+                primaryServiceSelect.value = preselectedServiceId;
+            }
+        }
         // Actualizar visibilidad del botón al cargar la página
         updateAddServiceButtonVisibility();
+        updateSecondServiceOptions();
         
         // Actualizar visibilidad del botón cuando cambia el servicio principal
         primaryServiceSelect.addEventListener('change', function() {
