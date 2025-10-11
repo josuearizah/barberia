@@ -28,7 +28,11 @@ class Cita(db.Model):
     barbero = db.relationship('Usuario', foreign_keys=[barbero_id], backref=db.backref('citas_barbero', lazy=True))
     # Quitar backref para no colisionar con Servicio.citas ya existente
     servicio = db.relationship('Servicio', foreign_keys=[servicio_id], back_populates='citas')
-    servicio_adicional = db.relationship('Servicio', foreign_keys=[servicio_adicional_id])
+    servicio_adicional = db.relationship(
+        'Servicio',
+        foreign_keys=[servicio_adicional_id],
+        back_populates='citas_adicionales'
+    )
 
     def __repr__(self):
         return f'<Cita {self.fecha_cita} {self.hora} - Usuario {self.usuario_id} - Barbero {self.barbero_id}>'

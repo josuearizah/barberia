@@ -13,7 +13,12 @@ class Servicio(db.Model):
 
     # Relaciones
     citas = db.relationship('Cita', back_populates='servicio', foreign_keys='Cita.servicio_id', lazy=True)
-    citas_adicionales = db.relationship('Cita', foreign_keys='Cita.servicio_adicional_id', lazy=True)
+    citas_adicionales = db.relationship(
+        'Cita',
+        back_populates='servicio_adicional',
+        foreign_keys='Cita.servicio_adicional_id',
+        lazy=True
+    )
     descuento = db.relationship('Descuento', back_populates='servicio', uselist=False, lazy=True)
 
     def __repr__(self):
