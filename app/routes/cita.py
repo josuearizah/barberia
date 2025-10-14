@@ -148,11 +148,11 @@ def reservar_cita():
 
             def norm_phone(p): return re.sub(r'\D', '', p or '')
             same_name = bool(nombre_cliente) and nombre_cliente.lower() == full_name_db
-            same_phone = bool(telefono_cliente and usuario_actual.telefono) and norm_phone(telefono_cliente) == norm_phone(usuario_actual.telefono)
-
-            if same_name or same_phone:
+            # Regla: si el nombre coincide con el del usuario logueado, no guardar nombre personalizado.
+            if same_name:
                 nombre_cliente = None
-                telefono_cliente = None
+            # Regla: el teléfono que se escribe se respeta siempre.
+            # Si está vacío, quedará como None más abajo al crear la Cita.
 
             hora_reserva = (request.form['time'] or '').strip()
             hora_legible = _to_12h(hora_reserva).upper() if hora_reserva else hora_reserva

@@ -124,7 +124,7 @@
               {% endif %}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
-              {{ cita.telefono_cliente or cita.usuario.telefono or '-' }}
+              {{ cita.telefono_cliente or '-' }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_creacion="{{ cita.fecha_creacion.strftime('%Y-%m-%d') }}">{{ cita.fecha_creacion.strftime('%d/%m/%Y') }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200" data-fecha_cita="{{ cita.fecha_cita.strftime('%Y-%m-%d') }}">{{ cita.fecha_cita.strftime('%d/%m/%Y') }}</td>
